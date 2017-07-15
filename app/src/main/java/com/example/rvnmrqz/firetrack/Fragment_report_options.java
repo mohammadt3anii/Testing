@@ -1,6 +1,9 @@
 package com.example.rvnmrqz.firetrack;
 
 import android.Manifest;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -14,6 +17,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.Toast;
 
 import java.security.Permission;
@@ -26,6 +31,8 @@ public class Fragment_report_options extends Fragment {
     View myview;
     Button btnOnline,btnMessage;
     int PERMISSION_SMS = 10,PERMISSION_CALL=20;
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -36,12 +43,11 @@ public class Fragment_report_options extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         btnOnline = (Button) getActivity().findViewById(R.id.btnOnlineReport);
         btnMessage = (Button) getActivity().findViewById(R.id.btnMessage);
-
+        sharedPreferences = getActivity().getSharedPreferences(MySharedPref.SHAREDPREF_NAME, Context.MODE_PRIVATE);
+        checkShowDialog();
         buttonListeners();
-
     }
 
     protected void buttonListeners(){
@@ -111,5 +117,82 @@ public class Fragment_report_options extends Fragment {
        MainActivity_user.addToBackStack(new Fragment_create_message(),"sms_reporting");
     }
 
+
+
+    //REMINDER
+    protected void checkShowDialog(){
+        Log.wtf("checkshowdialog","called");
+        if(MainActivity_user.reminderIsShown==false){
+            String show = getSharedPrefData(MySharedPref.REMINDER);
+            if(show!=null){
+                show = show.trim();
+                switch (show){
+                    case "":
+                        Log.wtf("checkShowDialog","reminder is not empty");
+                        showReminder();
+                        break;
+                    case "no":
+                        //user selected dont show again
+                        Log.wtf("checkShowDialog","reminder is set to don't show again");
+                        break;
+                }
+            }else{
+                Log.wtf("checkShowDialog","show is null");
+                showReminder();
+            }
+        }
+    }
+    protected void showReminder(){
+        Log.wtf("ShowReminder","called");
+        MainActivity_user.reminderIsShown=true;
+        Log.wtf("showReminder","reminderisshown = "+MainActivity_user.reminderIsShown);
+        LayoutInflater inflater = getActivity().getLayoutInflater();
+        View dialog =  inflater.inflate(R.layout.dialog_reminder, null);
+        final CheckBox chk = (CheckBox) dialog.findViewById(R.id.chkDontShowAgain);
+        chk.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if(isChecked){
+                    setSharedPrefData(MySharedPref.REMINDER,"no");
+                }else{
+                    setSharedPrefData(MySharedPref.REMINDER,"");
+                }
+            }
+        });
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity());
+        builder.setTitle("Reminder");
+        builder.setMessage(R.string.reminder);
+        builder.setView(dialog);
+        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                //do nothing
+
+            }
+        });
+        builder.show();
+    }
+
+    //SHARED PREFERENCE GET AND SET
+    protected String getSharedPrefData(String key){
+        try {
+            String value = sharedPreferences.getString(key,"");
+            return value;
+        }catch (Exception ee){
+            Toast.makeText(getActivity(), "Error in getSharedPrefData", Toast.LENGTH_SHORT).show();
+            Log.wtf("getSharedPrefData: ERROR ",ee.getMessage());
+        }
+        return null;
+    }
+    protected void setSharedPrefData(String key, String value){
+        try{
+            editor = sharedPreferences.edit();
+            editor.putString(key,value);
+            editor.apply();
+        }catch (Exception ee){
+            Toast.makeText(getActivity(), "Error in setSharedPrefData", Toast.LENGTH_SHORT).show();
+            Log.wtf("setSharedPrefData: ERROR ",ee.getMessage());
+        }
+    }
 
 }

@@ -109,7 +109,7 @@ public class Fragment_online_reporting extends Fragment {
                // showLocationChoices();
             }
         });
-       // showLocationChoices();
+        showLocationChoices();
         btnSubmit = (Button) getActivity().findViewById(R.id.btnSubmit);
         btnSubmitListener();
         txtAdditionalInfo = (EditText) getActivity().findViewById(R.id.txtAdditionalInfo);
@@ -145,57 +145,61 @@ public class Fragment_online_reporting extends Fragment {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        boolean allTrue=true;
+        try{
+            boolean allTrue=true;
+          //  android.os.Process.killProcess(android.os.Process.myPid());
+            if(requestCode == CAMERA_PERMISSION){
+                for (int x=0;x<grantResults.length;x++){
+                    if(grantResults[x] == PackageManager.PERMISSION_DENIED){
+                        allTrue=false;
+                        break;
+                    }
+                }
+                if(allTrue){
+                    Log.wtf("permissionResult","Camera permissions are granted");
+                    Toast.makeText(getActivity(), "GRANTED", Toast.LENGTH_SHORT).show();
+                    openCamera();
+                }else{
+                    Log.wtf("permissionResult","Camera permissions are not all granted");
+                    Toast.makeText(getActivity(), "NOT GRANTED", Toast.LENGTH_SHORT).show();
+                }
+            }//end of permission check for camera
+            else if(requestCode == LOCATION_PERMISSION){
+                if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                    Log.wtf("permissionResult","Fine Location is granted");
+                    getCurrentLocation();
+                }else{
+                    Log.wtf("permissionResult","Fine Location is NOT granted");
+                    //NOT GRANTED
+                    boolean showRationale = shouldShowRequestPermissionRationale(permissions[0]);
+                    if(!showRationale){
+                        //USER SELECTED DO NOT SHOW AGAIN
+                        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+                        builder.setTitle("Allow Permission");
+                        builder.setMessage("You cannot use this function without permission. Please allow the permission.");
+                        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                startActivityForResult(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + BuildConfig.APPLICATION_ID)),OPEN_PERMISSION_REQUEST);
+                            }
+                        });
+                        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Toast.makeText(getActivity(), "You need to grant permission to use this", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                        builder.show();
+                    }
+                    else{
 
-        if(requestCode == CAMERA_PERMISSION){
-            for (int x=0;x<grantResults.length;x++){
-                if(grantResults[x] == PackageManager.PERMISSION_DENIED){
-                    allTrue=false;
-                    break;
+                    }
                 }
             }
-            if(allTrue){
-                Log.wtf("permissionResult","Camera permissions are granted");
-                Toast.makeText(getActivity(), "GRANTED", Toast.LENGTH_SHORT).show();
-                openCamera();
-            }else{
-                Log.wtf("permissionResult","Camera permissions are not all granted");
-                Toast.makeText(getActivity(), "NOT GRANTED", Toast.LENGTH_SHORT).show();
-            }
-        }//end of permission check for camera
-        else if(requestCode == LOCATION_PERMISSION){
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                Log.wtf("permissionResult","Fine Location is granted");
-                getCurrentLocation();
-            }else{
-                Log.wtf("permissionResult","Fine Location is NOT granted");
-                //NOT GRANTED
-                boolean showRationale = shouldShowRequestPermissionRationale(permissions[0]);
-                if(!showRationale){
-                    //USER SELECTED DO NOT SHOW AGAIN
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-                    builder.setTitle("Allow Permission");
-                    builder.setMessage("You cannot use this function without permission. Please allow the permission.");
-                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            startActivityForResult(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + BuildConfig.APPLICATION_ID)),OPEN_PERMISSION_REQUEST);
-                        }
-                    });
-                    builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(getActivity(), "You need to grant permission to use this", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    builder.show();
-                }
-                else{
-
-                }
-            }
+        }catch (Exception e){
+            Toast.makeText(getActivity(), "Exception Handled ", Toast.LENGTH_SHORT).show();
+            Log.wtf("onPermissionResult:ERROR",e.getMessage());
         }
-
     }
 
     @Override
@@ -301,7 +305,7 @@ public class Fragment_online_reporting extends Fragment {
                     case 2:
                         if(count==1){
                             count++;
-                            checkShowDialog();
+                          //  checkShowDialog();
                         }
                          //do nothing
                         break;
@@ -316,7 +320,7 @@ public class Fragment_online_reporting extends Fragment {
                 Log.wtf("onDismiss","Dialog is dismissed");
                 if(count==1){
                     count++;
-                   checkShowDialog();
+                 //  checkShowDialog();
                 }
             }
         });
@@ -326,7 +330,7 @@ public class Fragment_online_reporting extends Fragment {
                 Log.wtf("onCancel","dialog is canceled");
                 if(count==1){
                     count++;
-                    checkShowDialog();
+                  //  checkShowDialog();
                 }
             }
         });
@@ -590,6 +594,7 @@ public class Fragment_online_reporting extends Fragment {
         return result;
     }
 
+    /*
     //REMINDER
     protected void checkShowDialog(){
         Log.wtf("checkshowdialog","called");
@@ -661,4 +666,5 @@ public class Fragment_online_reporting extends Fragment {
             Log.wtf("setSharedPrefData: ERROR ",ee.getMessage());
         }
     }
+    */
 }

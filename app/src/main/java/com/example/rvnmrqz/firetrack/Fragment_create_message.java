@@ -135,7 +135,9 @@ public class Fragment_create_message extends Fragment {
         populateAutoCompleteBarangay();
         setDefaultBarangay();
 
-        checkShowDialog();
+       // checkShowDialog();
+
+        chkLocations.performClick();
     }
 
     @Override
@@ -399,12 +401,14 @@ public class Fragment_create_message extends Fragment {
 
             @Override
             public void onStatusChanged(String provider, int status, Bundle extras) {
-
+                Log.wtf("locationListener","onStatusChanged, status: "+status);
+                checkPermission();
             }
 
             @Override
             public void onProviderEnabled(String provider) {
-
+                Log.wtf("locationListener","onProviderEnabled: "+provider);
+                checkPermission();
             }
 
             @Override
@@ -480,13 +484,10 @@ public class Fragment_create_message extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
 
-        if(requestCode==12){
+        if(requestCode==100){
             //check if the location is enabled
             if(isLocationEnabled(getActivity())){
-                chkLocations.setChecked(true);
-                txtLocationResult.setText(results[1]);
-                txtLocationResult.setTextColor(colors[1]);
-                getLocation();
+                checkPermission();
             }
         }
         super.onActivityResult(requestCode, resultCode, data);

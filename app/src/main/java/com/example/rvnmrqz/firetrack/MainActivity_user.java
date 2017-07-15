@@ -68,6 +68,7 @@ public class MainActivity_user extends AppCompatActivity {
     Button btnReport, btnMyReports, btnFeed_message;
     public static FragmentManager fragmentManager;
     DBHelper dbHelper;
+    public static boolean reminderIsShown = false;
 
 
     ArrayList<String> post_id;
