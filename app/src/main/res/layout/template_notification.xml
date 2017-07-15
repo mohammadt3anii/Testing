@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="6sp"
+    android:orientation="vertical">
+    <TextView
+        android:text="Fire Report Response"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        android:id="@+id/notifTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:text="06:25 06/07/2017"
+        android:id="@+id/notif_datetime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:textSize="18sp"
+        android:text="Your report is approv"
+        android:id="@+id/notif_mesage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

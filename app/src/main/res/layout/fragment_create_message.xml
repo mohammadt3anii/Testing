@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+  >
+
+    <ScrollView
+        android:paddingTop="8dp"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:text="Barangay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <AutoCompleteTextView
+                android:inputType="textNoSuggestions"
+                android:hint="Barangay Name"
+                android:selectAllOnFocus="true"
+                android:id="@+id/autoComplete_Barangay"
+                android:completionThreshold="1"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:text="Number"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/txtSMSNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="Message"
+                    android:layout_alignParentLeft="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:text="0/160"
+                    android:id="@+id/txtCharCounter"
+                    android:layout_alignParentRight="true"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </RelativeLayout>
+            <EditText
+                android:id="@+id/txtMessageBody"
+                android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-ñ 1234567890"
+                android:gravity="left"
+                android:hint="Type Here"
+                android:lines="6"
+                android:maxLines="9"
+                android:maxLength="160"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <CheckBox
+                android:id="@+id/checkboxLocation"
+                android:text="Add my current location (Recommended)"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/txtLocationResult"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:text="Note: Adding your location will greatly help us locate the fire's location"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/btnSendMessage"
+                android:layout_marginTop="16dp"
+                android:layout_alignParentBottom="true"
+                android:text="  Send SMS"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:background="@color/colorPrimary"
+                android:drawableLeft="@drawable/ic_send_black_24dp"
+                android:textColor="#ffffff"
+                android:paddingLeft="50dp"
+                android:paddingRight="50dp"
+                android:gravity="left|center_vertical"
+                />
+        </LinearLayout>
+    </ScrollView>
+
+
+
+
+</LinearLayout>

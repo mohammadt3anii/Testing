@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.rvnmrqz.firetrack.Activity_Login"
+    android:paddingBottom="24dp"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    >
+
+    <TextView
+        android:layout_alignParentBottom="true"
+        android:textAlignment="center"
+        android:text="Sign up for Account"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/txtSignup"/>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true">
+        <RelativeLayout
+            android:layout_marginBottom="20dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_centerInParent="true"
+                android:id="@+id/apptitle"
+                android:textColor="#BC4C38"
+                android:textStyle="bold"
+                android:textSize="50sp"
+                android:textAlignment="center"
+                android:text="FireTRACK"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:textColor="#BC4C38"
+                android:textSize="20sp"
+                android:layout_toRightOf="@id/apptitle"
+                android:text="®"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:textColor="#BC4C38"
+                android:textAlignment="center"
+                android:layout_below="@id/apptitle"
+                android:id="@+id/txt_appVersion"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+        <EditText
+            android:maxLength="254"
+            android:id="@+id/txtEmail"
+            android:hint="Email"
+            android:inputType="textWebEmailAddress"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <EditText
+            android:maxLength="128"
+            style="@android:style/Widget.EditText"
+            android:id="@+id/txtPassword"
+            android:hint="Password"
+            android:fontFamily="sans-serif"
+            android:inputType="textPassword"
+            android:textAlignment="center"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <Button
+            android:textColor="#ffffff"
+            android:background="#BC4C38"
+            android:onClick="btnLoginClick"
+            android:id="@+id/btnSignin"
+            android:text="Sign in"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:padding="8dp"
+            android:visibility="invisible"
+            android:enabled="false"
+            android:id="@+id/lblForgotPass"
+            android:textAlignment="center"
+            android:text="Forgot Password?"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+</RelativeLayout>
