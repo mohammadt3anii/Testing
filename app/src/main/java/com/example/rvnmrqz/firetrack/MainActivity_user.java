@@ -59,8 +59,8 @@ import java.util.Map;
 public class MainActivity_user extends AppCompatActivity {
 
 
-    FrameLayout frame1;
-    FrameLayout frame2,frame3;
+    LinearLayout frame1;
+    LinearLayout frame2,frame3;
     LinearLayout initialLayout,feed_postLayout,feed_messageLayout,feed_loadingLayout;
     TextView feed_messageTV;
     SwipeRefreshLayout feed_swipeRefreshLayout;
@@ -121,9 +121,9 @@ public class MainActivity_user extends AppCompatActivity {
         user_act = MainActivity_user.this;
         dbHelper = new DBHelper(this);
 
-        frame1 = (FrameLayout) findViewById(R.id.report_framelayout);
-        frame2 = (FrameLayout) findViewById(R.id.news_framelayout);
-        frame3 = (FrameLayout) findViewById(R.id.notification_framelayout);
+        frame1 = (LinearLayout) findViewById(R.id.report_framelayout);
+        frame2 = (LinearLayout) findViewById(R.id.news_framelayout);
+        frame3 = (LinearLayout) findViewById(R.id.notification_framelayout);
         initialLayout = (LinearLayout) findViewById(R.id.initial_layout);
 
         btnReport = (Button) findViewById(R.id.btnReportFire);
@@ -162,6 +162,9 @@ public class MainActivity_user extends AppCompatActivity {
         }else{
             Log.wtf("Sync Notif", "SyncNotif length is not 0, value is "+syncNotif);
         }
+
+        showFrame1();
+
     }
 
     //FRAME 1****************************************************************

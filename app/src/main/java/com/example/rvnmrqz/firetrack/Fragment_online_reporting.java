@@ -106,10 +106,10 @@ public class Fragment_online_reporting extends Fragment {
         txtLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                showLocationChoices();
+               // showLocationChoices();
             }
         });
-        showLocationChoices();
+       // showLocationChoices();
         btnSubmit = (Button) getActivity().findViewById(R.id.btnSubmit);
         btnSubmitListener();
         txtAdditionalInfo = (EditText) getActivity().findViewById(R.id.txtAdditionalInfo);
@@ -138,7 +138,6 @@ public class Fragment_online_reporting extends Fragment {
         Cursor c = dbhelper.getSqliteData("SELECT "+dbhelper.COL_ACC_ID+" FROM "+dbhelper.TABLE_USER+" WHERE "+dbhelper.COL_USER_LOC_ID+"=1");
         if(c != null){
             c.moveToFirst();
-
                 user_account_id = c.getString(c.getColumnIndex(dbhelper.COL_ACC_ID));
         }
     }
