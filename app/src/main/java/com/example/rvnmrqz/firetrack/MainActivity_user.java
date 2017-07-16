@@ -1,12 +1,16 @@
 package com.example.rvnmrqz.firetrack;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
@@ -23,15 +27,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
-import android.widget.FrameLayout;
-import android.widget.HeaderViewListAdapter;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -49,11 +48,9 @@ import com.android.volley.toolbox.Volley;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MainActivity_user extends AppCompatActivity {
@@ -144,13 +141,12 @@ public class MainActivity_user extends AppCompatActivity {
         btnFeed_message = (Button) findViewById(R.id.feed_messageButton);
         fragmentManager = getSupportFragmentManager();
 
-        post_id= new ArrayList<String>();
-        postername = new ArrayList<String>();
-        postdatetime = new ArrayList<String>();
-        postmessage = new ArrayList<String>();
-        postpicture = new ArrayList<String>();
+        post_id= new ArrayList<>();
+        postername = new ArrayList<>();
+        postdatetime = new ArrayList<>();
+        postmessage = new ArrayList<>();
+        postpicture = new ArrayList<>();
 
-      //  contactList = new ArrayList<Object_Posts>();
         footerView =  ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.listview_loading_footer, null, false);
         loadFeed();
 
@@ -165,6 +161,11 @@ public class MainActivity_user extends AppCompatActivity {
         }
 
         showFrame1();
+
+        String extra = getIntent().getStringExtra("notif");
+        if(extra!=null){
+          showFrame3();
+        }
 
     }
 
@@ -585,11 +586,13 @@ public class MainActivity_user extends AppCompatActivity {
             startActivity(new Intent(MainActivity_user.this,Activity_DatabaseManager.class));
         }
         else if(id == R.id.menu_startService){
-
-            startService(new Intent(MainActivity_user.this,Service_NotificationListener.class));
-        }
-        else if(id == R.id.menu_stopService){
-            stopService(new Intent(MainActivity_user.this,Service_NotificationListener.class));
+                if(isMyServiceRunning(Service_Notification.class)){
+                    stopService(new Intent(MainActivity_user.this, Service_Notification.class));
+                    Toast.makeText(this, "Service Stopped", Toast.LENGTH_SHORT).show();
+                }else{
+                    startService(new Intent(MainActivity_user.this,Service_Notification.class));
+                    Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
+                }
         }
         else if(id == android.R.id.home){
             goBack();
@@ -598,8 +601,6 @@ public class MainActivity_user extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
-
-
     protected void logout(){
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Logging out");
@@ -622,5 +623,23 @@ public class MainActivity_user extends AppCompatActivity {
             }
         });
         builder.show();
+    }
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    //Asynctask Class for notificationlistview
+    public class BackGroundWorker extends AsyncTask<Cursor,Cursor,Cursor>{
+
+        @Override
+        protected Cursor doInBackground(Cursor... params) {
+            return null;
+        }
     }
 }

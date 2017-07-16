@@ -40,7 +40,7 @@
             android:name=".Activity_DatabaseManager"
             android:theme="@style/Theme.AppCompat.Light" />
 
-        <service android:name=".Service_NotificationListener"
+        <service android:name=".Service_Notification"
                  android:exported="false"/>
 
     </application>

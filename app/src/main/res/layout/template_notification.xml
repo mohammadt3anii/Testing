@@ -18,7 +18,7 @@
         android:layout_height="wrap_content" />
     <TextView
         android:textSize="18sp"
-        android:text="Your report is approv"
+        android:text="Your report is approve"
         android:id="@+id/notif_mesage"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

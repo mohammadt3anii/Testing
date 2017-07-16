@@ -1,12 +1,15 @@
 package com.example.rvnmrqz.firetrack;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -21,7 +24,6 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -31,7 +33,7 @@ import java.util.TimerTask;
  * Created by arvin on 7/10/2017.
  */
 
-public class Service_NotificationListener extends Service {
+public class Service_Notification extends Service {
 
     DBHelper dbhelper;
     static int maxNotifId;
@@ -45,6 +47,7 @@ public class Service_NotificationListener extends Service {
     boolean continueCount=true;
 
     NotificationManager nm;
+    NotificationCompat.Builder b;
     RequestQueue requestQueue;
 
     @Nullable
@@ -158,7 +161,7 @@ public class Service_NotificationListener extends Service {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        insert(response);
+                       insert(response);
                        restartCounting();
                     }
                 },
@@ -188,8 +191,6 @@ public class Service_NotificationListener extends Service {
             JSONObject object = new JSONObject(response);
             JSONArray Jarray  = object.getJSONArray("mydata");
 
-
-
             for (int i = 0; i < Jarray.length(); i++)
             {
                 JSONObject Jasonobject = Jarray.getJSONObject(i);
@@ -211,7 +212,8 @@ public class Service_NotificationListener extends Service {
                 dbhelper.insertNotification(id,sender,title,msg,datetime,personal,opened);
             }
             if(Jarray.length()>0){
-                Toast.makeText(Service_NotificationListener.this, "Response Received", Toast.LENGTH_SHORT).show();
+                //there is new notification
+                showNotification();
                 int tmp = getLastNotificationId();
                 if(tmp>maxNotifId){
                     //there is a notification
@@ -225,7 +227,7 @@ public class Service_NotificationListener extends Service {
             }
 
         }catch (Exception ee){
-            Toast.makeText(Service_NotificationListener.this,ee.getMessage(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(Service_Notification.this,ee.getMessage(),Toast.LENGTH_SHORT).show();
         }
     }
     
@@ -247,5 +249,26 @@ public class Service_NotificationListener extends Service {
             Log.wtf("getLastNotificationId","c is null");
             return 0;
         }
+    }
+
+    protected void showNotification(){
+        final Intent mainIntent = new Intent(this,MainActivity_user.class);
+        mainIntent.putExtra("notif","notify");
+        final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
+                (mainIntent), PendingIntent.FLAG_UPDATE_CURRENT);
+
+
+        b = new NotificationCompat.Builder(this);
+        b.setAutoCancel(true)
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setOngoing(false)
+                .setWhen(System.currentTimeMillis())
+                .setSmallIcon(R.drawable.fire)
+                .setTicker("New Notification Received")
+                .setContentTitle("FireTRACK")
+                .setContentText("New Notification")
+                .setContentIntent(pendingIntent);
+        nm = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE);
+        nm.notify(100, b.build());
     }
 }
