@@ -7,6 +7,7 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -106,6 +107,14 @@ public class Fragment_report_options extends Fragment {
             if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
                 Log.wtf("RequestResult","Granted");
                 Toast.makeText(getActivity(), "You can now use SMS function", Toast.LENGTH_SHORT).show();
+
+                //to fix, ERROR: Can not perform this action after onSaveInstanceState
+                new Handler().post(new Runnable() {
+                    public void run() {
+                       openCreateMessage();
+                    }
+                });
+
             }else{
                 Log.wtf("RequestResult","denied");
                 Toast.makeText(getActivity(),"Grant the permission before using this",Toast.LENGTH_SHORT).show();

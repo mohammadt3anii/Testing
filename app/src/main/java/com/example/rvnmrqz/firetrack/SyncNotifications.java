@@ -148,6 +148,7 @@ public class SyncNotifications
 
             }
 
+
             Log.wtf("onResponse","Notif is inserted");
 
         }catch (Exception ee){

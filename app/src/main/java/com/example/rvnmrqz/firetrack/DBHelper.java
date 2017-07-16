@@ -208,6 +208,7 @@ public class DBHelper extends SQLiteOpenHelper {
         try {
             SQLiteDatabase db = getWritableDatabase();
             Cursor cursor = db.rawQuery(qry,null);
+            Log.wtf("getSliteData- Content: ",""+cursor);
             return cursor;
         }catch (Exception e){
             Log.wtf("getSQLiteData",e.getMessage());

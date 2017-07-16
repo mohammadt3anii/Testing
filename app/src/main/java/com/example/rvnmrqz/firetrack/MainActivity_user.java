@@ -12,7 +12,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -20,6 +23,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Layout;
 import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -45,9 +49,11 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.ms.square.android.expandabletextview.ExpandableTextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -64,7 +70,7 @@ public class MainActivity_user extends AppCompatActivity {
     ListView feed_listview;
     Button btnReport, btnMyReports, btnFeed_message;
     public static FragmentManager fragmentManager;
-    DBHelper dbHelper;
+    static DBHelper dbHelper;
     public static boolean reminderIsShown = false;
 
 
@@ -73,7 +79,13 @@ public class MainActivity_user extends AppCompatActivity {
     ArrayList<String> postdatetime;
     ArrayList<String> postmessage;
     ArrayList<String> postpicture;
-    MyAdapter adapter;
+    FeedAdapter adapter;
+
+     ListView notif_listview;
+     ArrayList<String> notif_titles;
+     ArrayList<String> notif_datetime;
+     ArrayList<String> notif_messages;
+     NotificationAdapter notif_adapter;
 
     int sql_limit=5;
     int sql_offset=0;
@@ -116,7 +128,6 @@ public class MainActivity_user extends AppCompatActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-        user_act = MainActivity_user.this;
         dbHelper = new DBHelper(this);
 
         frame1 = (LinearLayout) findViewById(R.id.report_framelayout);
@@ -141,30 +152,41 @@ public class MainActivity_user extends AppCompatActivity {
         btnFeed_message = (Button) findViewById(R.id.feed_messageButton);
         fragmentManager = getSupportFragmentManager();
 
+        //arraylist of adapter feed
         post_id= new ArrayList<>();
         postername = new ArrayList<>();
         postdatetime = new ArrayList<>();
         postmessage = new ArrayList<>();
         postpicture = new ArrayList<>();
 
-        footerView =  ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.listview_loading_footer, null, false);
-        loadFeed();
+        //arraylist of adapter notifications
+        notif_titles = new ArrayList<>();
+        notif_datetime = new ArrayList<>();
+        notif_messages = new ArrayList<>();
+        notif_listview = (ListView) findViewById(R.id.notif_listview);
 
+
+        footerView =  ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.listview_loading_footer, null, false);
         SharedPreferences sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
         String syncNotif = sharedPreferences.getString(MySharedPref.NOTIF,"");
         if(syncNotif.length()==0){
             //to sync notif
+            //sync is not yet done
             Log.wtf("Sync Notif","SyncNotif have 0 length");
             new SyncNotifications(MainActivity_user.this,1);
         }else{
+            //already done syncing before
             Log.wtf("Sync Notif", "SyncNotif length is not 0, value is "+syncNotif);
+            loadNotifications();
         }
 
-        showFrame1();
+        loadFeed();
 
         String extra = getIntent().getStringExtra("notif");
         if(extra!=null){
-          showFrame3();
+            showFrame3();
+        }else{
+            showFrame1();
         }
 
     }
@@ -288,7 +310,7 @@ public class MainActivity_user extends AppCompatActivity {
         requestQueue.add(request);
     }
     protected void setListViewAdapter(){
-        adapter = new MyAdapter(MainActivity_user.this,post_id,postername,postdatetime,postmessage,postpicture);
+        adapter = new FeedAdapter(MainActivity_user.this,post_id,postername,postdatetime,postmessage,postpicture);
         feed_listview.setAdapter(adapter);
         listViewListners();
     }
@@ -388,7 +410,7 @@ public class MainActivity_user extends AppCompatActivity {
                                         postpicture.add(encoded_post_picture);
                                     }
                                     adapter.notifyDataSetChanged();
-                                  //  adapter = new MyAdapter(MainActivity_user.this,post_id,postername,postdatetime,postmessage,postpicture);
+                                  //  adapter = new FeedAdapter(MainActivity_user.this,post_id,postername,postdatetime,postmessage,postpicture);
                                   //  feed_listview.setAdapter(adapter);
                                     Log.wtf("Loadmore","Loaded "+Jarray.length());
                                     sql_offset = sql_offset+Jarray.length();
@@ -422,9 +444,8 @@ public class MainActivity_user extends AppCompatActivity {
         };
         requestQueue.add(request);
     }
-
     // POST LISTVIEW ADAPTER
-    class MyAdapter extends ArrayAdapter {
+    class FeedAdapter extends ArrayAdapter {
         ArrayList<String> post_id= new ArrayList<String>();
         ArrayList<String> postername = new ArrayList<String>();
         ArrayList<String> postdatetime = new ArrayList<String>();
@@ -432,7 +453,7 @@ public class MainActivity_user extends AppCompatActivity {
         ArrayList<String> postpicture = new ArrayList<String>();
 
 
-        public MyAdapter(Context context, ArrayList<String> post_id, ArrayList<String> postername,   ArrayList<String> postdatetime,  ArrayList<String> postmessage,  ArrayList<String> postpicture) {
+        public FeedAdapter(Context context, ArrayList<String> post_id, ArrayList<String> postername,   ArrayList<String> postdatetime,  ArrayList<String> postmessage,  ArrayList<String> postpicture) {
             //Overriding Default Constructor off ArratAdapter
             super(context, R.layout.template_post,R.id.post_id,post_id);
             this.post_id = post_id;
@@ -480,12 +501,56 @@ public class MainActivity_user extends AppCompatActivity {
     //***********************************************************************
 
     //FRAME 3****************************************************************
-    protected void loadNotifications(){
-
+    public  void loadNotifications(){
+        Log.wtf("loadNotifications","Start");
+        dbHelper = new DBHelper(getApplicationContext());
+        Cursor c = dbHelper.getSqliteData("SELECT * FROM "+dbHelper.TABLE_NOTIFICATION+";");
+        c.moveToFirst();
+        Log.wtf("loadNotifications","Cursor c: "+c.getCount());
+        int counter=0;
+        int cursorLength = c.getCount();
+        while(counter<cursorLength){
+            notif_titles.add(c.getString(c.getColumnIndex(dbHelper.COL_NOTIF_TITLE)));
+            notif_datetime.add(c.getString(c.getColumnIndex(dbHelper.COL_NOTIF_DATETIME)));
+            notif_messages.add(c.getString(c.getColumnIndex(dbHelper.COL_NOTIF_MESSAGE)));
+            counter++;
+            c.moveToNext();
+        }
+        if(cursorLength>0){
+            notif_adapter = new NotificationAdapter(getApplicationContext(),notif_titles,notif_datetime,notif_messages);
+            notif_listview.setAdapter(notif_adapter);
+        }
     }
-    protected void syncNotifications(){
+    class NotificationAdapter extends ArrayAdapter{
+         ArrayList<String> notif_titles = new ArrayList<>();
+         ArrayList<String> notif_datetime = new ArrayList<>();
+         ArrayList<String> notif_messages = new ArrayList<>();
+        public NotificationAdapter(@NonNull Context context, ArrayList<String> notif_titles, ArrayList<String> notif_datetime, ArrayList<String> notif_messages) {
+            super(context, R.layout.template_notification, R.id.notif_title,notif_titles);
 
+            this.notif_titles=notif_titles;
+            this.notif_datetime=notif_datetime;
+            this.notif_messages=notif_messages;
+        }
+
+        @NonNull
+        @Override
+        public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
+            LayoutInflater layoutInflater = getLayoutInflater();
+            View row = layoutInflater.inflate(R.layout.template_notification,parent,false);
+
+            TextView txtTitle = (TextView) row.findViewById(R.id.notif_title);
+            TextView txtDateTime = (TextView) row.findViewById(R.id.notif_datetime);
+            ExpandableTextView txtMessage = (ExpandableTextView) row.findViewById(R.id.notif_message);
+
+            txtTitle.setText(notif_titles.get(position));
+            txtMessage.setText(notif_messages.get(position));
+            txtDateTime.setText(notif_datetime.get(position));
+
+            return row;
+        }
     }
+    //***********************************************************************
 
     //FRAME TRANSITIONS
     protected void showFrame1(){
@@ -634,12 +699,7 @@ public class MainActivity_user extends AppCompatActivity {
         return false;
     }
 
-    //Asynctask Class for notificationlistview
-    public class BackGroundWorker extends AsyncTask<Cursor,Cursor,Cursor>{
 
-        @Override
-        protected Cursor doInBackground(Cursor... params) {
-            return null;
-        }
-    }
+
+        
 }
