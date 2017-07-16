@@ -29,7 +29,6 @@ public class SyncNotifications
 
     //this is only for one time use for downloading the notifications into the sqlite database
 
-
     public RequestQueue requestQueue;
     final DBHelper dbHelper;
     Context context;
