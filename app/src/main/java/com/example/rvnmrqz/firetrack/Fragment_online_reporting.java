@@ -106,7 +106,7 @@ public class Fragment_online_reporting extends Fragment {
         txtLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               // showLocationChoices();
+               showLocationChoices();
             }
         });
         showLocationChoices();
