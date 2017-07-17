@@ -84,9 +84,9 @@ public class Fragment_online_reporting extends Fragment {
     private LocationListener locationListener;
     String coordinates =null;
     String user_account_id;
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
-    int count=0;
+
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -98,7 +98,7 @@ public class Fragment_online_reporting extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        sharedPreferences = getActivity().getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
+
 
         imgProof = (ImageView) getActivity().findViewById(R.id.img_proof);
         imgClickListener();
@@ -267,7 +267,7 @@ public class Fragment_online_reporting extends Fragment {
     }
 
     protected void showLocationChoices(){
-        count++;
+
         Log.wtf("Dialog","Location Choices shown");
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity());
         builder.setTitle("Location to use");
@@ -303,10 +303,7 @@ public class Fragment_online_reporting extends Fragment {
                         getCurrentLocation();
                         break;
                     case 2:
-                        if(count==1){
-                            count++;
-                          //  checkShowDialog();
-                        }
+
                          //do nothing
                         break;
                     }
@@ -318,90 +315,18 @@ public class Fragment_online_reporting extends Fragment {
             @Override
             public void onDismiss(DialogInterface dialog) {
                 Log.wtf("onDismiss","Dialog is dismissed");
-                if(count==1){
-                    count++;
-                 //  checkShowDialog();
-                }
+
             }
         });
         alert.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
                 Log.wtf("onCancel","dialog is canceled");
-                if(count==1){
-                    count++;
-                  //  checkShowDialog();
-                }
+
             }
         });
         alert.show();
 
-    }
-
-
-    //SENDING
-    protected void btnSubmitListener(){
-        btnSubmit.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(coordinates!=null){
-                    showLoadingDialog();
-                    //validate then send
-                    String server_url = ServerInfoClass.HOST_ADDRESS+"/do_query.php";
-                    RequestQueue requestQue = Volley.newRequestQueue(getActivity());
-                    StringRequest stringReq = new StringRequest(Request.Method.POST, server_url,
-                            new Response.Listener<String>() {
-                                @Override
-                                public void onResponse(String response) {
-                                    Log.wtf("Report Response",response);
-                                    closeLoadingDialog();
-
-                                    if(response.trim().equals("Process Successful")){
-                                        //close reporting
-                                        Toast.makeText(getActivity(), "Report Sent", Toast.LENGTH_SHORT).show();
-                                        Fragment_online_reporting.super.getActivity().onBackPressed();
-                                    }
-                                    else{
-                                        Toast.makeText(getActivity(), "Report Failed", Toast.LENGTH_SHORT).show();
-                                    }
-                                }
-                            },
-                            new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    if(error==null){
-                                        Toast.makeText(getActivity(), "No Response from server", Toast.LENGTH_SHORT).show();
-                                    }
-                                    closeLoadingDialog();
-                                }
-                    }){
-                        @Override
-                        protected Map<String, String> getParams() throws AuthFailureError {
-                            String query = "INSERT INTO tbl_reports(reporter_id,report_status,report_datetime,additional_info,coordinates,picture)" +
-                                    "VALUES("+user_account_id+", 'PENDING', NOW(), '"+txtAdditionalInfo.getText().toString().trim()+"','"+coordinates+"','"+encodedImage+"');";
-                            Map<String,String> params = new HashMap<String, String>();
-                            params.put("query",query);
-                            return params;
-                        }
-                    };
-                    requestQue.add(stringReq);
-                }//END OF COORDINATES IS NOT NULL
-                else{
-                    txtLocation.requestFocus();
-                    txtLocation.setError("No Location Given");
-                }
-            }
-        });
-    }
-    private void showLoadingDialog(){
-        pd.setTitle("Submitting");
-        pd.setMessage("Please wait...");
-        pd.show();
-
-    }
-    private void closeLoadingDialog(){
-        pd.hide();
-        pd.dismiss();
     }
 
     //LOCATION
@@ -594,77 +519,69 @@ public class Fragment_online_reporting extends Fragment {
         return result;
     }
 
-    /*
-    //REMINDER
-    protected void checkShowDialog(){
-        Log.wtf("checkshowdialog","called");
-        String show = getSharedPrefData(MySharedPref.REMINDER);
-        if(show!=null){
-            show = show.trim();
-            switch (show){
-                case "":
-                    Log.wtf("checkShowDialog","reminder is not empty");
-                    showReminder();
-                    break;
-                case "no":
-                    //user selected dont show again
-                    Log.wtf("checkShowDialog","reminder is set to don't show again");
-                    break;
-            }
-        }else{
-            Log.wtf("checkShowDialog","show is null");
-            showReminder();
-        }
-    }
-    protected void showReminder(){
-        Log.wtf("ShowReminder","called");
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        View dialog =  inflater.inflate(R.layout.dialog_reminder, null);
-        final CheckBox chk = (CheckBox) dialog.findViewById(R.id.chkDontShowAgain);
-        chk.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+    //SENDING
+    protected void btnSubmitListener(){
+        btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    setSharedPrefData(MySharedPref.REMINDER,"no");
-                }else{
-                    setSharedPrefData(MySharedPref.REMINDER,"");
+            public void onClick(View v) {
+                if(coordinates!=null){
+                    showLoadingDialog();
+                    String server_url = ServerInfoClass.HOST_ADDRESS+"/do_query.php";
+                    RequestQueue requestQue = Volley.newRequestQueue(getActivity());
+                    StringRequest stringReq = new StringRequest(Request.Method.POST, server_url,
+                            new Response.Listener<String>() {
+                                @Override
+                                public void onResponse(String response) {
+                                    Log.wtf("Report Response",response);
+                                    closeLoadingDialog();
+
+                                    if(response.trim().equals("Process Successful")){
+                                        //close reporting
+                                        Toast.makeText(getActivity(), "Report Sent", Toast.LENGTH_SHORT).show();
+                                        Fragment_online_reporting.super.getActivity().onBackPressed();
+                                    }
+                                    else{
+                                        Toast.makeText(getActivity(), "Report Failed", Toast.LENGTH_SHORT).show();
+                                    }
+                                }
+                            },
+                            new Response.ErrorListener() {
+                                @Override
+                                public void onErrorResponse(VolleyError error) {
+                                    if(error==null){
+                                        Toast.makeText(getActivity(), "No Response from server", Toast.LENGTH_SHORT).show();
+                                    }
+                                    closeLoadingDialog();
+                                }
+                            }){
+                        @Override
+                        protected Map<String, String> getParams() throws AuthFailureError {
+                            String query = "INSERT INTO tbl_reports(reporter_id,report_status,report_datetime,additional_info,coordinates,picture)" +
+                                    "VALUES("+user_account_id+", 'PENDING', NOW(), '"+txtAdditionalInfo.getText().toString().trim()+"','"+coordinates+"','"+encodedImage+"');";
+                            Map<String,String> params = new HashMap<String, String>();
+                            params.put("query",query);
+                            return params;
+                        }
+                    };
+                    requestQue.add(stringReq);
+                }//END OF COORDINATES IS NOT NULL
+                else{
+                    txtLocation.requestFocus();
+                    txtLocation.setError("No Location Given");
                 }
             }
         });
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity());
-        builder.setTitle("Reminder");
-        builder.setMessage(R.string.reminder);
-        builder.setView(dialog);
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //do nothing
+    }
+    private void showLoadingDialog(){
+        pd.setTitle("Submitting");
+        pd.setMessage("Please wait...");
+        pd.show();
 
-            }
-        });
-        builder.show();
+    }
+    private void closeLoadingDialog(){
+        pd.hide();
+        pd.dismiss();
     }
 
-    //SHARED PREFERENCE GET AND SET
-    protected String getSharedPrefData(String key){
-        try {
-            String value = sharedPreferences.getString(key,"");
-            return value;
-        }catch (Exception ee){
-            Toast.makeText(getActivity(), "Error in getSharedPrefData", Toast.LENGTH_SHORT).show();
-            Log.wtf("getSharedPrefData: ERROR ",ee.getMessage());
-        }
-        return null;
-    }
-    protected void setSharedPrefData(String key, String value){
-        try{
-            editor = sharedPreferences.edit();
-            editor.putString(key,value);
-            editor.apply();
-        }catch (Exception ee){
-            Toast.makeText(getActivity(), "Error in setSharedPrefData", Toast.LENGTH_SHORT).show();
-            Log.wtf("setSharedPrefData: ERROR ",ee.getMessage());
-        }
-    }
-    */
+
 }

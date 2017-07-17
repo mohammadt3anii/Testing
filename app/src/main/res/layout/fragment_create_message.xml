@@ -60,17 +60,21 @@
                 android:maxLength="160"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-            <CheckBox
-                android:id="@+id/checkboxLocation"
-                android:text="Add my current location (Recommended)"
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Location" />
+            <TextView
+                android:id="@+id/txtSMSLocation"
+                android:padding="8dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:text="Tap to Set"
+                android:textSize="19sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <TextView
                 android:id="@+id/txtLocationResult"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:text="Note: Adding your location will greatly help us locate the fire's location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <Button

@@ -58,22 +58,23 @@ public class Fragment_create_message extends Fragment {
     String number=null;
     TextView txtCounter, txtMessage,txtNumber, txtLocationResult;
     AutoCompleteTextView auto_barangay;
-    CheckBox chkLocations;
     Button btnSend;
     int ctr = 0;
-    private LocationManager locationManager;
-    private LocationListener locationListener;
-    String coordinates = null;
-
+    TextView txtLocation;
     ArrayList<String> barangays;
     ArrayList<String> cell;
     int barangay_local_id;
     String selectedBarangay=null;
-    SharedPreferences sharedPreferences;
-    SharedPreferences.Editor editor;
-    String results[] = new String[]{"", "Getting Location . . .", "Location Added ✓", "Failed To Get Location X"};
-    int colors[] = new int[]{Color.WHITE, Color.DKGRAY, Color.BLUE, Color.RED};
-    int LOCATION_PERMISSION = 10;
+
+    LocationManager locationManager;
+    LocationListener locationListener;
+    String coordinates = null;
+
+    int
+            LOCATION_PERMISSION=2,
+            OPEN_GPS_SETTINGS_REQUEST=30,
+            OPEN_PERMISSION_REQUEST=40;
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -91,8 +92,7 @@ public class Fragment_create_message extends Fragment {
         txtNumber = (TextView) getActivity().findViewById(R.id.txtSMSNumber);
         auto_barangay = (AutoCompleteTextView) getActivity().findViewById(R.id.autoComplete_Barangay);
         btnSend = (Button) getActivity().findViewById(R.id.btnSendMessage);
-        chkLocations = (CheckBox) getActivity().findViewById(R.id.checkboxLocation);
-        txtLocationResult = (TextView) getActivity().findViewById(R.id.txtLocationResult);
+
         txtMessage.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -130,24 +130,208 @@ public class Fragment_create_message extends Fragment {
 
             }
         });
-        addCheckLocationListener();
+        txtLocation = (TextView) getActivity().findViewById(R.id.txtSMSLocation);
+        txtLocation.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showLocationChoices();
+            }
+        });
+
         btnSendListener();
         populateAutoCompleteBarangay();
         setDefaultBarangay();
-
-       // checkShowDialog();
-
-        chkLocations.performClick();
+        showLocationChoices();
     }
 
     @Override
     public void onDestroyView() {
         Log.wtf("Fragment_create_message","onDestroyView");
         Log.wtf("OnDestoryView","Location manager updates removed");
-
         stopLocationListener();
-
         super.onDestroyView();
+    }
+
+    protected void showLocationChoices(){
+
+        Log.wtf("Dialog","Location Choices shown");
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity());
+        builder.setTitle("Location to use");
+        builder.setItems(R.array.location_pop_up_menu, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int item) {
+                 /*
+                     [0]  Registered Location
+                     [1]  Location Now
+                     */
+                txtLocation.setError(null);
+                switch (item){
+                    case 0:
+                        //get saved coordinates in sqlite
+                        Log.wtf("Dialog","Registered Location Selected");
+                        stopLocationListener();
+
+                        dbHelper  = new DBHelper(getActivity());
+
+                        Cursor c = dbHelper.getSqliteData("SELECT "+dbHelper.COL_COORDINATES +" FROM "+dbHelper.TABLE_USER+" WHERE "+dbHelper.COL_USER_LOC_ID+" = 1;");
+                        if(c!=null){
+                            c.moveToFirst();
+                            coordinates = c.getString(c.getColumnIndex(dbHelper.COL_COORDINATES));
+                            txtLocation.setText("{"+coordinates+"}");
+                        }else{
+                            Toast.makeText(getActivity(), "No Coordinates Saved", Toast.LENGTH_SHORT).show();
+                        }
+                        break;
+                    case 1:
+                        //get current location
+                        Log.wtf("Dialog","Current Location Selected");
+                        txtLocation.setText("Tap to Set");
+                        coordinates=null;
+                        getCurrentLocation();
+                        break;
+                    case 2:
+                        //do nothing
+                        break;
+                }
+            }
+        });
+        android.app.AlertDialog alert = builder.create();
+        alert.setCanceledOnTouchOutside(false);
+        alert.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                auto_barangay.requestFocus();
+            }
+        });
+        alert.show();
+
+    }
+
+    //LOCATION
+    protected void getCurrentLocation(){
+        if(isLocationPermissionGranted()){
+            Log.wtf("get current location","Permission is Granted");
+            if(isLocationEnabled(getActivity())){
+                requestLocationUpdate();
+                Log.wtf("get current location","Location is enabled");
+            }else{
+                Log.wtf("get current location","Location is disabled");
+                openGPSinSettings();
+            }
+        }else{
+            //request permission
+            Log.wtf("getCurrentLocation","Permission not granted");
+            Toast.makeText(getActivity(), "Grant Permission", Toast.LENGTH_SHORT).show();
+            requestPermissions(new String[] {Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION);
+        }
+    }
+    protected void locationManagerInitialize(){
+        Log.wtf("locationInitialize","called");
+        locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
+        locationListener = new LocationListener() {
+            @Override
+            public void onLocationChanged(Location location) {
+                Log.wtf("onLocationChange","Location is changed "+location);
+                coordinates = location.getLatitude()+","+location.getLongitude();
+                if(getActivity()!=null) {
+                    txtLocation.setError(null);
+                    txtLocation.setText("{"+coordinates+"}");
+                    Toast.makeText(getActivity(), "Location Added, Thanks!", Toast.LENGTH_SHORT).show();
+                    stopLocationListener();
+                }
+            }
+
+            @Override
+            public void onStatusChanged(String provider, int status, Bundle extras) {
+
+            }
+
+            @Override
+            public void onProviderEnabled(String provider) {
+
+            }
+
+            @Override
+            public void onProviderDisabled(String provider) {
+
+            }
+        };
+    }
+    protected void requestLocationUpdate() {
+        try {
+            locationManagerInitialize();
+            txtLocation.setText("Waiting for location...");
+            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                // TODO: Consider calling
+                //    ActivityCompat#requestPermissions
+                // here to request the missing permissions, and then overriding
+                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                //                                          int[] grantResults)
+                // to handle the case where the user grants the permission. See the documentation
+                // for ActivityCompat#requestPermissions for more details.
+                return;
+            }
+            Log.wtf("request Location","Called");
+            locationManager.requestLocationUpdates("gps", 10000, 0, locationListener);
+
+        }catch (Exception e){
+            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.wtf("getLocation Error",e.getMessage());
+        }
+    }
+    protected boolean isLocationPermissionGranted(){
+        int locationCheck = ActivityCompat.checkSelfPermission(getActivity(),Manifest.permission.ACCESS_FINE_LOCATION);
+
+        if(locationCheck == PackageManager.PERMISSION_GRANTED){
+            return true;
+        }else{
+            return false;
+        }
+    }
+    public static boolean isLocationEnabled(Context context) {
+        int locationMode = 0;
+        String locationProviders;
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
+            try {
+                locationMode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE);
+
+            } catch (Settings.SettingNotFoundException e) {
+                e.printStackTrace();
+                return false;
+            }
+
+            return locationMode != Settings.Secure.LOCATION_MODE_OFF;
+
+        }else{
+            locationProviders = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
+            return !TextUtils.isEmpty(locationProviders);
+        }
+    }
+    protected void openGPSinSettings(){
+        new android.app.AlertDialog.Builder(getActivity())
+                .setTitle("Turn On Location")
+                .setMessage("This function Requires Location")
+                .setCancelable(false)
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.wtf("TurnOnGPSTracking","Settings intent is called");
+                        startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS),OPEN_GPS_SETTINGS_REQUEST);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Log.wtf("TurnOnGPSTracking","User clicked Cancel");
+                    }
+                })
+                .show();
+    }
+    protected void stopLocationListener(){
+        if(locationManager!=null) {
+            locationManager.removeUpdates(locationListener);
+            locationManager=null;
+        }
     }
 
 
@@ -232,7 +416,6 @@ public class Fragment_create_message extends Fragment {
         btnSend.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-             if(continueSend()) {
                  Log.wtf("btnClicked","continue is true");
                  //check if contact is not null
                  if(number!=null){
@@ -241,10 +424,13 @@ public class Fragment_create_message extends Fragment {
                      if(!txtMessage.getText().toString().trim().equals("")){
                          Log.wtf("btnClicked","Message is not null");
                          String msg = txtMessage.getText().toString().trim();
-                         if(coordinates!=null&&chkLocations.isChecked()){
+                         if(coordinates!=null){
                              msg+="\n{"+coordinates+"}";
+                             sendSMS(number,msg);
+                         }else{
+                             txtLocation.setError("No Location Given");
+                             txtLocation.requestFocus();
                          }
-                         sendSMS(number,msg);
                      }
                      else{
                          //no message yet
@@ -256,8 +442,6 @@ public class Fragment_create_message extends Fragment {
                      auto_barangay.requestFocus();
                      auto_barangay.setError("Plese fill up with correct details");
                  }
-
-             }else Log.wtf("btn clicked","continue send is false");
             }
         });
     }
@@ -340,269 +524,15 @@ public class Fragment_create_message extends Fragment {
         }
 
     }
-    private boolean continueSend(){
-        if(chkLocations.isChecked() && coordinates!=null){
-            return true;
-        }
-        else if(chkLocations.isChecked() && coordinates==null){
-            Toast.makeText(getActivity(), "Location is not yet captured", Toast.LENGTH_SHORT).show();
-            return false;
-        }
-        else if(!chkLocations.isChecked()){
-            return true;
-        }
-        return false;
-    }
+
 
     //LOCATION
-    protected void getLocation() {
-        try {
-            locationManagerInitialize();
-            txtLocationResult.setText(results[1]);
-            txtLocationResult.setTextColor(colors[1]);
-            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                //    ActivityCompat#requestPermissions
-                // here to request the missing permissions, and then overriding
-                //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                //                                          int[] grantResults)
-                // to handle the case where the user grants the permission. See the documentation
-                // for ActivityCompat#requestPermissions for more details.
-                return;
-            }
-            Log.wtf("getLocation","Called");
-            locationManager.requestLocationUpdates("gps", 10000, 0, locationListener);
-
-        }catch (Exception e){
-            Toast.makeText(getActivity(), e.getMessage(), Toast.LENGTH_SHORT).show();
-            Log.wtf("getLocation Error",e.getMessage());
-        }
-    }
-    protected void stopLocationListener(){
-        if(locationManager!=null) {
-            locationManager.removeUpdates(locationListener);
-            locationManager=null;
-        }
-    }
-    protected void locationManagerInitialize(){
-        locationManager = (LocationManager) getActivity().getSystemService(LOCATION_SERVICE);
-        locationListener = new LocationListener() {
-            @Override
-            public void onLocationChanged(Location location) {
-                coordinates = location.getLatitude()+","+location.getLongitude();
-                txtLocationResult.setText(results[2]);
-                txtLocationResult.setTextColor(colors[2]);
-                if(getActivity()!=null) {
-                    Toast.makeText(getActivity(), "Location Added, Thanks!", Toast.LENGTH_SHORT).show();
-                    stopLocationListener();
-                }
-
-            }
-
-            @Override
-            public void onStatusChanged(String provider, int status, Bundle extras) {
-                Log.wtf("locationListener","onStatusChanged, status: "+status);
-                checkPermission();
-            }
-
-            @Override
-            public void onProviderEnabled(String provider) {
-                Log.wtf("locationListener","onProviderEnabled: "+provider);
-                checkPermission();
-            }
-
-            @Override
-            public void onProviderDisabled(String provider) {
-
-            }
-        };
-    }
-    protected void addCheckLocationListener() {
-        chkLocations.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    if(isLocationEnabled(getActivity())){
-                        txtLocationResult.setText(results[1]);
-                        txtLocationResult.setTextColor(colors[1]);
-                        locationManagerInitialize();
-                        checkPermission();
-                    }else{
-                        txtLocationResult.setText(results[3]);
-                        txtLocationResult.setTextColor(colors[3]);
-                        new AlertDialog.Builder(getActivity())
-                                .setTitle("Turn On Location")
-                                .setMessage("This function Requires Location")
-                                .setCancelable(false)
-                                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Log.wtf("TurnOnGPSTracking","Settings intent is called");
-                                        openGPSinSettings();
-                                    }
-                                })
-                                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                                    @Override
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        Log.wtf("TurnOnGPSTracking","User clicked Cancel");
-                                        txtLocationResult.setText(results[0]);
-                                        chkLocations.setChecked(false);
-                                    }
-                                })
-                                .show();
-                    }
-                } else {
-                    txtLocationResult.setText(results[0]);
-                    txtLocationResult.setTextColor(colors[0]);
-                }
-            }
-        });
-    }
-    public static boolean isLocationEnabled(Context context) {
-        int locationMode = 0;
-        String locationProviders;
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT){
-            try {
-                locationMode = Settings.Secure.getInt(context.getContentResolver(), Settings.Secure.LOCATION_MODE);
-
-            } catch (Settings.SettingNotFoundException e) {
-                e.printStackTrace();
-                return false;
-            }
-
-            return locationMode != Settings.Secure.LOCATION_MODE_OFF;
-
-        }else{
-            locationProviders = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-            return !TextUtils.isEmpty(locationProviders);
-        }
-    }
-    protected void openGPSinSettings(){
-        startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS),100);
-    }
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-
-        if(requestCode==100){
-            //check if the location is enabled
-            if(isLocationEnabled(getActivity())){
-                checkPermission();
-            }
-        }
-        super.onActivityResult(requestCode, resultCode, data);
-    }
-
-    //PERMISSIONS
-    protected void checkPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Log.wtf("Location_service", "PERMISSION CHECK FOR M AND HIGHER");
-            //provider,minimum time refresh in milisecond, minimum distance refresh in meter,location listener
-            if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                // TODO: Consider calling
-                Log.wtf("Location", "NOT GRANTED");
-                txtLocationResult.setText(results[3]);
-                txtLocationResult.setTextColor(colors[3]);
-                Toast.makeText(getActivity(), "Location Permission Not Granted", Toast.LENGTH_SHORT).show();
-                requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_PERMISSION);
-                return;
-            } else {
-                Log.wtf("location_service", "REQUEST PERMISSION GRANTED");
-                getLocation();
-            }
-        } else {
-            //get the location
-            Log.wtf("Location_service", "LOWER ANDROID VERSION");
-            getLocation();
-        }
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode==LOCATION_PERMISSION){
-            Log.wtf("OnRequestResult","request code is Location Permission");
-            if(grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                Log.wtf("RequestResult","Request is granted");
-                getLocation();
-            }else{
-                Log.wtf("RequestResult","Request is not granted");
-            }
-        }
-    }
 
 
 
-    //REMINDER
-    protected void checkShowDialog(){
-        Log.wtf("checkshowdialog","called");
-        String show = getSharedPrefData(MySharedPref.REMINDER);
-        if(show!=null){
-            show = show.trim();
-            switch (show){
-                case "":
-                    Log.wtf("checkShowDialog","reminder is not empty");
-                    showReminder();
-                    break;
-                case "no":
-                    //user selected dont show again
-                    Log.wtf("checkShowDialog","reminder is set to don't show again");
-                    break;
-            }
-        }else{
-            Log.wtf("checkShowDialog","show is null");
-            showReminder();
-        }
-    }
-    protected void showReminder(){
-        Log.wtf("ShowReminder","called");
-        LayoutInflater inflater = getActivity().getLayoutInflater();
-        View dialog =  inflater.inflate(R.layout.dialog_reminder, null);
-        final CheckBox chk = (CheckBox) dialog.findViewById(R.id.chkDontShowAgain);
-        chk.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if(isChecked){
-                    setSharedPrefData(MySharedPref.REMINDER,"no");
-                }else{
-                    setSharedPrefData(MySharedPref.REMINDER,"");
-                }
-            }
-        });
-        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity());
-        builder.setTitle("Reminder");
-        builder.setMessage(R.string.reminder);
-        builder.setView(dialog);
-        builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                //do nothing
-
-            }
-        });
-        builder.show();
-    }
 
 
-    //SHARED PREFERENCE GET AND SET
-    protected String getSharedPrefData(String key){
-        try {
-            String value = sharedPreferences.getString(key,"");
-            return value;
-        }catch (Exception ee){
-            Toast.makeText(getActivity(), "Error in getSharedPrefData", Toast.LENGTH_SHORT).show();
-            Log.wtf("getSharedPrefData: ERROR ",ee.getMessage());
-        }
-        return null;
-    }
-    protected void setSharedPrefData(String key, String value){
-        try{
-            editor = sharedPreferences.edit();
-            editor.putString(key,value);
-            editor.apply();
-        }catch (Exception ee){
-            Toast.makeText(getActivity(), "Error in setSharedPrefData", Toast.LENGTH_SHORT).show();
-            Log.wtf("setSharedPrefData: ERROR ",ee.getMessage());
-        }
-    }
+
+
 
 }
