@@ -2,42 +2,54 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="6sp"
+    android:layout_height="wrap_content"
     android:orientation="vertical">
-    <TextView
-        android:id="@+id/notif_title"
-        android:textSize="22sp"
-        android:textStyle="bold"
+
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <TextView
-        android:text="06:25 06/07/2017"
-        android:id="@+id/notif_datetime"
+        android:layout_height="4dp">
+    </LinearLayout>
+    <LinearLayout
+        android:orientation="vertical"
+        android:padding="6sp"
+        android:background="@drawable/rounded_shape"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <com.ms.square.android.expandabletextview.ExpandableTextView
-        android:id="@+id/notif_message"
-        app:maxCollapsedLines="1"
-        app:animDuration="200"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-        <!--The ID's name is important and should never be changed, it will crash-->
+        android:layout_height="match_parent">
         <TextView
-            android:id="@+id/expandable_text"
+            android:id="@+id/notif_title"
+            android:textSize="22sp"
+            android:textStyle="bold"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="#000"
-            android:textSize="14sp"
-            />
-        <ImageButton
-            android:id="@+id/expand_collapse"
-            android:layout_gravity="right|bottom"
-            android:padding="16dp"
-            android:background="@android:color/transparent"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
-    </com.ms.square.android.expandabletextview.ExpandableTextView>
+            android:layout_height="wrap_content" />
+        <TextView
+            android:id="@+id/notif_datetime"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <com.ms.square.android.expandabletextview.ExpandableTextView
+            android:id="@+id/notif_message"
+            app:maxCollapsedLines="1"
+            app:animDuration="200"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <!--The ID's name is important and should never be changed, it will crash-->
+            <TextView
+                android:id="@+id/expandable_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#000"
+                android:textSize="14sp"
+                />
+            <ImageButton
+                android:id="@+id/expand_collapse"
+                android:layout_gravity="right|bottom"
+                android:padding="4dp"
+                android:background="@android:color/transparent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                />
+        </com.ms.square.android.expandabletextview.ExpandableTextView>
+
+    </LinearLayout>
+
 
 </LinearLayout>

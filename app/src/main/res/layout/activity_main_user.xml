@@ -122,11 +122,14 @@
 
         <!--NOTIF LAYOUT-->
         <LinearLayout
+            android:background="#d3d6db"
             android:visibility="gone"
             android:orientation="vertical"
             android:id="@+id/notification_framelayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+           android:padding="8dp"
+
            >
             <android.support.v4.widget.SwipeRefreshLayout
                 android:id="@+id/notif_swipe_refresh_layout"

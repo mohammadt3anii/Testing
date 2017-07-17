@@ -66,7 +66,7 @@ public class MainActivity_user extends AppCompatActivity {
     LinearLayout frame2,frame3;
     LinearLayout initialLayout,feed_postLayout,feed_messageLayout,feed_loadingLayout;
     TextView feed_messageTV;
-    SwipeRefreshLayout feed_swipeRefreshLayout;
+    SwipeRefreshLayout feed_swipeRefreshLayout,notif_swipeRefreshLayout;
     ListView feed_listview;
     Button btnReport, btnMyReports, btnFeed_message;
     public static FragmentManager fragmentManager;
@@ -93,7 +93,7 @@ public class MainActivity_user extends AppCompatActivity {
     View footerView;
     boolean isFooterLoading=false;
     boolean noMorePost=false;
-
+    boolean notificationsLoaded=false;
     String server_url;
     RequestQueue requestQueue;
 
@@ -165,6 +165,8 @@ public class MainActivity_user extends AppCompatActivity {
         notif_messages = new ArrayList<>();
         notif_listview = (ListView) findViewById(R.id.notif_listview);
 
+        notif_swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.notif_swipe_refresh_layout);
+        notif_swipeRefreshLayoutListner();
 
         footerView =  ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.listview_loading_footer, null, false);
         SharedPreferences sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
@@ -503,6 +505,13 @@ public class MainActivity_user extends AppCompatActivity {
     //FRAME 3****************************************************************
     public  void loadNotifications(){
         Log.wtf("loadNotifications","Start");
+        feed_swipeRefreshLayout.setRefreshing(true);
+
+        notif_adapter=null;
+        notif_titles.clear();
+        notif_datetime.clear();
+        notif_messages.clear();
+
         dbHelper = new DBHelper(getApplicationContext());
         Cursor c = dbHelper.getSqliteData("SELECT * FROM "+dbHelper.TABLE_NOTIFICATION+";");
         c.moveToFirst();
@@ -520,6 +529,8 @@ public class MainActivity_user extends AppCompatActivity {
             notif_adapter = new NotificationAdapter(getApplicationContext(),notif_titles,notif_datetime,notif_messages);
             notif_listview.setAdapter(notif_adapter);
         }
+        feed_swipeRefreshLayout.setRefreshing(false);
+        notificationsLoaded=true;
     }
     class NotificationAdapter extends ArrayAdapter{
          ArrayList<String> notif_titles = new ArrayList<>();
@@ -550,6 +561,15 @@ public class MainActivity_user extends AppCompatActivity {
             return row;
         }
     }
+    protected void notif_swipeRefreshLayoutListner(){
+        notif_swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadNotifications();
+                notif_swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
     //***********************************************************************
 
     //FRAME TRANSITIONS
@@ -569,7 +589,11 @@ public class MainActivity_user extends AppCompatActivity {
 
     }
     protected void showFrame3(){
+
         clearBackstack();
+        if(!notificationsLoaded){
+            loadNotifications();
+        }
         frame3.setVisibility(View.VISIBLE);
         frame1.setVisibility(View.GONE);
         frame2.setVisibility(View.GONE);
@@ -676,7 +700,7 @@ public class MainActivity_user extends AppCompatActivity {
                 SharedPreferences sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
                 sharedPreferences.edit().clear().commit();
 
-                dbHelper.removeLoggedUser();
+                dbHelper.removeAllData();
                 startActivity(new Intent(MainActivity_user.this,SplashScreen.class));
                 finish();
             }

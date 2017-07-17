@@ -11,6 +11,7 @@ import android.util.Log;
 import android.widget.Toast;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by arvin on 6/21/2017.
@@ -263,6 +264,25 @@ public class DBHelper extends SQLiteOpenHelper {
             Cursor2.addRow(new Object[] { ""+ex.getMessage() });
             alc.set(1,Cursor2);
             return alc;
+        }
+    }
+
+
+    public void removeAllData(){
+        // query to obtain the names of all tables in your database
+        SQLiteDatabase db = getWritableDatabase();
+        Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
+        List<String> tables = new ArrayList<>();
+
+// iterate over the result set, adding every table name to a list
+        while (c.moveToNext()) {
+            tables.add(c.getString(0));
+        }
+
+// call DROP TABLE on every table name
+        for (String table : tables) {
+            String DELETE_DATA = "DELETE FROM " + table;
+            db.execSQL(DELETE_DATA);
         }
     }
 }
