@@ -24,9 +24,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NoConnectionError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -50,6 +54,7 @@ public class Activity_Login extends AppCompatActivity {
 
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
+    StringRequest request;
 
 
     @Override
@@ -200,7 +205,7 @@ public class Activity_Login extends AppCompatActivity {
 
                 String server_url = ServerInfoClass.HOST_ADDRESS+"/login.php";
                 final RequestQueue requestQueue = Volley.newRequestQueue(this);
-                final StringRequest request = new StringRequest(Request.Method.POST, server_url,
+                 request = new StringRequest(Request.Method.POST, server_url,
                         new Response.Listener<String>() {
                             @Override
                             public void onResponse(String response) {
@@ -290,11 +295,11 @@ public class Activity_Login extends AppCompatActivity {
                             @Override
                             public void onErrorResponse(VolleyError error) {
                                 closeLoadingDialog();
-                                if(error!=null) {
-                                    Toast.makeText(Activity_Login.this, error.getMessage(), Toast.LENGTH_SHORT).show();
-                                }
-                                else{
-                                    Toast.makeText(Activity_Login.this, "Connection Timeout", Toast.LENGTH_SHORT).show();
+                                if(error instanceof TimeoutError || error instanceof NoConnectionError) {
+                                    Toast.makeText(getApplicationContext(),"Check your internet connection",Toast.LENGTH_SHORT).show();
+                                    // ...
+                                }else{
+                                    Toast.makeText(Activity_Login.this, "Error is :"+error.getMessage(), Toast.LENGTH_SHORT).show();
                                 }
                             }
                         }){
@@ -306,6 +311,13 @@ public class Activity_Login extends AppCompatActivity {
                                 return params;
                     }
                 };
+                int socketTimeout = 30000; // 30 seconds
+                RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                        DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                        DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+
+                request.setRetryPolicy(policy);
+                request.setShouldCache(false);
                 requestQueue.add(request);
             }
         }
@@ -320,11 +332,18 @@ public class Activity_Login extends AppCompatActivity {
     }
 
     private void showLoadingDialog(){
-
         pd.setTitle("Logging");
         pd.setMessage("Please wait...");
+        pd.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                if(request!=null){
+                    request.cancel();
+                    Toast.makeText(Activity_Login.this, "Request Canceled", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
         pd.show();
-
     }
     private void closeLoadingDialog(){
         pd.hide();
