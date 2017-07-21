@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
@@ -8,11 +8,21 @@
     android:orientation="vertical"
     tools:context="com.example.rvnmrqz.firetrack.MainActivity_user">
 
+
+    <android.support.design.widget.BottomNavigationView
+        android:id="@+id/navigation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="?android:attr/windowBackground"
+        android:windowSoftInputMode="adjustPan"
+        android:layout_alignParentBottom="true"
+        app:menu="@menu/navigation" />
     <LinearLayout
         android:id="@+id/content"
+        android:layout_above="@id/navigation"
         android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
+        android:layout_height="match_parent"
         android:orientation="horizontal">
 
         <!--REPORT LAYOUT-->
@@ -154,13 +164,6 @@
 
     </LinearLayout>
 
-    <android.support.design.widget.BottomNavigationView
-        android:id="@+id/navigation"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom"
-        android:background="?android:attr/windowBackground"
-        android:windowSoftInputMode="adjustPan"
-        app:menu="@menu/navigation" />
 
-</LinearLayout>
+
+</RelativeLayout>

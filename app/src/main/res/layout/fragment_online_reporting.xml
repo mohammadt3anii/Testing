@@ -3,30 +3,31 @@
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:scrollbars="vertical"
     >
-    <ScrollView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
         <LinearLayout
             android:padding="16dp"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
+                android:layout_height="150dp"
+                android:layout_weight="0"
                 android:orientation="vertical">
+
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Proof Photo (Recommended)" />
+
                 <ImageView
                     android:id="@+id/img_proof"
-                    android:src="@drawable/camera"
-                    android:layout_width="200dp"
+                    android:layout_width="100dp"
                     android:layout_height="match_parent"
-                    android:layout_gravity="center_horizontal" />
+                    android:layout_gravity="center_horizontal"
+                    android:src="@drawable/camera" />
             </LinearLayout>
 
             <LinearLayout
@@ -66,31 +67,31 @@
 
                 <EditText
                     android:id="@+id/txtAdditionalInfo"
+                    android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-ñ 1234567890\n"
                     android:hint="(Optional)"
                     android:gravity="left"
                     android:lines="4"
                     android:maxLines="4"
                     android:maxLength="160"
+                    android:scrollbars = "vertical"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="100dp" />
+
+                <Button
+                    android:id="@+id/btnSubmit"
+                    android:layout_alignParentBottom="true"
+                    android:text="  Submit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal"
+                    android:background="@color/colorPrimary"
+                    android:drawableLeft="@drawable/ic_send_black_24dp"
+                    android:textColor="#ffffff"
+                    android:paddingLeft="50dp"
+                    android:paddingRight="50dp"
+                    android:gravity="left|center_vertical"
+                    />
             </LinearLayout>
-
-            <Button
-                android:id="@+id/btnSubmit"
-                android:layout_alignParentBottom="true"
-                android:text="  Submit"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_horizontal"
-                android:background="@color/colorPrimary"
-                android:drawableLeft="@drawable/ic_send_black_24dp"
-                android:textColor="#ffffff"
-                android:paddingLeft="50dp"
-                android:paddingRight="50dp"
-                android:gravity="left|center_vertical"
-                />
         </LinearLayout>
-    </ScrollView>
-
 
 </LinearLayout>
