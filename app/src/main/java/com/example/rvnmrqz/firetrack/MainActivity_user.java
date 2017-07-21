@@ -348,7 +348,14 @@ public class MainActivity_user extends AppCompatActivity {
                     addFooter(true);
                     loadMore();
                 }
-
+                //for padding views
+                if (firstVisibleItem == 0){
+                   feed_listview.setPadding(0,8,0,0);
+                } else if (view.getLastVisiblePosition() == totalItemCount - 1){
+                    feed_listview.setPadding(0,0,0,8);
+                } else {
+                    feed_listview.setPadding(0,0,0,0);
+                }
             }
         });
     }

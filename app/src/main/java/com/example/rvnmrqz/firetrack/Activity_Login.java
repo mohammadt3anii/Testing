@@ -315,7 +315,6 @@ public class Activity_Login extends AppCompatActivity {
                 RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
                         DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-
                 request.setRetryPolicy(policy);
                 request.setShouldCache(false);
                 requestQueue.add(request);
@@ -400,7 +399,7 @@ public class Activity_Login extends AppCompatActivity {
         c.moveToFirst();
         if(c!=null){
            if(c.getCount()==0){// populating barangay table
-                new SyncBarangay(this,1);
+                new SyncBarangay(this,1,false);
            }
         }
     }

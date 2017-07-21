@@ -16,6 +16,7 @@ import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -51,20 +52,21 @@ import static android.content.Context.LOCATION_SERVICE;
  * Created by Rvn Mrqz on 2/19/2017.
  */
 
-public class Fragment_create_message extends Fragment {
+public class Fragment_sms_reporting extends Fragment {
 
     View myview;
-    DBHelper dbHelper;
-    String number=null;
-    TextView txtCounter, txtMessage,txtNumber, txtLocationResult;
-    AutoCompleteTextView auto_barangay;
+    static DBHelper dbHelper;
+    static String number=null;
+    static TextView txtCounter, txtMessage,txtNumber;
+    static AutoCompleteTextView auto_barangay;
     Button btnSend;
     int ctr = 0;
     TextView txtLocation;
-    ArrayList<String> barangays;
-    ArrayList<String> cell;
+    static ArrayList<String> barangays;
+    static ArrayList<String> cell;
+    public static Activity context;
     int barangay_local_id;
-    String selectedBarangay=null;
+    static String selectedBarangay=null;
 
     LocationManager locationManager;
     LocationListener locationListener;
@@ -85,7 +87,7 @@ public class Fragment_create_message extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        context = getActivity();
         dbHelper  = new DBHelper(getActivity());
         txtCounter = (TextView) getActivity().findViewById(R.id.txtCharCounter);
         txtMessage = (TextView) getActivity().findViewById(R.id.txtMessageBody);
@@ -146,7 +148,7 @@ public class Fragment_create_message extends Fragment {
 
     @Override
     public void onDestroyView() {
-        Log.wtf("Fragment_create_message","onDestroyView");
+        Log.wtf("Fragment_sms_reporting","onDestroyView");
         Log.wtf("OnDestoryView","Location manager updates removed");
         stopLocationListener();
         super.onDestroyView();
@@ -336,24 +338,43 @@ public class Fragment_create_message extends Fragment {
 
 
     //BARANGAY LIST
-    protected void populateAutoCompleteBarangay(){
+    protected static void populateAutoCompleteBarangay(){
         barangays = new ArrayList<>();
         cell = new ArrayList<>();
 
         //Popualting arraylist
         Cursor c = dbHelper.getSqliteData("SELECT * FROM "+dbHelper.TABLE_BARANGAY+";");
-        if(c!=null){
+        if(c!=null && c.getCount()>0){
             Log.wtf("getBarangay","cursor is not null");
             c.moveToFirst();
-            do {
+            do{
                 barangays.add(c.getString(c.getColumnIndex(dbHelper.BARANGAY_NAME)));
                 cell.add(c.getString(c.getColumnIndex(dbHelper.BARANGAY_CEL)));
             }while (c.moveToNext());
+        }
+        else{
+            Log.wtf("getBarangay","cursor is null");
+            Toast.makeText(context, "There are No Barangay contact details saved", Toast.LENGTH_SHORT).show();
+            new AlertDialog.Builder(context)
+                    .setTitle("Sync Barangay Details")
+                    .setMessage("Do you want to sync barangay details?")
+                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            new SyncBarangay(context,1,true);
+                        }
+                    })
+                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-        }else Log.wtf("getBarangay","cursor is null");
+                        }
+                    })
+                    .show();
+        }
 
         //passing arraylist to adapter
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getActivity(), R.layout.support_simple_spinner_dropdown_item, barangays);
+        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, R.layout.support_simple_spinner_dropdown_item, barangays);
         auto_barangay.setAdapter(adapter);
 
         //select listener
@@ -381,32 +402,30 @@ public class Fragment_create_message extends Fragment {
         //get the barangay id of user logged
         //set the barangay details in textviews
         Cursor c = dbHelper.getSqliteData("SELECT "+dbHelper.BARANGAY_LOC_ID+" FROM "+dbHelper.TABLE_BARANGAY+" u INNER JOIN "+dbHelper.TABLE_USER +" b ON u."+dbHelper.COL_BARANGAY_ID+" = b."+dbHelper.COL_BARANGAY_ID+";" );
-        if(c!=null){
-            Log.wtf("setDefualtBarangay","c is not null");
-            c.moveToFirst();
+        if(c!=null && c.getCount()>0){
+                Log.wtf("setDefualtBarangay","c is not null");
+                c.moveToFirst();
+                barangay_local_id = Integer.parseInt(c.getString(c.getColumnIndex(dbHelper.BARANGAY_LOC_ID)));
+                Log.wtf("setDefualtBarangay","barangay_local_id: "+barangay_local_id);
 
-             barangay_local_id = Integer.parseInt(c.getString(c.getColumnIndex(dbHelper.BARANGAY_LOC_ID)));
-            Log.wtf("setDefualtBarangay","barangay_local_id: "+barangay_local_id);
-
-            auto_barangay.setText(barangays.get(barangay_local_id));
-            String number = cell.get(barangay_local_id);
-            if(number.equals("null")){
-                txtNumber.setText("<NO NUMBER>");
-                auto_barangay.setError("Barangay has NO number");
-                this.number=null;
-            }else{
-                txtNumber.setText(number);
-                this.number = number;
+                auto_barangay.setText(barangays.get(barangay_local_id));
+                String number = cell.get(barangay_local_id);
+                if(number.equals("null")){
+                    txtNumber.setText("<NO NUMBER>");
+                    auto_barangay.setError("Barangay has NO number");
+                    this.number=null;
+                }else{
+                    txtNumber.setText(number);
+                    this.number = number;
+                }
+                selectedBarangay = auto_barangay.getText().toString();
+                auto_barangay.requestFocus();
+                try{
+                    getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                }catch (Exception e){
+                    Toast.makeText(getActivity(), "Failed to open keyboard", Toast.LENGTH_SHORT).show();
+                }
             }
-            selectedBarangay = auto_barangay.getText().toString();
-            auto_barangay.requestFocus();
-            try{
-                getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-            }catch (Exception e){
-                Toast.makeText(getActivity(), "Failed to open keyboard", Toast.LENGTH_SHORT).show();
-            }
-
-        }
     }
 
 
@@ -526,13 +545,58 @@ public class Fragment_create_message extends Fragment {
     }
 
 
-    //LOCATION
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode ==  OPEN_GPS_SETTINGS_REQUEST){
+            Log.wtf("activity result","Result for opening gps location");
+            if(isLocationEnabled(getActivity())){
+                Log.wtf("activity_result","location is not opened");
+                requestLocationUpdate();
+            }else{
+                Log.wtf("activity_result","location is not opened");
+            }
+        }
+        else if(requestCode == OPEN_PERMISSION_REQUEST){
+            if(isLocationPermissionGranted()){
+                getCurrentLocation();
+            }else{
+                Toast.makeText(getActivity(), "Permission not granted", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 
-
-
-
-
-
-
-
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(requestCode==LOCATION_PERMISSION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Log.wtf("permissionResult", "Fine Location is granted");
+                getCurrentLocation();
+            } else {
+                Log.wtf("permissionResult", "Fine Location is NOT granted");
+                //NOT GRANTED
+                boolean showRationale = shouldShowRequestPermissionRationale(permissions[0]);
+                if (!showRationale) {
+                    //USER SELECTED DO NOT SHOW AGAIN
+                    android.support.v7.app.AlertDialog.Builder builder = new android.support.v7.app.AlertDialog.Builder(getActivity());
+                    builder.setTitle("Allow Permission");
+                    builder.setMessage("You cannot use this function without permission. Please allow the permission.");
+                    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startActivityForResult(new Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS, Uri.parse("package:" + BuildConfig.APPLICATION_ID)), OPEN_PERMISSION_REQUEST);
+                        }
+                    });
+                    builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Toast.makeText(getActivity(), "You need to grant permission to use this", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    builder.show();
+                }
+            }
+        }
+    }
 }

@@ -1,13 +1,17 @@
 package com.example.rvnmrqz.firetrack;
 
+import android.app.Activity;
 import android.content.Context;
+import android.os.Handler;
 import android.util.Log;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -27,24 +31,25 @@ public class SyncBarangay
 
     public RequestQueue requestQueue;
     DBHelper dbHelper;
-    Context context;
+    static Activity static_parent;
     String server_url=ServerInfoClass.HOST_ADDRESS+"/get_data.php";
     int finalMode;
+    boolean showMessage;
 
-    public SyncBarangay(Context c,int MODE) {
+    public SyncBarangay(Activity c,int MODE,boolean showMessage) {
         Log.wtf("SyncBarangay","Constructor is called");
-        this.context = c;
-        dbHelper = new DBHelper(context);
+
+        static_parent = c;
+        dbHelper = new DBHelper(static_parent);
         finalMode = MODE;
+        this.showMessage = showMessage;
         sync(MODE);
-
-
 
     }
 
     public void sync(final int mode){
         Log.wtf("Sync","Inside the Sync Method");
-        requestQueue = Volley.newRequestQueue(context);
+        requestQueue = Volley.newRequestQueue(static_parent);
         StringRequest request = new StringRequest(Request.Method.POST, server_url,
                 new Response.Listener<String>() {
                     @Override
@@ -70,10 +75,9 @@ public class SyncBarangay
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.wtf("onErrorResponse_sync","Error Message: "+error.getMessage());
-                        if(error == null){
-                            Log.wtf("onErrorResponse","Response is null, trying again");
-                            sync(finalMode);
-                        }
+                       if (showMessage){
+                           showMessage("Failed to capture Barangay details");
+                       }
                     }
                 }){
             @Override
@@ -81,9 +85,19 @@ public class SyncBarangay
                 Map<String, String> params = new HashMap<String, String>();
                 String qry = "SELECT * from tbl_barangay;";
                 params.put("qry",qry);
+
+                if(showMessage){
+                    showMessage("Capturing Details");
+                }
                 return params;
             }
         };
+        int socketTimeout = 30000; // 30 seconds
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        request.setRetryPolicy(policy);
+        request.setShouldCache(false);
         requestQueue.add(request);
     }
 
@@ -105,11 +119,26 @@ public class SyncBarangay
                 dbHelper.insertBarangay(b_id,b_name,b_cell,b_tel);
             }
 
+            if (showMessage){
+                showMessage("Barangay details saved");
+                if(Fragment_sms_reporting.context!=null){
+                    Fragment_sms_reporting.populateAutoCompleteBarangay();
+                }
+            }
             Log.wtf("onResponse","Barangay is inserted");
 
         }catch (Exception ee){
-            Toast.makeText(context,ee.getMessage(),Toast.LENGTH_SHORT).show();
+            Toast.makeText(static_parent,ee.getMessage(),Toast.LENGTH_SHORT).show();
         }
+    }
+
+
+    private void showMessage(final String message){
+        static_parent.runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(static_parent.getBaseContext(),message, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
 }

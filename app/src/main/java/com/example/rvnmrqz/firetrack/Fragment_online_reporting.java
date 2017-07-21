@@ -258,7 +258,7 @@ public class Fragment_online_reporting extends Fragment {
 
     @Override
     public void onDestroyView() {
-        Log.wtf("Fragment_create_message","onDestroyView");
+        Log.wtf("Fragment_sms_reporting","onDestroyView");
         Log.wtf("OnDestoryView","Location manager updates removed");
 
         stopLocationListener();
