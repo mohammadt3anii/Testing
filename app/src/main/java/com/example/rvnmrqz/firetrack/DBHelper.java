@@ -22,7 +22,7 @@ public class DBHelper extends SQLiteOpenHelper {
     Context con;
 
     long result;
-    private static  final  int DATABASE_VERSION=11;
+    private static  final  int DATABASE_VERSION=13;
     private static  final String DATABASE_NAME= "firetrack.db";
 
     //LOGGED USER
@@ -60,19 +60,17 @@ public class DBHelper extends SQLiteOpenHelper {
     public static  final String BARANGAY_TEL = "barangay_tel";
 
 
-    //NOTIFICATION
-    public static final String TABLE_NOTIFICATION = "tbl_notifications";
-    public static final String COL_NOTIF_LOC_ID = "notif_loc_id";
-    public static final String COL_NOTIF_ID = "notif_id";
-    public static final String COL_NOTIF_SENDER = "notif_sender";
-    public static final String COL_NOTIF_TITLE = "notif_title";
-    public static final String COL_NOTIF_MESSAGE = "notif_message";
-    public static final String COL_NOTIF_DATETIME = "notif_date_time";
-    public static final String COL_NOTIF_PERSONAL = "personal";
-    public static final String COL_NOTIF_OPENED = "opened";
-    //NOT CREATED, JUST TO REFERENCE THE ONLINE COLUMNS
-    public static final String COL_NOTIF_USER_RECEIVER= "notif_user_receiver";
-    public static final String COL_NOTIF_BARANGAY_RECEIVER = "notif_barangay_receiver";
+    //UPDATES (NOTIFICATION)
+    public static final String TABLE_UPDATES= "tbl_updates";
+    public static final String COL_UPDATE_LOC_ID   = "update_loc_id";
+    public static final String COL_UPDATE_ID   = "update_id";
+    public static final String COL_CATEGORY = "category";
+    public static final String COL_RECEIVER = "receiver";
+    public static final String COL_TITLE = "title";
+    public static final String COL_CONTENT = "content";
+    public static final String COL_SENDER_ID ="sender_id";
+    public static final String COL_DATETIME = "datetime";
+    public static final String COL_OPENED = "opened";
 
 
     public DBHelper(Context context) {
@@ -102,20 +100,21 @@ public class DBHelper extends SQLiteOpenHelper {
 
             db.execSQL("CREATE TABLE "+TABLE_BARANGAY+"("+
                     BARANGAY_LOC_ID+" INTEGER PRIMARY KEY, "+
-                    BARANGAY_ID+" TEXT, "+
+                    BARANGAY_ID+" INTEGER, "+
                     BARANGAY_NAME + " TEXT," +
                     BARANGAY_CEL+" TEXT,"+
                     BARANGAY_TEL+" TEXT)");
 
-            db.execSQL("CREATE TABLE "+TABLE_NOTIFICATION+"(" +
-                    COL_NOTIF_LOC_ID+ "INTEGER PRIMARY KEY, " +
-                    COL_NOTIF_ID+ " TEXT, " +
-                    COL_NOTIF_SENDER+" TEXT, " +
-                    COL_NOTIF_TITLE+" TEXT, " +
-                    COL_NOTIF_MESSAGE+" TEXT, " +
-                    COL_NOTIF_DATETIME+" TEXT, " +
-                    COL_NOTIF_PERSONAL+ " TEXT, " +
-                    COL_NOTIF_OPENED+" TEXT)");
+            db.execSQL("CREATE TABLE "+TABLE_UPDATES+"(" +
+                    COL_UPDATE_LOC_ID+ " INTEGER PRIMARY KEY, " +
+                    COL_UPDATE_ID+ " INTEGER, " +
+                    COL_CATEGORY+" TEXT, " +
+                    COL_RECEIVER+" TEXT, " +
+                    COL_TITLE+" TEXT, " +
+                    COL_CONTENT+" TEXT, " +
+                    COL_SENDER_ID+ " INTEGER, " +
+                    COL_DATETIME+" TEXT," +
+                    COL_OPENED+" TEXT)");
 
               Toast.makeText(con, "Tables successfully created", Toast.LENGTH_SHORT).show();
             Log.wtf("DBHELPER","database is created");
@@ -128,7 +127,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int i, int i1) {
         db.execSQL("DROP TABLE IF EXISTS "+TABLE_USER+";");
         db.execSQL("DROP TABLE IF EXISTS "+TABLE_BARANGAY+";");
-        db.execSQL("DROP TABLE IF EXISTS "+TABLE_NOTIFICATION+";");
+        db.execSQL("DROP TABLE IF EXISTS "+TABLE_UPDATES+";");
         Log.wtf("DBHELPER","Old database is dropped");
         onCreate(db);
     }
@@ -171,10 +170,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return result;
     }
 
-    public void removeLoggedUser(){
-        SQLiteDatabase db = getWritableDatabase();
-        db.execSQL("DELETE FROM "+TABLE_USER+" WHERE "+COL_USER_LOC_ID+"=1");
-    }
 
     public long insertBarangay(String b_id,String b_name,String cellno, String tel) {
         SQLiteDatabase db = getWritableDatabase();
@@ -186,18 +181,18 @@ public class DBHelper extends SQLiteOpenHelper {
         long res = db.insertOrThrow(TABLE_BARANGAY,null,contentValues);
     return res;
     }
-    public long insertNotification(String id,String sender, String title, String msg, String datetime, String personal, String opened){
+
+    public void insertUpdate(String id,String category, String title, String content, String sender_id, String datetime, String opened){
         SQLiteDatabase db = getWritableDatabase();
-        ContentValues cv = new ContentValues();
-        cv.put(COL_NOTIF_ID,id);
-        cv.put(COL_NOTIF_SENDER,sender);
-        cv.put(COL_NOTIF_TITLE,title);
-        cv.put(COL_NOTIF_MESSAGE,msg);
-        cv.put(COL_NOTIF_DATETIME,datetime);
-        cv.put(COL_NOTIF_PERSONAL,personal);
-        cv.put(COL_NOTIF_OPENED,opened);
-        long res = db.insertOrThrow(TABLE_NOTIFICATION,null,cv);
-        return res;
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(COL_UPDATE_ID,id);
+        contentValues.put(COL_CATEGORY,category);
+        contentValues.put(COL_TITLE,title);
+        contentValues.put(COL_CONTENT,content);
+        contentValues.put(COL_SENDER_ID,sender_id);
+        contentValues.put(COL_DATETIME,datetime);
+        contentValues.put(COL_OPENED,opened);
+        db.insertOrThrow(TABLE_UPDATES,null,contentValues);
     }
 
     public void removeTableData(String TABLE_NAME){
@@ -268,6 +263,15 @@ public class DBHelper extends SQLiteOpenHelper {
     }
 
 
+    public void executeThisQuery(String query){
+        try {
+            SQLiteDatabase db = getWritableDatabase();
+            db.execSQL(query);
+            Log.wtf("ExecuteThisQuery","A query has been executed");
+        }catch (Exception ee){
+            Log.wtf("executeThisQuery",ee.getMessage());
+        }
+    }
     public void removeAllData(){
         // query to obtain the names of all tables in your database
         SQLiteDatabase db = getWritableDatabase();

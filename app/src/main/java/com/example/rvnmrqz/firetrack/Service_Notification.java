@@ -150,11 +150,7 @@ public class Service_Notification extends Service {
         //start the taskworker
         String url = ServerInfoClass.HOST_ADDRESS+"/get_data.php";
 
-        final String query = "SELECT * FROM "+dbhelper.TABLE_NOTIFICATION+" WHERE " +
-                dbhelper.COL_NOTIF_ID+">"+maxNotifId+
-                " AND ("+dbhelper.COL_NOTIF_USER_RECEIVER+" = "+userid+" " +
-                " OR "+
-                dbhelper.COL_NOTIF_BARANGAY_RECEIVER +" = "+user_barangay_id+");";
+        final String query ="SELECT * FROM "+dbhelper.TABLE_UPDATES+" WHERE receiver IN('ALL'|'u-"+userid+"'|'b-"+user_barangay_id+"') AND "+dbhelper.COL_UPDATE_ID+">"+maxNotifId+";";
 
         requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
@@ -187,33 +183,35 @@ public class Service_Notification extends Service {
     private void insert(String response){
         try{
 
-            String id,sender,title,msg,datetime,personal,opened;
+            String update_id,category,title,content,sender_id,datetime,opened="no";
             JSONObject object = new JSONObject(response);
             JSONArray Jarray  = object.getJSONArray("mydata");
-
+            boolean notificationReceived=false;
+            boolean queryReceived = false;
             for (int i = 0; i < Jarray.length(); i++)
             {
                 JSONObject Jasonobject = Jarray.getJSONObject(i);
+                update_id = Jasonobject.getString(dbhelper.COL_UPDATE_ID);
+                category = Jasonobject.getString(dbhelper.COL_CATEGORY);
+                title = Jasonobject.getString(dbhelper.COL_TITLE);
+                content = Jasonobject.getString(dbhelper.COL_CONTENT);
+                sender_id = Jasonobject.getString(dbhelper.COL_SENDER_ID);
+                datetime = Jasonobject.getString(dbhelper.COL_DATETIME);
 
-                id = Jasonobject.getString(dbhelper.COL_NOTIF_ID);
-                sender = Jasonobject.getString(dbhelper.COL_NOTIF_SENDER);
-                title = Jasonobject.getString(dbhelper.COL_NOTIF_TITLE);
-                msg = Jasonobject.getString(dbhelper.COL_NOTIF_MESSAGE);
-                datetime = Jasonobject.getString(dbhelper.COL_NOTIF_DATETIME);
-                String receiver_user = Jasonobject.getString(dbhelper.COL_NOTIF_USER_RECEIVER);
-                personal="false";
-                if(receiver_user!=null) {
-                    if (!receiver_user.trim().equals("") && !receiver_user.trim().equals("null")) {
-                        //this is a personal message
-                        personal = "true";
-                    }
+                //insert in sqlite
+                dbhelper.insertUpdate(update_id,category,title,content,sender_id,datetime,opened);
+
+                if(category.equalsIgnoreCase("notif")){
+                    //notification received
+                    notificationReceived=true;
+                }else{
+                    //this is a SQL update,execute
+                    queryReceived=true;
+                    dbhelper.executeThisQuery(content);
                 }
-                opened = "no";
-                dbhelper.insertNotification(id,sender,title,msg,datetime,personal,opened);
             }
-            if(Jarray.length()>0){
-                //there is new notification
-                showNotification();
+            if(notificationReceived || queryReceived){
+                //there is a new update received
                 int tmp = getLastNotificationId();
                 if(tmp>maxNotifId){
                     //there is a notification
@@ -222,25 +220,32 @@ public class Service_Notification extends Service {
                     Log.wtf("maxnotifId", "New Value is "+maxNotifId);
                     Log.wtf("onResponse","Notif is inserted");
                 }
-            }else{
-                Log.wtf("SyncNotifications","There is no new notification");
+                if(notificationReceived){
+                    //a notification is received
+                    showNotification();
+                }
+                else{
+                    //else it is a query
+                    Log.wtf("SyncNotifications","There is a new QUERY Received");
+                }
             }
 
         }catch (Exception ee){
             Toast.makeText(Service_Notification.this,ee.getMessage(),Toast.LENGTH_SHORT).show();
         }
     }
-    
+
+
+
     private int getLastNotificationId(){
         int lastId;
-        Cursor c = dbhelper.getSqliteData("SELECT MAX("+dbhelper.COL_NOTIF_ID+") max_id FROM "+dbhelper.TABLE_NOTIFICATION+";");
+        Cursor c = dbhelper.getSqliteData("SELECT MAX("+dbhelper.COL_UPDATE_ID+") max_id FROM "+dbhelper.TABLE_UPDATES+";");
         if(c!=null){
             Log.wtf("getLastNotificationId","c is not null");
             c.moveToFirst();
             String temp = c.getString(c.getColumnIndex("max_id"));
             if(temp!=null){
                 lastId = Integer.parseInt(temp);
-
                 return lastId;
             }else{
                 return 0;
@@ -256,7 +261,6 @@ public class Service_Notification extends Service {
         mainIntent.putExtra("notif","notify");
         final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 (mainIntent), PendingIntent.FLAG_UPDATE_CURRENT);
-
 
         b = new NotificationCompat.Builder(this);
         b.setAutoCancel(true)

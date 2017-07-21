@@ -145,7 +145,7 @@
             android:layout_height="match_parent"
             android:background="#d3d6db"
             android:orientation="vertical"
-            android:padding="8dp"
+            android:padding="5dp"
             android:visibility="gone">
 
             <android.support.v4.widget.SwipeRefreshLayout
@@ -158,7 +158,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:divider="@android:color/transparent"
-                    android:dividerHeight="10.0sp"></ListView>
+                    android:dividerHeight="5.0sp"></ListView>
             </android.support.v4.widget.SwipeRefreshLayout>
         </LinearLayout>
 

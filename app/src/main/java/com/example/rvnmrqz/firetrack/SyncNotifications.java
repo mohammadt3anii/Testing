@@ -55,7 +55,6 @@ public class SyncNotifications
                     finalMode = MODE;
                     sync(MODE);
                 }else{
-                    Toast.makeText(c, "User Values returns null", Toast.LENGTH_SHORT).show();
                     Log.wtf("SyncNotifications","Cursor returns an null value \nuser_id: "+user_id+"\nuserbarangay_id: "+user_barangay_id);
                 }
             }else{
@@ -84,7 +83,7 @@ public class SyncNotifications
 
                         }else if(mode == 2){
                             //remove and insert
-                            dbHelper.removeTableData(dbHelper.TABLE_NOTIFICATION);
+                            dbHelper.removeTableData(dbHelper.TABLE_UPDATES);
                             insert(response);
                         }
                         SharedPreferences sharedPreferences = context.getSharedPreferences(MySharedPref.SHAREDPREF_NAME,Context.MODE_PRIVATE);
@@ -108,10 +107,7 @@ public class SyncNotifications
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-                String qry = "SELECT * FROM "+dbHelper.TABLE_NOTIFICATION+" WHERE " +
-                        dbHelper.COL_NOTIF_USER_RECEIVER+" = "+user_id+" " +
-                        "OR "+
-                        dbHelper.COL_NOTIF_BARANGAY_RECEIVER +" = "+user_barangay_id+";";
+                String qry = "SELECT * FROM "+dbHelper.TABLE_UPDATES+" WHERE "+dbHelper.COL_RECEIVER+" IN('ALL'|'u-"+user_id+"'|'b-"+user_barangay_id+"') ORDER BY "+dbHelper.COL_UPDATE_ID+" limit 50;";
                 params.put("qry",qry);
                 return params;
             }
@@ -128,38 +124,25 @@ public class SyncNotifications
     private void insert(String response){
         try{
             Log.wtf("SyncNotifications,sync", "insert: "+response);
-            String id,sender,title,msg,datetime,personal,opened;
+            String update_id,category,title,content,sender_id,datetime,opened="yes";
             JSONObject object = new JSONObject(response);
             JSONArray Jarray  = object.getJSONArray("mydata");
 
             for (int i = 0; i < Jarray.length(); i++)
             {
                 JSONObject Jasonobject = Jarray.getJSONObject(i);
-
-                 id = Jasonobject.getString(dbHelper.COL_NOTIF_ID);
-                 sender = Jasonobject.getString(dbHelper.COL_NOTIF_SENDER);
-                 title = Jasonobject.getString(dbHelper.COL_NOTIF_TITLE);
-                 msg = Jasonobject.getString(dbHelper.COL_NOTIF_MESSAGE);
-                 datetime = Jasonobject.getString(dbHelper.COL_NOTIF_DATETIME);
-                 String receiver_user = Jasonobject.getString(dbHelper.COL_NOTIF_USER_RECEIVER);
-                 personal="false";
-                 if(receiver_user!=null) {
-                    if (!receiver_user.trim().equals("") && !receiver_user.trim().equals("null")) {
-                        //this is a personal message
-                        personal = "true";
-                    }
-                 }
-
-                //String personal = Jasonobject.getString(dbHelper.COL_NOTIF_PERSONAL);
-                opened = "yes";
-                dbHelper.insertNotification(id,sender,title,msg,datetime,personal,opened);
-
+                update_id = Jasonobject.getString(dbHelper.COL_UPDATE_ID);
+                category = Jasonobject.getString(dbHelper.COL_CATEGORY);
+                title = Jasonobject.getString(dbHelper.COL_TITLE);
+                content = Jasonobject.getString(dbHelper.COL_CONTENT);
+                sender_id = Jasonobject.getString(dbHelper.COL_SENDER_ID);
+                datetime = Jasonobject.getString(dbHelper.COL_DATETIME);
+                //insert in sqlite
+                dbHelper.insertUpdate(update_id,category,title,content,sender_id,datetime,opened);
             }
-
-
             Log.wtf("onResponse","Notif is inserted");
-
         }catch (Exception ee){
+            Log.wtf("SyncNotifications_insert()","Error: "+ee.getMessage());
             Toast.makeText(context,ee.getMessage(),Toast.LENGTH_SHORT).show();
         }
     }

@@ -181,18 +181,17 @@ public class MainActivity_user extends AppCompatActivity {
         }else{
             //already done syncing before
             Log.wtf("Sync Notif", "SyncNotif length is not 0, value is "+syncNotif);
-            loadNotifications();
+            //loadNotifications();
         }
 
         loadFeed();
 
         String extra = getIntent().getStringExtra("notif");
         if(extra!=null){
-            showFrame3();
+            navigation.setSelectedItemId(R.id.navigation_notifications);
         }else{
-            showFrame1();
+            navigation.setSelectedItemId(R.id.navigation_report);
         }
-
     }
 
     //FRAME 1****************************************************************
@@ -497,7 +496,7 @@ public class MainActivity_user extends AppCompatActivity {
 
             //Get the reference to the view objects
             TextView id  = (TextView) row.findViewById(R.id.post_id);
-            //    holder.poster_image  = (ImageView) convertView.findViewById(R.id.poster_image);
+            //holder.poster_image  = (ImageView) convertView.findViewById(R.id.poster_image);
             TextView name = (TextView) row.findViewById(R.id.poster_name);
             TextView datetime = (TextView) row.findViewById(R.id.post_datetime);
             TextView message = (TextView) row.findViewById(R.id.post_message);
@@ -525,6 +524,8 @@ public class MainActivity_user extends AppCompatActivity {
     }
     //***********************************************************************
 
+
+
     //FRAME 3****************************************************************
     public  void loadNotifications(){
         Log.wtf("loadNotifications","Start");
@@ -536,15 +537,17 @@ public class MainActivity_user extends AppCompatActivity {
         notif_messages.clear();
 
         dbHelper = new DBHelper(getApplicationContext());
-        Cursor c = dbHelper.getSqliteData("SELECT * FROM "+dbHelper.TABLE_NOTIFICATION+";");
-        c.moveToFirst();
+        Cursor c = dbHelper.getSqliteData("SELECT * FROM "+dbHelper.TABLE_UPDATES+" WHERE "+dbHelper.COL_CATEGORY+" = 'notif' ORDER BY "+dbHelper.COL_UPDATE_ID+" desc;");
+        if(c.getCount()>0){
+            c.moveToFirst();
+        }
         Log.wtf("loadNotifications","Cursor c: "+c.getCount());
         int counter=0;
         int cursorLength = c.getCount();
         while(counter<cursorLength){
-            notif_titles.add(c.getString(c.getColumnIndex(dbHelper.COL_NOTIF_TITLE)));
-            notif_datetime.add(c.getString(c.getColumnIndex(dbHelper.COL_NOTIF_DATETIME)));
-            notif_messages.add(c.getString(c.getColumnIndex(dbHelper.COL_NOTIF_MESSAGE)));
+            notif_titles.add(c.getString(c.getColumnIndex(dbHelper.COL_TITLE)));
+            notif_datetime.add(c.getString(c.getColumnIndex(dbHelper.COL_DATETIME)));
+            notif_messages.add(c.getString(c.getColumnIndex(dbHelper.COL_CONTENT)));
             counter++;
             c.moveToNext();
         }
@@ -593,6 +596,7 @@ public class MainActivity_user extends AppCompatActivity {
             }
         });
     }
+
     //***********************************************************************
 
     //FRAME TRANSITIONS
@@ -620,9 +624,7 @@ public class MainActivity_user extends AppCompatActivity {
         frame3.setVisibility(View.VISIBLE);
         frame1.setVisibility(View.GONE);
         frame2.setVisibility(View.GONE);
-
     }
-
 
     //BACKSTACKS
     public static void addToBackStack(Fragment fragment, String name){
@@ -723,7 +725,7 @@ public class MainActivity_user extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 SharedPreferences sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
                 sharedPreferences.edit().clear().commit();
-
+                stopService(new Intent(MainActivity_user.this,Service_Notification.class));
                 dbHelper.removeAllData();
                 startActivity(new Intent(MainActivity_user.this,SplashScreen.class));
                 finish();
