@@ -7,7 +7,7 @@ package com.example.rvnmrqz.firetrack;
 public class ServerInfoClass {
 
    //public static String HOST_TYPE = "online";
-   public static String HOST_TYPE = "localhost";
+   public static int TIME_OUT = 15000; //15seconds
 
    //public static String HOST_ADDRESS = "http://firetrackph.esy.es"; //ONLINE (hostinger)
   public  static String HOST_ADDRESS="http://192.168.1.17:80/firetrack"; //OFFLINE (localhost-Pc)

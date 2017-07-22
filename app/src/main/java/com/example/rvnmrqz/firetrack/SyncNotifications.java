@@ -90,14 +90,13 @@ public class SyncNotifications
                         SharedPreferences.Editor editor = sharedPreferences.edit();
                         editor.putString(MySharedPref.NOTIF,"no");
                         editor.commit();
-                        Log.wtf("SyncNotifications: onResponse_sync","Response="+response);
-
+                        Log.wtf("SyncNotifications: onResponse","Response="+response);
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.wtf("SyncNotification","Error Message: "+error.getMessage());
+                        Log.wtf("SyncNotification: onErrorResponse","Error Message: "+error.getMessage());
                         if(error == null){
                             Log.wtf("SyncNotification:onErrorResponse","Response is null, trying again");
                             sync(finalMode);
@@ -123,11 +122,9 @@ public class SyncNotifications
 
     private void insert(String response){
         try{
-            Log.wtf("SyncNotifications,sync", "insert: "+response);
             String update_id,category,title,content,sender_id,datetime,opened="yes";
             JSONObject object = new JSONObject(response);
             JSONArray Jarray  = object.getJSONArray("mydata");
-
             for (int i = 0; i < Jarray.length(); i++)
             {
                 JSONObject Jasonobject = Jarray.getJSONObject(i);
@@ -140,10 +137,16 @@ public class SyncNotifications
                 //insert in sqlite
                 dbHelper.insertUpdate(update_id,category,title,content,sender_id,datetime,opened);
             }
+            if(Jarray.length()>0){
+                //there is a value retrieved
+                Log.wtf("insert","Load main notifications UI");
+              MainActivity_user main = new MainActivity_user();
+                main.loadNotifications();
+            }
             Log.wtf("onResponse","Notif is inserted");
         }catch (Exception ee){
-            Log.wtf("SyncNotifications_insert()","Error: "+ee.getMessage());
-            Toast.makeText(context,ee.getMessage(),Toast.LENGTH_SHORT).show();
+            Log.wtf("SyncNotifications_insert()","Exception: "+ee.getMessage());
+            Toast.makeText(context, "A problem occurred while refreshing", Toast.LENGTH_SHORT).show();
         }
     }
 

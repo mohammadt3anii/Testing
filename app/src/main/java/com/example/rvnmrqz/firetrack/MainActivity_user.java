@@ -64,11 +64,10 @@ import java.util.Map;
 public class MainActivity_user extends AppCompatActivity {
 
 
-    LinearLayout frame1;
-    LinearLayout frame2,frame3;
-    LinearLayout initialLayout,feed_postLayout,feed_messageLayout,feed_loadingLayout;
+    LinearLayout frame1,frame2,frame3;
+    LinearLayout initialLayout,feed_postLayout,feed_messageLayout,feed_loadingLayout,notif_message_layout;
     TextView feed_messageTV;
-    SwipeRefreshLayout feed_swipeRefreshLayout,notif_swipeRefreshLayout;
+    SwipeRefreshLayout feed_swipeRefreshLayout,notif_swipeRefreshLayout,notif_swipeRefreshLayout2;
     ListView feed_listview;
     Button btnReport, btnMyReports, btnFeed_message;
     public static FragmentManager fragmentManager;
@@ -136,7 +135,7 @@ public class MainActivity_user extends AppCompatActivity {
         frame2 = (LinearLayout) findViewById(R.id.news_framelayout);
         frame3 = (LinearLayout) findViewById(R.id.notification_framelayout);
         initialLayout = (LinearLayout) findViewById(R.id.initial_layout);
-
+        notif_message_layout = (LinearLayout) findViewById(R.id.notif_message_layout);
         btnReport = (Button) findViewById(R.id.btnReportFire);
         btnReportListener();
         btnMyReports = (Button) findViewById(R.id.btnMyReports);
@@ -168,6 +167,7 @@ public class MainActivity_user extends AppCompatActivity {
         notif_listview = (ListView) findViewById(R.id.notif_listview);
 
         notif_swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.notif_swipe_refresh_layout);
+        notif_swipeRefreshLayout2 = (SwipeRefreshLayout) findViewById(R.id.notif_swipe_refresh_layout2);
         notif_swipeRefreshLayoutListner();
 
         footerView =  ((LayoutInflater) getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.listview_loading_footer, null, false);
@@ -181,7 +181,7 @@ public class MainActivity_user extends AppCompatActivity {
         }else{
             //already done syncing before
             Log.wtf("Sync Notif", "SyncNotif length is not 0, value is "+syncNotif);
-            //loadNotifications();
+            loadNotifications();
         }
 
         loadFeed();
@@ -282,10 +282,8 @@ public class MainActivity_user extends AppCompatActivity {
                                     feed_postLayout.setVisibility(View.GONE);
                                     feed_messageLayout.setVisibility(View.VISIBLE);
                                 }
-
-
                             }catch (Exception ee){
-                                showFeedMessage(true,"Can't load feed");
+                                showFeedMessage(true,"An error occurred while loading the feed");
                                 Log.wtf("loadFeed_ERROR", ee.getMessage());
                             }
                         }
@@ -295,10 +293,10 @@ public class MainActivity_user extends AppCompatActivity {
                     @Override
                     public void onErrorResponse(VolleyError error) {
                         Log.wtf("LoadFeed: onErrorResponse","Volley Error \n"+error.getMessage());
-                        showFeedMessage(true,"Can't load feed");
-                        if(error == null){
-                            //retry
-                            loadFeed();
+                        if(error.getMessage() == null){
+                            showFeedMessage(true,"Check your internet connection");
+                        }else{
+                            showFeedMessage(true,"Can't load the feed");
                         }
                     }
                 }){
@@ -310,11 +308,10 @@ public class MainActivity_user extends AppCompatActivity {
                         return params;
                  }
         };
-        int socketTimeout = 30000; // 30 seconds
+        int socketTimeout = ServerInfoClass.TIME_OUT;
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-
         request.setRetryPolicy(policy);
         request.setShouldCache(false);
         requestQueue.add(request);
@@ -459,7 +456,7 @@ public class MainActivity_user extends AppCompatActivity {
                 return params;
             }
         };
-        int socketTimeout = 30000; // 30 seconds
+        int socketTimeout = ServerInfoClass.TIME_OUT; // 30 seconds
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
@@ -554,6 +551,9 @@ public class MainActivity_user extends AppCompatActivity {
         if(cursorLength>0){
             notif_adapter = new NotificationAdapter(getApplicationContext(),notif_titles,notif_datetime,notif_messages);
             notif_listview.setAdapter(notif_adapter);
+            showBlankNotifLayout(false);
+        }else{
+            showBlankNotifLayout(true);
         }
         feed_swipeRefreshLayout.setRefreshing(false);
         notificationsLoaded=true;
@@ -595,6 +595,24 @@ public class MainActivity_user extends AppCompatActivity {
                 notif_swipeRefreshLayout.setRefreshing(false);
             }
         });
+        notif_swipeRefreshLayout2.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new SyncNotifications(MainActivity_user.this,1);
+                notif_swipeRefreshLayout2.setRefreshing(false);
+            }
+        });
+
+    }
+    protected void showBlankNotifLayout(boolean show){
+        if(show) {
+            notif_swipeRefreshLayout.setVisibility(View.GONE);
+            notif_message_layout.setVisibility(View.VISIBLE);
+        }else{
+            notif_message_layout.setVisibility(View.GONE);
+            notif_swipeRefreshLayout.setVisibility(View.VISIBLE);
+        }
+        Log.wtf("showBlankNotifLayout",show+"");
     }
 
     //***********************************************************************

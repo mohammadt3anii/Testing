@@ -173,6 +173,12 @@ public class Activity_Login extends AppCompatActivity {
 
             }
         };
+        int socketTimeout = ServerInfoClass.TIME_OUT; // 30 seconds
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        request.setRetryPolicy(policy);
+        request.setShouldCache(false);
         requestQueue.add(request);
     }
 
@@ -311,7 +317,7 @@ public class Activity_Login extends AppCompatActivity {
                                 return params;
                     }
                 };
-                int socketTimeout = 30000; // 30 seconds
+                int socketTimeout = ServerInfoClass.TIME_OUT; // 30 seconds
                 RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
                         DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                         DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
