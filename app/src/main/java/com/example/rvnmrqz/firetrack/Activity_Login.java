@@ -173,7 +173,7 @@ public class Activity_Login extends AppCompatActivity {
 
             }
         };
-        int socketTimeout = ServerInfoClass.TIME_OUT; // 30 seconds
+        int socketTimeout = ServerInfoClass.TIME_OUT;
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);

@@ -111,7 +111,7 @@ public class SyncNotifications
                 return params;
             }
         };
-        int socketTimeout = 30000; // 30 seconds
+        int socketTimeout = ServerInfoClass.TIME_OUT;
         RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
                 DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
                 DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
