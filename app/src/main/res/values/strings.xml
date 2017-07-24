@@ -6,7 +6,8 @@
     <string name="title_notifications">Notifications</string>
 
     <!--Main Menu Item-->
-    <string name="menu_test_activity">DB Manager</string>
+    <string name="menu_test_activity">DB Manager [test only]</string>
+    <string name="menu_start_stop_service">Service [test only]</string>
     <string name="menu_title_user">My Account</string>
     <string name="menu_title_settings">Settings</string>
 

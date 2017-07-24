@@ -35,6 +35,7 @@ import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
@@ -65,15 +66,16 @@ public class MainActivity_user extends AppCompatActivity {
 
 
     LinearLayout frame1,frame2,frame3;
-    LinearLayout initialLayout,feed_postLayout,feed_messageLayout,feed_loadingLayout,notif_message_layout;
+    LinearLayout initialLayout,feed_postLayout,feed_messageLayout,feed_loadingLayout;
+    static LinearLayout notif_message_layout;
     TextView feed_messageTV;
-    SwipeRefreshLayout feed_swipeRefreshLayout,notif_swipeRefreshLayout,notif_swipeRefreshLayout2;
+    SwipeRefreshLayout feed_swipeRefreshLayout;
+    static SwipeRefreshLayout notif_swipeRefreshLayout,notif_swipeRefreshLayout2;
     ListView feed_listview;
     Button btnReport, btnMyReports, btnFeed_message;
     public static FragmentManager fragmentManager;
     static DBHelper dbHelper;
     public static boolean reminderIsShown = false;
-
 
     ArrayList<String> post_id;
     ArrayList<String> postername;
@@ -82,11 +84,12 @@ public class MainActivity_user extends AppCompatActivity {
     ArrayList<String> postpicture;
     FeedAdapter adapter;
 
-     ListView notif_listview;
-     ArrayList<String> notif_titles;
-     ArrayList<String> notif_datetime;
-     ArrayList<String> notif_messages;
-     NotificationAdapter notif_adapter;
+     static ListView notif_listview;
+     static ArrayList<String> notif_titles;
+     static ArrayList<String> notif_datetime;
+     static ArrayList<String> notif_messages;
+     static NotificationAdapter notif_adapter;
+     static Context static_main_user;
 
     int sql_limit=5;
     int sql_offset=0;
@@ -94,12 +97,11 @@ public class MainActivity_user extends AppCompatActivity {
     View footerView;
     boolean isFooterLoading=false;
     boolean noMorePost=false;
-    boolean notificationsLoaded=false;
+    static boolean notificationsLoaded=false;
     String server_url;
     RequestQueue requestQueue;
 
-    static Activity user_act;
-
+    public static Activity user_act;
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -130,6 +132,7 @@ public class MainActivity_user extends AppCompatActivity {
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         dbHelper = new DBHelper(this);
+        static_main_user = getApplicationContext();
 
         frame1 = (LinearLayout) findViewById(R.id.report_framelayout);
         frame2 = (LinearLayout) findViewById(R.id.news_framelayout);
@@ -195,6 +198,7 @@ public class MainActivity_user extends AppCompatActivity {
     }
 
     //FRAME 1****************************************************************
+    //REPORTING
     protected void btnReportListener(){
         btnReport.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,6 +224,7 @@ public class MainActivity_user extends AppCompatActivity {
     //***********************************************************************
 
     //FRAME 2****************************************************************
+    //FEED
     protected void feed_swipeRefreshLayoutListener(){
         feed_swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
@@ -524,47 +529,53 @@ public class MainActivity_user extends AppCompatActivity {
 
 
     //FRAME 3****************************************************************
-    public  void loadNotifications(){
+    //NOTIFICATIONS
+    public static void loadNotifications(){
         Log.wtf("loadNotifications","Start");
-        feed_swipeRefreshLayout.setRefreshing(true);
+        notif_swipeRefreshLayout.setRefreshing(true);
 
         notif_adapter=null;
         notif_titles.clear();
         notif_datetime.clear();
         notif_messages.clear();
 
-        dbHelper = new DBHelper(getApplicationContext());
+        dbHelper = new DBHelper(static_main_user);
         Cursor c = dbHelper.getSqliteData("SELECT * FROM "+dbHelper.TABLE_UPDATES+" WHERE "+dbHelper.COL_CATEGORY+" = 'notif' ORDER BY "+dbHelper.COL_UPDATE_ID+" desc;");
-        if(c.getCount()>0){
-            c.moveToFirst();
-        }
-        Log.wtf("loadNotifications","Cursor c: "+c.getCount());
-        int counter=0;
-        int cursorLength = c.getCount();
-        while(counter<cursorLength){
-            notif_titles.add(c.getString(c.getColumnIndex(dbHelper.COL_TITLE)));
-            notif_datetime.add(c.getString(c.getColumnIndex(dbHelper.COL_DATETIME)));
-            notif_messages.add(c.getString(c.getColumnIndex(dbHelper.COL_CONTENT)));
-            counter++;
-            c.moveToNext();
-        }
-        if(cursorLength>0){
-            notif_adapter = new NotificationAdapter(getApplicationContext(),notif_titles,notif_datetime,notif_messages);
-            notif_listview.setAdapter(notif_adapter);
-            showBlankNotifLayout(false);
+
+        if(c != null ){
+            if(c.getCount()>0){
+                c.moveToFirst();
+            }
+            Log.wtf("loadNotifications","Cursor count "+c.getCount());
+            int counter=0;
+            int cursorLength = c.getCount();
+            while(counter<cursorLength){
+                notif_titles.add(c.getString(c.getColumnIndex(dbHelper.COL_TITLE)));
+                notif_datetime.add(c.getString(c.getColumnIndex(dbHelper.COL_DATETIME)));
+                notif_messages.add(c.getString(c.getColumnIndex(dbHelper.COL_CONTENT)));
+                counter++;
+                c.moveToNext();
+            }
+            if(cursorLength>0){
+                notif_adapter = new NotificationAdapter(static_main_user,notif_titles,notif_datetime,notif_messages);
+                notif_listview.setAdapter(notif_adapter);
+                showBlankNotifLayout(false);
+            }else{
+                showBlankNotifLayout(true);
+            }
+            notificationsLoaded=true;
         }else{
-            showBlankNotifLayout(true);
+            notificationsLoaded = false;
+            Toast.makeText(static_main_user, "Cursor Problem", Toast.LENGTH_SHORT).show();
         }
-        feed_swipeRefreshLayout.setRefreshing(false);
-        notificationsLoaded=true;
+        notif_swipeRefreshLayout.setRefreshing(false);
     }
-    class NotificationAdapter extends ArrayAdapter{
+    static class NotificationAdapter extends ArrayAdapter{
          ArrayList<String> notif_titles = new ArrayList<>();
          ArrayList<String> notif_datetime = new ArrayList<>();
          ArrayList<String> notif_messages = new ArrayList<>();
         public NotificationAdapter(@NonNull Context context, ArrayList<String> notif_titles, ArrayList<String> notif_datetime, ArrayList<String> notif_messages) {
             super(context, R.layout.template_notification, R.id.notif_title,notif_titles);
-
             this.notif_titles=notif_titles;
             this.notif_datetime=notif_datetime;
             this.notif_messages=notif_messages;
@@ -573,12 +584,21 @@ public class MainActivity_user extends AppCompatActivity {
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            LayoutInflater layoutInflater = getLayoutInflater();
+            LayoutInflater layoutInflater = LayoutInflater.from(static_main_user);
             View row = layoutInflater.inflate(R.layout.template_notification,parent,false);
 
             TextView txtTitle = (TextView) row.findViewById(R.id.notif_title);
             TextView txtDateTime = (TextView) row.findViewById(R.id.notif_datetime);
-            ExpandableTextView txtMessage = (ExpandableTextView) row.findViewById(R.id.notif_message);
+            final ImageButton btnExpand = (ImageButton) row.findViewById(R.id.expand_collapse);
+            final ExpandableTextView txtMessage = (ExpandableTextView) row.findViewById(R.id.notif_message);
+
+
+            row.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                   btnExpand.performClick();
+                }
+            });
 
             txtTitle.setText(notif_titles.get(position));
             txtMessage.setText(notif_messages.get(position));
@@ -587,7 +607,7 @@ public class MainActivity_user extends AppCompatActivity {
             return row;
         }
     }
-    protected void notif_swipeRefreshLayoutListner(){
+    protected static void notif_swipeRefreshLayoutListner(){
         notif_swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
@@ -598,13 +618,13 @@ public class MainActivity_user extends AppCompatActivity {
         notif_swipeRefreshLayout2.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new SyncNotifications(MainActivity_user.this,1);
+                new SyncNotifications(static_main_user,1);
                 notif_swipeRefreshLayout2.setRefreshing(false);
             }
         });
 
     }
-    protected void showBlankNotifLayout(boolean show){
+    protected static void showBlankNotifLayout(boolean show){
         if(show) {
             notif_swipeRefreshLayout.setVisibility(View.GONE);
             notif_message_layout.setVisibility(View.VISIBLE);
@@ -614,7 +634,6 @@ public class MainActivity_user extends AppCompatActivity {
         }
         Log.wtf("showBlankNotifLayout",show+"");
     }
-
     //***********************************************************************
 
     //FRAME TRANSITIONS
@@ -708,23 +727,25 @@ public class MainActivity_user extends AppCompatActivity {
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.menu_user) {
-
-              Toast.makeText(this, "Add Activity", Toast.LENGTH_SHORT).show();
-        }
-        else if(id == R.id.menu_logout){
-            logout();
+              Toast.makeText(this, "Add User Info Activity", Toast.LENGTH_SHORT).show();
         }
         else if(id == R.id.menu_test){
             startActivity(new Intent(MainActivity_user.this,Activity_DatabaseManager.class));
         }
         else if(id == R.id.menu_startService){
-                if(isMyServiceRunning(Service_Notification.class)){
-                    stopService(new Intent(MainActivity_user.this, Service_Notification.class));
-                    Toast.makeText(this, "Service Stopped", Toast.LENGTH_SHORT).show();
-                }else{
-                    startService(new Intent(MainActivity_user.this,Service_Notification.class));
-                    Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
-                }
+            if(isMyServiceRunning(Service_Notification.class)){
+                stopService(new Intent(MainActivity_user.this, Service_Notification.class));
+                Toast.makeText(this, "Service Stopped", Toast.LENGTH_SHORT).show();
+            }else{
+                startService(new Intent(MainActivity_user.this,Service_Notification.class));
+                Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
+            }
+        }
+        else if(id == R.id.menu_logout){
+            logout();
+        }
+        else if(id == R.id.menu_settings){
+            Toast.makeText(static_main_user, "Add Settings Activity", Toast.LENGTH_SHORT).show();
         }
         else if(id == android.R.id.home){
             goBack();

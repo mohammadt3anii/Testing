@@ -68,13 +68,12 @@ public class SyncBarangay
                             insert(response);
                         }
                         Log.wtf("Barangay_sync:onResponse_sync","Response="+response);
-
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
-                        Log.wtf("onErrorResponse_sync","Error Message: "+error.getMessage());
+                        Log.wtf("onErrorResponse (Sync Barangay)","Error Message: "+error.getMessage());
                        if (showMessage){
                            showMessage("Failed to capture Barangay details");
                        }

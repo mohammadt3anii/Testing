@@ -56,6 +56,8 @@ public class Activity_Login extends AppCompatActivity {
     SharedPreferences.Editor editor;
     StringRequest request;
 
+    Button btnOpenDB;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,7 +66,13 @@ public class Activity_Login extends AppCompatActivity {
 
          sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
 
-
+         btnOpenDB = (Button) findViewById(R.id.btnOpenDB);
+        btnOpenDB.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(Activity_Login.this,Activity_DatabaseManager.class));
+            }
+        });
         try{
             PackageManager packageManager = getApplicationContext().getPackageManager();
             PackageInfo packageInfo = packageManager.getPackageInfo(getApplicationContext().getPackageName(),0);
@@ -259,6 +267,7 @@ public class Activity_Login extends AppCompatActivity {
                                                     if (res!=-1){
                                                         Log.wtf("login","insert successful");
                                                         setSharedPrefData(MySharedPref.LOGGED,"user");
+                                                        Toast.makeText(Activity_Login.this, "Welcome "+fname+"!", Toast.LENGTH_SHORT).show();
                                                         startActivity(new Intent(getApplicationContext(),MainActivity_user.class));
                                                         finish();
                                                     }
@@ -270,10 +279,11 @@ public class Activity_Login extends AppCompatActivity {
                                                     res = dbhelper.insertLoggedTruck(acc_id, username, pass, acc_type, contact_no, plateNo);
                                                     if (res!=-1){
                                                         Log.wtf("login","insert successful");
-
                                                         setSharedPrefData(MySharedPref.LOGGED,"truck");
+                                                        Toast.makeText(Activity_Login.this, "Welcome "+plateNo+"!", Toast.LENGTH_SHORT).show();
+
                                                         //open truck UI
-                                                        // startActivity(new Intent(getApplicationContext(),MainActivity_user.class));
+                                                        // startActivity(new Intent(getApplicationContext(),MainActivity_truck.class));
                                                         // finish();
                                                     }
                                                     break;
@@ -402,10 +412,10 @@ public class Activity_Login extends AppCompatActivity {
 
     protected void checkBarangayDB(){
         Cursor c = dbhelper.getSqliteData("SELECT * FROM "+dbhelper.TABLE_BARANGAY);
-        c.moveToFirst();
         if(c!=null){
            if(c.getCount()==0){// populating barangay table
-                new SyncBarangay(this,1,false);
+
+               new SyncBarangay(this,1,false);
            }
         }
     }

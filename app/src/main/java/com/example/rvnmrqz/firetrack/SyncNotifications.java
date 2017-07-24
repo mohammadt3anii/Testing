@@ -140,8 +140,9 @@ public class SyncNotifications
             if(Jarray.length()>0){
                 //there is a value retrieved
                 Log.wtf("insert","Load main notifications UI");
-              MainActivity_user main = new MainActivity_user();
-                main.loadNotifications();
+                if(MainActivity_user.static_main_user !=null){
+                    MainActivity_user.loadNotifications();
+                }
             }
             Log.wtf("onResponse","Notif is inserted");
         }catch (Exception ee){

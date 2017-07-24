@@ -230,6 +230,9 @@ public class Service_Notification extends Service {
                 }
                 if(notificationReceived){
                     //a notification is received
+                    if(MainActivity_user.static_main_user!=null){
+                        MainActivity_user.loadNotifications();
+                    }
                     showNotification();
                 }
                 else{
@@ -242,8 +245,6 @@ public class Service_Notification extends Service {
             Toast.makeText(Service_Notification.this,ee.getMessage(),Toast.LENGTH_SHORT).show();
         }
     }
-
-
 
     private int getLastNotificationId(){
         int lastId;

@@ -34,8 +34,8 @@
                 android:layout_height="match_parent"
                 android:orientation="vertical">
                 <TextView
+                    android:textColor="#AD3B35"
                     android:id="@+id/poster_name"
-                    android:textColor="#000"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textSize="20sp"

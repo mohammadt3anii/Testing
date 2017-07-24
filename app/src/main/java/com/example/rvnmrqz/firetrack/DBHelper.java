@@ -22,8 +22,8 @@ public class DBHelper extends SQLiteOpenHelper {
     Context con;
 
     long result;
-    private static  final  int DATABASE_VERSION=13;
-    private static  final String DATABASE_NAME= "firetrack.db";
+    private static  final  int DATABASE_VERSION=2;
+    private static  final String DATABASE_NAME= "db_firetrack.db";
 
     //LOGGED USER
     public static  final String TABLE_USER = "tbl_user";
@@ -184,6 +184,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public void insertUpdate(String id,String category, String title, String content, String sender_id, String datetime, String opened){
         SQLiteDatabase db = getWritableDatabase();
+        recheckAndFixTable();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_UPDATE_ID,id);
         contentValues.put(COL_CATEGORY,category);
@@ -195,6 +196,52 @@ public class DBHelper extends SQLiteOpenHelper {
         db.insertOrThrow(TABLE_UPDATES,null,contentValues);
     }
 
+    public void recheckAndFixTable(){
+        try{
+            SQLiteDatabase db = getWritableDatabase();
+            Cursor cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"+TABLE_UPDATES+"'", null);
+            if(cursor!=null) {
+                if(cursor.getCount()>0) {
+                    cursor.close();
+                    //table exists
+                }else{
+                    //table does not exist, create one
+                    db.execSQL("CREATE TABLE "+TABLE_UPDATES+"(" +
+                            COL_UPDATE_LOC_ID+ " INTEGER PRIMARY KEY, " +
+                            COL_UPDATE_ID+ " INTEGER, " +
+                            COL_CATEGORY+" TEXT, " +
+                            COL_RECEIVER+" TEXT, " +
+                            COL_TITLE+" TEXT, " +
+                            COL_CONTENT+" TEXT, " +
+                            COL_SENDER_ID+ " INTEGER, " +
+                            COL_DATETIME+" TEXT," +
+                            COL_OPENED+" TEXT)");
+                    Log.wtf("insertUpdate","table updates does not exist, now created");
+                }
+            }
+
+            cursor = db.rawQuery("select DISTINCT tbl_name from sqlite_master where tbl_name = '"+TABLE_BARANGAY+"'", null);
+            if(cursor!=null) {
+                if(cursor.getCount()>0) {
+                    cursor.close();
+                    //table exists
+                }else{
+                    //table does not exist, create one
+                    db.execSQL("CREATE TABLE "+TABLE_BARANGAY+"("+
+                            BARANGAY_LOC_ID+" INTEGER PRIMARY KEY, "+
+                            BARANGAY_ID+" INTEGER, "+
+                            BARANGAY_NAME + " TEXT," +
+                            BARANGAY_CEL+" TEXT,"+
+                            BARANGAY_TEL+" TEXT)");
+                    Log.wtf("insertUpdate","table barangay does not exist, now created");
+                }
+            }
+        }catch (Exception e){
+            Log.wtf("recheckAndFixTable","A problem encountered "+e.getMessage());
+            Toast.makeText(con, "Problem in checking database", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     public void removeTableData(String TABLE_NAME){
         SQLiteDatabase db = getWritableDatabase();
         db.execSQL("DELETE FROM "+TABLE_NAME+";");
@@ -202,9 +249,11 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public Cursor getSqliteData(String qry){
         try {
+            recheckAndFixTable();
+
             SQLiteDatabase db = getWritableDatabase();
             Cursor cursor = db.rawQuery(qry,null);
-            Log.wtf("getSliteData- Content: ",""+cursor);
+
             return cursor;
         }catch (Exception e){
             Log.wtf("getSQLiteData",e.getMessage());
@@ -273,6 +322,8 @@ public class DBHelper extends SQLiteOpenHelper {
         }
     }
     public void removeAllData(){
+        Log.wtf("removeAllData","FUNCTION IS CALLED\n\n\n\n\n");
+
         // query to obtain the names of all tables in your database
         SQLiteDatabase db = getWritableDatabase();
         Cursor c = db.rawQuery("SELECT name FROM sqlite_master WHERE type='table'", null);
@@ -281,11 +332,14 @@ public class DBHelper extends SQLiteOpenHelper {
 // iterate over the result set, adding every table name to a list
         while (c.moveToNext()) {
             tables.add(c.getString(0));
+            Log.wtf("while","table name: "+c.getString(0));
+
         }
 
-// call DROP TABLE on every table name
+        Log.wtf("deleting","DELETING\n\n\n\n");
         for (String table : tables) {
-            String DELETE_DATA = "DELETE FROM " + table;
+            Log.wtf("inside for loop","table name: "+table);
+            String DELETE_DATA = "DELETE FROM " + table+";";
             db.execSQL(DELETE_DATA);
         }
     }
