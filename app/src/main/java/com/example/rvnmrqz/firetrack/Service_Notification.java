@@ -240,7 +240,6 @@ public class Service_Notification extends Service {
                     Log.wtf("SyncNotifications","There is a new QUERY Received");
                 }
             }
-
         }catch (Exception ee){
             Toast.makeText(Service_Notification.this,ee.getMessage(),Toast.LENGTH_SHORT).show();
         }

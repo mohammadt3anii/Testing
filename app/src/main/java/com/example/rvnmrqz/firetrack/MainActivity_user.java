@@ -217,7 +217,7 @@ public class MainActivity_user extends AppCompatActivity {
         btnMyReports.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity_user.this,"Open Fragment",Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity_user.this,"Add Fragment",Toast.LENGTH_SHORT).show();
             }
         });
     }
@@ -525,7 +525,6 @@ public class MainActivity_user extends AppCompatActivity {
         }
     }
     //***********************************************************************
-
 
 
     //FRAME 3****************************************************************

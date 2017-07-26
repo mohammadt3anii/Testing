@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -22,6 +23,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -98,15 +100,13 @@ public class Fragment_online_reporting extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-
-
         imgProof = (ImageView) getActivity().findViewById(R.id.img_proof);
         imgClickListener();
         txtLocation = (TextView) getActivity().findViewById(R.id.txtLocation);
         txtLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-               showLocationChoices();
+                showLocationChoices();
             }
         });
         showLocationChoices();
@@ -123,7 +123,7 @@ public class Fragment_online_reporting extends Fragment {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 int length = txtAdditionalInfo.getText().length();
-                txtDigits.setText(length+"/160");
+                txtDigits.setText(length + "/160");
             }
 
             @Override
@@ -135,10 +135,10 @@ public class Fragment_online_reporting extends Fragment {
         pd = new ProgressDialog(getActivity());
 
         dbhelper = new DBHelper(getActivity());
-        Cursor c = dbhelper.getSqliteData("SELECT "+dbhelper.COL_ACC_ID+" FROM "+dbhelper.TABLE_USER+" WHERE "+dbhelper.COL_USER_LOC_ID+"=1");
-        if(c != null){
+        Cursor c = dbhelper.getSqliteData("SELECT " + dbhelper.COL_ACC_ID + " FROM " + dbhelper.TABLE_USER + " WHERE " + dbhelper.COL_USER_LOC_ID + "=1");
+        if (c != null) {
             c.moveToFirst();
-                user_account_id = c.getString(c.getColumnIndex(dbhelper.COL_ACC_ID));
+            user_account_id = c.getString(c.getColumnIndex(dbhelper.COL_ACC_ID));
         }
     }
 
@@ -524,64 +524,85 @@ public class Fragment_online_reporting extends Fragment {
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(coordinates!=null){
-                    showLoadingDialog();
-                    String server_url = ServerInfoClass.HOST_ADDRESS+"/do_query.php";
-                    RequestQueue requestQue = Volley.newRequestQueue(getActivity());
-                    StringRequest stringReq = new StringRequest(Request.Method.POST, server_url,
-                            new Response.Listener<String>() {
+                if (coordinates != null) {
+                    new AlertDialog.Builder(getActivity())
+                            .setTitle("Confirmation")
+                            .setMessage("Continue sending the report?")
+                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
-                                public void onResponse(String response) {
-                                    Log.wtf("Report Response",response);
-                                    closeLoadingDialog();
+                                public void onClick(DialogInterface dialog, int which) {
+                                    sendReport();
+                                }
+                            })
+                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
 
-                                    if(response.trim().equals("Process Successful")){
-                                        //close reporting
-                                        Toast.makeText(getActivity(), "Report Sent", Toast.LENGTH_SHORT).show();
-                                        Fragment_online_reporting.super.getActivity().onBackPressed();
-                                    }
-                                    else{
-                                        Toast.makeText(getActivity(), "Report Failed", Toast.LENGTH_SHORT).show();
-                                    }
                                 }
-                            },
-                            new Response.ErrorListener() {
-                                @Override
-                                public void onErrorResponse(VolleyError error) {
-                                    if(error==null){
-                                        Toast.makeText(getActivity(), "No Response from server", Toast.LENGTH_SHORT).show();
-                                    }
-                                    closeLoadingDialog();
-                                }
-                            }){
-                        @Override
-                        protected Map<String, String> getParams() throws AuthFailureError {
-                            String query = "INSERT INTO tbl_reports(reporter_id,report_status,report_datetime,additional_info,coordinates,picture)" +
-                                    "VALUES("+user_account_id+", 'PENDING', NOW(), '"+txtAdditionalInfo.getText().toString().trim()+"','"+coordinates+"','"+encodedImage+"');";
-                            Map<String,String> params = new HashMap<String, String>();
-                            params.put("query",query);
-                            return params;
-                        }
-                    };
-                    requestQue.add(stringReq);
+                            });
                 }//END OF COORDINATES IS NOT NULL
-                else{
+                else {
                     txtLocation.requestFocus();
                     txtLocation.setError("No Location Given");
                 }
             }
         });
     }
-    private void showLoadingDialog(){
-        pd.setTitle("Submitting");
-        pd.setMessage("Please wait...");
-        pd.show();
+
+    private void sendReport() {
+        showLoadingDialog();
+        String server_url = ServerInfoClass.HOST_ADDRESS + "/do_query.php";
+        RequestQueue requestQue = Volley.newRequestQueue(getActivity());
+        StringRequest stringReq = new StringRequest(Request.Method.POST, server_url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.wtf("Report Response", response);
+                        closeLoadingDialog();
+                        if (response.trim().equals("Process Successful")) {
+                            //close reporting
+                            Toast.makeText(getActivity(), "Report Sent", Toast.LENGTH_SHORT).show();
+                            Fragment_online_reporting.super.getActivity().onBackPressed();
+                        } else {
+                            Toast.makeText(getActivity(), "Report Failed", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        if (error == null) {
+                            Toast.makeText(getActivity(), "No Response from server", Toast.LENGTH_SHORT).show();
+                        }
+                        closeLoadingDialog();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                String query = "INSERT INTO tbl_reports(reporter_id,report_status,report_datetime,additional_info,coordinates,picture)" +
+                        "VALUES(" + user_account_id + ", 'PENDING', NOW(), '" + txtAdditionalInfo.getText().toString().trim() + "','" + coordinates + "','" + encodedImage + "');";
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("query", query);
+                return params;
+            }
+        };
+        requestQue.add(stringReq);
+    }
+
+    private void showLoadingDialog() {
+           pd.setTitle("Submitting");
+           pd.setMessage("Please wait...");
+           pd.show();
 
     }
-    private void closeLoadingDialog(){
-        pd.hide();
-        pd.dismiss();
-    }
+
+    private void closeLoadingDialog() {
+                pd.hide();
+                pd.dismiss();
+            }
+
 
 
 }
+
+

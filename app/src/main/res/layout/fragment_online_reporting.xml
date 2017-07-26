@@ -5,12 +5,15 @@
     android:layout_height="match_parent"
     android:scrollbars="vertical"
     >
+    <ScrollView
+        android:isScrollContainer="false"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
         <LinearLayout
             android:padding="16dp"
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
@@ -21,7 +24,6 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Proof Photo (Recommended)" />
-
                 <ImageView
                     android:id="@+id/img_proof"
                     android:layout_width="100dp"
@@ -93,5 +95,6 @@
                     />
             </LinearLayout>
         </LinearLayout>
+    </ScrollView>
 
 </LinearLayout>
