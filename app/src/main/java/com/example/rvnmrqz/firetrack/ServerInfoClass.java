@@ -9,7 +9,7 @@ public class ServerInfoClass {
    //public static String HOST_TYPE = "online";
    public static int TIME_OUT = 15000; //15seconds
 
-   public static String HOST_ADDRESS = "http://firetrackph.esy.es"; //ONLINE (hostinger)
+   public static String HOST_ADDRESS = "http://firetrackph.cf"; //ONLINE (hostinger)
  // public  static String HOST_ADDRESS="http://192.168.1.17:80/firetrack"; //OFFLINE (localhost-Pc)
    //public  static String HOST_ADDRESS="http://192.168.1.8:81/android"; //OFFLINE (localhost-laptop)
    // public  static String HOST_ADDRESS="http://192.168.1.121:80/android"; //OFFLINE (localhost_ZTE)
