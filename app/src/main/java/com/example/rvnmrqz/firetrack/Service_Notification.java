@@ -77,6 +77,7 @@ public class Service_Notification extends Service {
                 userid = c.getString(c.getColumnIndex(dbhelper.COL_ACC_ID));
                 user_barangay_id = c.getString(c.getColumnIndex(dbhelper.COL_BARANGAY_ID));
             }
+
         }
         catch (Exception e){
             Log.wtf("SERVICE_ONCREATE", "Exception "+e.getMessage());
@@ -100,10 +101,14 @@ public class Service_Notification extends Service {
     }
 
     public void startTimer(){
-
         Log.wtf("service_startTimer", "Timer started");
         initializeTimer();
         timer.scheduleAtFixedRate(timerTask, seconds, seconds);
+    }
+    private void restartCounting(){
+        tick=0;
+        continueCount=true;
+        Log.wtf("service_restartCounting", "Timer restarted");
     }
 
     private void initializeTimer(){
@@ -140,12 +145,6 @@ public class Service_Notification extends Service {
         tick=0;
         continueCount=false;
         Log.wtf("service_stopCounting", "Timer stppped");
-    }
-
-    private void restartCounting(){
-        tick=0;
-        continueCount=true;
-        Log.wtf("service_restartCounting", "Timer restarted");
     }
 
     private void doWork(){
