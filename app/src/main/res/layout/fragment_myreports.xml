@@ -1,0 +1,59 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.rvnmrqz.firetrack.Fragment_myreports">
+
+    <LinearLayout
+        android:id="@+id/myreports_prograessLayout"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <ProgressBar
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+        <TextView
+            android:text="Loading Please Wait.."
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+   <LinearLayout
+       android:visibility="gone"
+       android:id="@+id/myreports_messageLayout"
+       android:orientation="vertical"
+       android:gravity="center"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent">
+        <TextView
+            android:textSize="18sp"
+            android:id="@+id/myreports_messageLayout_txtview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+       <Button
+           android:id="@+id/myreports_messageLayout_button"
+           android:layout_width="wrap_content"
+           android:layout_height="wrap_content" />
+   </LinearLayout>
+    <LinearLayout
+        android:visibility="gone"
+        android:id="@+id/myreports_listviewLayout"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <android.support.v4.widget.SwipeRefreshLayout
+            android:id="@+id/myreports_list_swipeRefreshlayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ListView
+                android:footerDividersEnabled="true"
+                android:id="@+id/myreports_listview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </ListView>
+        </android.support.v4.widget.SwipeRefreshLayout>
+
+    </LinearLayout>
+
+
+</FrameLayout>

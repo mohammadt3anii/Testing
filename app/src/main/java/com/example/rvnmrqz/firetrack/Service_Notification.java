@@ -50,6 +50,7 @@ public class Service_Notification extends Service {
 
     NotificationManager nm;
     NotificationCompat.Builder b;
+
     RequestQueue requestQueue;
 
     @Nullable
@@ -152,7 +153,7 @@ public class Service_Notification extends Service {
         //start the taskworker
         String url = ServerInfoClass.HOST_ADDRESS+"/get_data.php";
 
-        final String query ="SELECT * FROM "+dbhelper.TABLE_UPDATES+" WHERE receiver IN('ALL'|'u-"+userid+"'|'b-"+user_barangay_id+"') AND "+dbhelper.COL_UPDATE_ID+">"+maxNotifId+";";
+        final String query ="SELECT * FROM "+dbhelper.TABLE_UPDATES+" WHERE "+dbhelper.COL_NOTIF_RECEIVER +" IN('ALL'|'u-"+userid+"'|'b-"+user_barangay_id+"') AND "+dbhelper.COL_UPDATE_ID+">"+maxNotifId+";";
 
         requestQueue = Volley.newRequestQueue(this);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
@@ -208,7 +209,6 @@ public class Service_Notification extends Service {
 
                 //insert in sqlite
                 dbhelper.insertUpdate(update_id,category,title,content,sender_id,datetime,opened);
-
                 if(category.equalsIgnoreCase("notif")){
                     //notification received
                     notificationReceived=true;

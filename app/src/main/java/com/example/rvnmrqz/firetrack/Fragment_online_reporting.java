@@ -580,13 +580,20 @@ public class Fragment_online_reporting extends Fragment {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 String query = "INSERT INTO tbl_reports(reporter_id,report_status,report_datetime,additional_info,coordinates,picture)" +
-                        "VALUES(" + user_account_id + ", 'PENDING', NOW(), '" + txtAdditionalInfo.getText().toString().trim() + "','" + coordinates + "','" + encodedImage + "');";
+                        "VALUES(" + user_account_id +", 'PENDING', NOW(), '" + txtAdditionalInfo.getText().toString().trim() + "','" + coordinates + "','" + encodedImage + "');";
                 Map<String, String> params = new HashMap<String, String>();
                 params.put("query", query);
                 return params;
             }
         };
         requestQue.add(stringReq);
+    }
+
+    private int getNearestBarangay(){
+        int Barangay_ID=0;
+
+
+        return Barangay_ID;
     }
 
     private void showLoadingDialog() {

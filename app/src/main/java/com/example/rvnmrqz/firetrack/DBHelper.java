@@ -22,7 +22,7 @@ public class DBHelper extends SQLiteOpenHelper {
     Context con;
 
     long result;
-    private static  final  int DATABASE_VERSION=2;
+    private static  final  int DATABASE_VERSION=4;
     private static  final String DATABASE_NAME= "db_firetrack.db";
 
     //LOGGED USER
@@ -58,14 +58,15 @@ public class DBHelper extends SQLiteOpenHelper {
     public static  final String BARANGAY_NAME = "barangay_name";
     public static  final String BARANGAY_CEL = "barangay_cel";
     public static  final String BARANGAY_TEL = "barangay_tel";
+    public static  final String BARANGAY_COORDINATES = "barangay_coordinates";
 
 
     //UPDATES (NOTIFICATION)
-    public static final String TABLE_UPDATES= "tbl_updates";
+    public static final String TABLE_UPDATES= "tbl_user_updates";
     public static final String COL_UPDATE_LOC_ID   = "update_loc_id";
     public static final String COL_UPDATE_ID   = "update_id";
     public static final String COL_CATEGORY = "category";
-    public static final String COL_RECEIVER = "receiver";
+    public static final String COL_NOTIF_RECEIVER = "receiver";
     public static final String COL_TITLE = "title";
     public static final String COL_CONTENT = "content";
     public static final String COL_SENDER_ID ="sender_id";
@@ -103,13 +104,14 @@ public class DBHelper extends SQLiteOpenHelper {
                     BARANGAY_ID+" INTEGER, "+
                     BARANGAY_NAME + " TEXT," +
                     BARANGAY_CEL+" TEXT,"+
-                    BARANGAY_TEL+" TEXT)");
+                    BARANGAY_TEL+" TEXT," +
+                    BARANGAY_COORDINATES+" TEXT)");
 
             db.execSQL("CREATE TABLE "+TABLE_UPDATES+"(" +
                     COL_UPDATE_LOC_ID+ " INTEGER PRIMARY KEY, " +
                     COL_UPDATE_ID+ " INTEGER, " +
                     COL_CATEGORY+" TEXT, " +
-                    COL_RECEIVER+" TEXT, " +
+                    COL_NOTIF_RECEIVER +" TEXT, " +
                     COL_TITLE+" TEXT, " +
                     COL_CONTENT+" TEXT, " +
                     COL_SENDER_ID+ " INTEGER, " +
@@ -210,7 +212,7 @@ public class DBHelper extends SQLiteOpenHelper {
                             COL_UPDATE_LOC_ID+ " INTEGER PRIMARY KEY, " +
                             COL_UPDATE_ID+ " INTEGER, " +
                             COL_CATEGORY+" TEXT, " +
-                            COL_RECEIVER+" TEXT, " +
+                            COL_NOTIF_RECEIVER +" TEXT, " +
                             COL_TITLE+" TEXT, " +
                             COL_CONTENT+" TEXT, " +
                             COL_SENDER_ID+ " INTEGER, " +

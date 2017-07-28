@@ -96,7 +96,7 @@ public class MainActivity_user extends AppCompatActivity {
 
     View footerView;
     boolean isFooterLoading=false;
-    boolean noMorePost=false;
+    boolean noMorePost=false, endPostMsgShown=false;
     static boolean notificationsLoaded=false;
     String server_url;
     RequestQueue requestQueue;
@@ -217,9 +217,12 @@ public class MainActivity_user extends AppCompatActivity {
         btnMyReports.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(MainActivity_user.this,"Add Fragment",Toast.LENGTH_SHORT).show();
+                Log.wtf("btnMyReportListener","Button is clicked");
+                addToBackStack(new Fragment_myreports(),"myreports");
+                initialLayout.setVisibility(View.GONE);
             }
         });
+
     }
     //***********************************************************************
 
@@ -236,6 +239,7 @@ public class MainActivity_user extends AppCompatActivity {
     }
     protected void loadFeed(){
         Log.wtf("Loadfeed","Loadfeed called");
+        endPostMsgShown=false;
         showFeedLoading(true);
         server_url = ServerInfoClass.HOST_ADDRESS+"/get_data.php";
         requestQueue = Volley.newRequestQueue(this);
@@ -349,13 +353,9 @@ public class MainActivity_user extends AppCompatActivity {
                     addFooter(true);
                     loadMore();
                 }
-                //for padding views
-                if (firstVisibleItem == 0){
-                   feed_listview.setPadding(0,8,0,0);
-                } else if (view.getLastVisiblePosition() == totalItemCount - 1){
-                    feed_listview.setPadding(0,0,0,8);
-                } else {
-                    feed_listview.setPadding(0,0,0,0);
+                if(view.getLastVisiblePosition() == totalItemCount-1  && noMorePost==true && endPostMsgShown==false){
+                    Toast.makeText(MainActivity_user.this, "You've reached the end of the feed", Toast.LENGTH_SHORT).show();
+                    endPostMsgShown=true;
                 }
             }
         });
@@ -669,9 +669,10 @@ public class MainActivity_user extends AppCompatActivity {
             fragmentTransaction.replace(R.id.report_framelayout,fragment);
             fragmentTransaction.addToBackStack(name);
             fragmentTransaction.commit();
+            Log.wtf("addtobackstack","Fragment "+name+" is added to backstack");
         }catch (Exception ee){
             Log.wtf("addToBackStack","ERROR: "+ee.getMessage());
-            Toast.makeText(user_act,"An Error Occured Changing Stack", Toast.LENGTH_SHORT).show();
+            Toast.makeText(static_main_user,"An Error Occured Changing Stack", Toast.LENGTH_SHORT).show();
         }
     }
     protected void clearBackstack(){
