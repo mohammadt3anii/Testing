@@ -11,13 +11,29 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
+
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+
+import org.w3c.dom.Text;
+
+import java.util.HashMap;
+import java.util.Map;
 
 
 public class Fragment_myreports extends Fragment {
 
+    DBHelper dbHelper;
     LinearLayout layout_progress,layout_error_message,layout_list;
-
+    TextView txtprogressMsg, txterrorMsg;
+    Button btnRefresh;
+    int account_id;
 
     public Fragment_myreports() {
         // Required empty public constructor
@@ -37,7 +53,16 @@ public class Fragment_myreports extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        layout_error_message  = (LinearLayout) getActivity().findViewById(R.id.myreports_messageLayout);
+        layout_progress = (LinearLayout) getActivity().findViewById(R.id.myreports_progressLayout);
+        layout_list = (LinearLayout) getActivity().findViewById(R.id.myreports_listviewLayout);
+        txterrorMsg = (TextView) getActivity().findViewById(R.id.myreports_messageLayout_txtview);
+        txtprogressMsg = (TextView) getActivity().findViewById(R.id.myreports_progressLayout_txtView);
+        btnRefresh = (Button) getActivity().findViewById(R.id.myreports_messageLayout_button);
+        dbHelper = new DBHelper(getActivity());
+
         if(isNetworkAvailable()){
+            //load listview
 
         }else{
             //show snackbar
@@ -45,13 +70,44 @@ public class Fragment_myreports extends Fragment {
         }
     }
 
+    protected void loadReports(){
+        String url =  ServerInfoClass.HOST_ADDRESS+"/get_data.php";
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<>();
+                //di pa tapos query neto
+                String query = "SELECT * FROM "+dbHelper.TABLE_REPORTS+" WHERE "+dbHelper.COL_REPORTER_id+" = "+account_id+";";
+                params.put("qry",query);
+
+                return super.getParams();
+            }
+        };
+
+    }
+
+    //Layout transitions
     public void showProgressLayout(String loadingmsg){
         layout_progress.setVisibility(View.VISIBLE);
         layout_error_message.setVisibility(View.GONE);
         layout_list.setVisibility(View.GONE);
     }
     public void showErrorMessage(String errorMsg,boolean showButton, String buttonText){
-
+        layout_progress.setVisibility(View.GONE);
+        layout_list.setVisibility(View.GONE);
+        layout_error_message.setVisibility(View.VISIBLE);
     }
     public void showListview(){
 
@@ -62,9 +118,7 @@ public class Fragment_myreports extends Fragment {
                 .setAction("Go online", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        Intent intent = new Intent(Intent.ACTION_MAIN);
-                        intent.setClassName("com.android.phone", "com.android.phone.NetworkSetting");
-                        startActivity(intent);
+                        startActivity(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS));
                     }
                 })
                 .setActionTextColor(getResources().getColor(android.R.color.holo_red_light ))

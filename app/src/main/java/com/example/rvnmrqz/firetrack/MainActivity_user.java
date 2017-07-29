@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomNavigationView;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
@@ -38,10 +39,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
+import com.android.volley.NetworkError;
+import com.android.volley.NoConnectionError;
+import com.android.volley.ParseError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
+import com.android.volley.ServerError;
+import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -177,6 +183,7 @@ public class MainActivity_user extends AppCompatActivity {
             loadNotifications();
         }
 
+
         loadFeed();
 
         String extra = getIntent().getStringExtra("notif");
@@ -290,13 +297,30 @@ public class MainActivity_user extends AppCompatActivity {
                 },
                 new Response.ErrorListener() {
                     @Override
-                    public void onErrorResponse(VolleyError error) {
-                        Log.wtf("LoadFeed: onErrorResponse","Volley Error \n"+error.getMessage());
-                        if(error.getMessage() == null){
-                            showFeedMessage(true,"Check your internet connection");
-                        }else{
-                            showFeedMessage(true,"Can't load the feed");
+                    public void onErrorResponse(VolleyError volleyError) {
+                        String message = null;
+                        Log.wtf("LoadFeed: onErrorResponse","Volley Error \n"+volleyError.getMessage());
+                        if (volleyError instanceof NetworkError) {
+                            message = "No internet connection";
+                            Log.wtf("loadFeed (Volley Error)","NetworkError");
+                            showSnackbar("You're not connected to internet");
+                        } else if (volleyError instanceof ServerError) {
+                            message = "Please check your internet connection";
+                            Log.wtf("loadFeed (Volley Error)","ServerError");
+                        } else if (volleyError instanceof AuthFailureError) {
+                            message = "Please check your internet connection";
+                            Log.wtf("loadFeed (Volley Error)","AuthFailureError");
+                        } else if (volleyError instanceof ParseError) {
+                            message = "An error encountered, Please try again";
+                            Log.wtf("loadFeed (Volley Error)","ParseError");
+                        } else if (volleyError instanceof NoConnectionError) {
+                            message = "No internet connection";
+                            Log.wtf("loadFeed (Volley Error)","NoConnectionError");
+                        } else if (volleyError instanceof TimeoutError) {
+                            message = "Connection TimeOut!\nPlease check your internet connection.";
+                            Log.wtf("loadFeed (Volley Error)","TimeoutError");
                         }
+                        showFeedMessage(true,message);
                     }
                 }){
                     @Override
@@ -778,6 +802,17 @@ public class MainActivity_user extends AppCompatActivity {
         }
         return false;
     }
-
+    protected void showSnackbar(String snackbarMsg){
+        View parentLayout = findViewById(android.R.id.content);
+        Snackbar.make(parentLayout, snackbarMsg, Snackbar.LENGTH_LONG)
+                .setAction("Go online", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS));
+                    }
+                })
+                .setActionTextColor(getResources().getColor(android.R.color.holo_red_light ))
+                .show();
+    }
         
 }

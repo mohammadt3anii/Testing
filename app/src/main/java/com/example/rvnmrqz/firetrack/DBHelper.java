@@ -10,6 +10,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -73,6 +74,15 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COL_DATETIME = "datetime";
     public static final String COL_OPENED = "opened";
 
+    //reports
+    public static final String TABLE_REPORTS ="tbl_reports";
+    public static final String COL_REPORT_ID = "report_id";
+    public static final String COL_REPORTER_id ="reporter_id";
+    public static final String COL_REPORT_STATUS ="report_status";
+    public static final String COL_REPORT_DATETIME = "report_datetime";
+    public static final String COL_REPORT_ADDITIONAL_INFO = "additional_info";
+    public static final String COL_REPORT_COORDINATES  = "coordinates";
+    public static final String COL_REPORT_PICUTRE = "picture";
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
