@@ -6,6 +6,9 @@ import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
@@ -105,6 +108,7 @@ public class Service_Notification extends Service {
         initializeTimer();
         timer.scheduleAtFixedRate(timerTask, seconds, seconds);
     }
+
     private void restartCounting(){
         tick=0;
         continueCount=true;
@@ -229,10 +233,22 @@ public class Service_Notification extends Service {
                 }
                 if(notificationReceived){
                     //a notification is received
-                    if(MainActivity_user.static_main_user!=null){
-                        MainActivity_user.loadNotifications();
+                    if(MainActivity_user.mainAcvitiyUser_static !=null){
+                        //app is running
+                        try {
+                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+                            r.play();
+                            MainActivity_user.loadNotifications();
+                            MainActivity_user.showDialogNotif();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
-                    showNotification();
+                    else{
+                        //app is not running
+                        showNotification();
+                    }
                 }
                 else{
                     //else it is a query
@@ -268,7 +284,6 @@ public class Service_Notification extends Service {
         mainIntent.putExtra("notif","notify");
         final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 (mainIntent), PendingIntent.FLAG_UPDATE_CURRENT);
-
         b = new NotificationCompat.Builder(this);
         b.setAutoCancel(true)
                 .setDefaults(NotificationCompat.DEFAULT_ALL)

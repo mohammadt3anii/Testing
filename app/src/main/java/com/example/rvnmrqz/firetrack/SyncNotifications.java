@@ -106,7 +106,7 @@ public class SyncNotifications
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<String, String>();
-                String qry = "SELECT * FROM "+dbHelper.TABLE_UPDATES+" WHERE "+dbHelper.COL_NOTIF_RECEIVER +" IN('ALL'|'u-"+user_id+"'|'b-"+user_barangay_id+"') ORDER BY "+dbHelper.COL_UPDATE_ID+" limit 50;";
+                String qry = "SELECT * FROM "+dbHelper.TABLE_UPDATES+" WHERE "+dbHelper.COL_NOTIF_RECEIVER +" IN('ALL'|'u-"+user_id+"'|'b-"+user_barangay_id+"') ORDER BY "+dbHelper.COL_UPDATE_ID+" desc limit 100;";
                 params.put("qry",qry);
                 return params;
             }
@@ -140,7 +140,7 @@ public class SyncNotifications
             if(Jarray.length()>0){
                 //there is a value retrieved
                 Log.wtf("insert","Load main notifications UI");
-                if(MainActivity_user.static_main_user !=null){
+                if(MainActivity_user.mainAcvitiyUser_static !=null){
                     MainActivity_user.loadNotifications();
                 }
             }

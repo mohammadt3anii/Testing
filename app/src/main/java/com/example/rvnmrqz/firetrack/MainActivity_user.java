@@ -85,7 +85,9 @@ public class MainActivity_user extends AppCompatActivity {
      static ArrayList<String> notif_datetime;
      static ArrayList<String> notif_messages;
      static NotificationAdapter notif_adapter;
-     static Context static_main_user;
+
+
+    public static Context mainAcvitiyUser_static;
 
     int sql_limit=5;
     int sql_offset=0;
@@ -96,8 +98,6 @@ public class MainActivity_user extends AppCompatActivity {
     static boolean notificationsLoaded=false;
     String server_url;
     RequestQueue requestQueue;
-
-
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
             = new BottomNavigationView.OnNavigationItemSelectedListener() {
@@ -123,12 +123,13 @@ public class MainActivity_user extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.wtf("MainUser","ONCREATE");
         setContentView(R.layout.activity_main_user);
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         dbHelper = new DBHelper(this);
-        static_main_user = getApplicationContext();
+        mainAcvitiyUser_static = getApplicationContext();
 
         frame1 = (LinearLayout) findViewById(R.id.report_framelayout);
         frame2 = (LinearLayout) findViewById(R.id.news_framelayout);
@@ -182,8 +183,6 @@ public class MainActivity_user extends AppCompatActivity {
             Log.wtf("Sync Notif", "SyncNotif length is not 0, value is "+syncNotif);
             loadNotifications();
         }
-
-
         loadFeed();
 
         String extra = getIntent().getStringExtra("notif");
@@ -552,7 +551,7 @@ public class MainActivity_user extends AppCompatActivity {
         notif_datetime.clear();
         notif_messages.clear();
 
-        dbHelper = new DBHelper(static_main_user);
+        dbHelper = new DBHelper(mainAcvitiyUser_static);
         Cursor c = dbHelper.getSqliteData("SELECT * FROM "+dbHelper.TABLE_UPDATES+" WHERE "+dbHelper.COL_CATEGORY+" = 'notif' ORDER BY "+dbHelper.COL_UPDATE_ID+" desc;");
 
         if(c != null ){
@@ -570,7 +569,7 @@ public class MainActivity_user extends AppCompatActivity {
                 c.moveToNext();
             }
             if(cursorLength>0){
-                notif_adapter = new NotificationAdapter(static_main_user,notif_titles,notif_datetime,notif_messages);
+                notif_adapter = new NotificationAdapter(mainAcvitiyUser_static,notif_titles,notif_datetime,notif_messages);
                 notif_listview.setAdapter(notif_adapter);
                 showBlankNotifLayout(false);
             }else{
@@ -579,7 +578,7 @@ public class MainActivity_user extends AppCompatActivity {
             notificationsLoaded=true;
         }else{
             notificationsLoaded = false;
-            Toast.makeText(static_main_user, "Cursor Problem", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mainAcvitiyUser_static, "Cursor Problem", Toast.LENGTH_SHORT).show();
         }
         notif_swipeRefreshLayout.setRefreshing(false);
     }
@@ -597,7 +596,7 @@ public class MainActivity_user extends AppCompatActivity {
         @NonNull
         @Override
         public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
-            LayoutInflater layoutInflater = LayoutInflater.from(static_main_user);
+            LayoutInflater layoutInflater = LayoutInflater.from(mainAcvitiyUser_static);
             View row = layoutInflater.inflate(R.layout.template_notification,parent,false);
 
             TextView txtTitle = (TextView) row.findViewById(R.id.notif_title);
@@ -631,7 +630,7 @@ public class MainActivity_user extends AppCompatActivity {
         notif_swipeRefreshLayout2.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                new SyncNotifications(static_main_user,1);
+                new SyncNotifications(mainAcvitiyUser_static,1);
                 notif_swipeRefreshLayout2.setRefreshing(false);
             }
         });
@@ -656,7 +655,6 @@ public class MainActivity_user extends AppCompatActivity {
         frame1.setVisibility(View.VISIBLE);
         frame2.setVisibility(View.GONE);
         frame3.setVisibility(View.GONE);
-
     }
     protected void showFrame2(){
         clearBackstack();
@@ -686,7 +684,7 @@ public class MainActivity_user extends AppCompatActivity {
             Log.wtf("addtobackstack","Fragment "+name+" is added to backstack");
         }catch (Exception ee){
             Log.wtf("addToBackStack","ERROR: "+ee.getMessage());
-            Toast.makeText(static_main_user,"An Error Occured Changing Stack", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mainAcvitiyUser_static,"An Error Occured Changing Stack", Toast.LENGTH_SHORT).show();
         }
     }
     protected void clearBackstack(){
@@ -759,7 +757,7 @@ public class MainActivity_user extends AppCompatActivity {
             logout();
         }
         else if(id == R.id.menu_settings){
-            Toast.makeText(static_main_user, "Add Settings Activity", Toast.LENGTH_SHORT).show();
+            Toast.makeText(mainAcvitiyUser_static, "Add Settings Activity", Toast.LENGTH_SHORT).show();
         }
         else if(id == android.R.id.home){
             goBack();
@@ -802,6 +800,7 @@ public class MainActivity_user extends AppCompatActivity {
         }
         return false;
     }
+
     protected void showSnackbar(String snackbarMsg){
         View parentLayout = findViewById(android.R.id.content);
         Snackbar.make(parentLayout, snackbarMsg, Snackbar.LENGTH_LONG)
@@ -814,5 +813,25 @@ public class MainActivity_user extends AppCompatActivity {
                 .setActionTextColor(getResources().getColor(android.R.color.holo_red_light ))
                 .show();
     }
+    public static void showSnackbarNotif(){
+        Log.wtf("showSnackBarNotif", "method is called");
+        View rootView = ((Activity)mainAcvitiyUser_static).getWindow().getDecorView().findViewById(android.R.id.content);
+        Snackbar.make(rootView, "You have a new notification", Snackbar.LENGTH_LONG)
+                .show();
+    }
+    public static void showDialogNotif(){
+        new AlertDialog.Builder(mainAcvitiyUser_static)
+                .setTitle("Notification")
+                .setMessage("New notification received")
+                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();
+
+    }
+
         
 }

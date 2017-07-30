@@ -42,7 +42,6 @@
 
         <service android:name=".Service_Notification"
                  android:exported="false"/>
-
     </application>
 
 </manifest>
