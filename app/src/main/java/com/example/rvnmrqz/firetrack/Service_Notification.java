@@ -13,6 +13,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Vibrator;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
@@ -260,9 +261,15 @@ public class Service_Notification extends Service {
                         }
                         else{
                             //app is not running
-                            showNotification(unopen);
+                            if(getSharedPrefValue(MySharedPref.NOTIFICATIONS)){
+                                showNotification(unopen);
+                            }
                         }
-                        if(playNotifSound()){
+                        if(getSharedPrefValue(MySharedPref.PLAY_VIBRATE) && getSharedPrefValue(MySharedPref.NOTIFICATIONS)){
+                            Vibrator vb = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+                            vb.vibrate(500);
+                        }
+                        if(getSharedPrefValue(MySharedPref.NOTIFICATIONS) && playNotifSound()){
                             playRingtone();
                         }
                     }
@@ -296,6 +303,7 @@ public class Service_Notification extends Service {
 
     }
 
+
     private boolean playNotifSound(){
         return  sharedPreferences.getBoolean(MySharedPref.PLAY_NOTIFSOUND,true);
     }
@@ -311,7 +319,10 @@ public class Service_Notification extends Service {
         Log.wtf("setUnopenedNotif","New Value: "+getLastNotificationId());
         editor.commit();
     }
-
+    protected boolean getSharedPrefValue(String key){
+        boolean val = sharedPreferences.getBoolean(key,true);
+        return val;
+    }
     private int getLastNotificationId(){
         int lastId;
         Cursor c = dbhelper.getSqliteData("SELECT MAX("+dbhelper.COL_UPDATE_ID+") max_id FROM "+dbhelper.TABLE_UPDATES+";");

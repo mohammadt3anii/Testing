@@ -190,6 +190,22 @@ public class MainActivity_user extends AppCompatActivity {
         loadUnopenednotificationsbadge();
     }
 
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.wtf("onNewIntent","New Intent Received");
+
+        String extra = intent.getStringExtra("notif");
+        if(extra!=null){
+            Log.wtf("getString","extra string is not null");
+            bottomNavigation.setCurrentItem(2);
+            clearNotifications(2);
+        }else{
+            Log.wtf("getString","extra string is null");
+            bottomNavigation.setCurrentItem(0);
+        }
+    }
+
     protected void loadUnopenednotificationsbadge(){
         SharedPreferences sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
         int count = sharedPreferences.getInt(MySharedPref.NOTIF_COUNT,0);
@@ -865,9 +881,7 @@ public class MainActivity_user extends AppCompatActivity {
             logout();
         }
         else if(id == R.id.menu_settings){
-            SharedPreferences sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
-            Toast.makeText(mainAcvitiyUser_static, "Current unopened notif: "+sharedPreferences.getInt(MySharedPref.NOTIF_COUNT,0), Toast.LENGTH_SHORT).show();
-
+           startActivity(new Intent(MainActivity_user.this,Activity_User_Settings.class));
         }
         else if(id == android.R.id.home){
             goBack();
@@ -928,21 +942,6 @@ public class MainActivity_user extends AppCompatActivity {
                 .show();
     }
 
-    @Override
-    protected void onNewIntent(Intent intent) {
-        super.onNewIntent(intent);
-        Log.wtf("onNewIntent","New Intent Received");
-
-        String extra = intent.getStringExtra("notif");
-        if(extra!=null){
-            Log.wtf("getString","extra string is not null");
-            bottomNavigation.setCurrentItem(2);
-            clearNotifications(2);
-        }else{
-            Log.wtf("getString","extra string is null");
-            bottomNavigation.setCurrentItem(0);
-        }
-    }
 
     //activity visibility
     public static boolean activityVisible;
@@ -962,4 +961,5 @@ public class MainActivity_user extends AppCompatActivity {
         super.onResume();
         activityResumed();
     }
+
 }

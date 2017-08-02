@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.VIBRATE" />
 
     <application
         android:allowBackup="true"
@@ -35,13 +36,16 @@
         <activity
             android:name=".Activity_Login"
             android:screenOrientation="portrait" />
-        <activity android:name=".TestActivity"></activity>
+        <activity android:name=".TestActivity" />
         <activity
             android:name=".Activity_DatabaseManager"
             android:theme="@style/Theme.AppCompat.Light" />
 
-        <service android:name=".Service_Notification"
-                 android:exported="false"/>
+        <service
+            android:name=".Service_Notification"
+            android:exported="false" />
+
+        <activity android:name=".Activity_User_Settings"></activity>
     </application>
 
 </manifest>

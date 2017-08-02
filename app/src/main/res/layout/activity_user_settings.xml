@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:orientation="vertical"
+    tools:context="com.example.rvnmrqz.firetrack.Activity_User_Settings">
+
+    <Switch
+        android:text="Notifications"
+        android:id="@+id/switch_master_notif"
+        android:textStyle="bold"
+        android:textSize="24sp"
+        android:textColor="@color/colorPrimaryDark"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <View
+        android:background="#666464"
+        android:layout_width = "match_parent"
+        android:layout_height="1dp"/>
+    <Switch
+        android:id="@+id/switch_playsound"
+        android:text="Notification Sound"
+        android:textSize="16sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"/>
+
+    <View
+        android:background="#666464"
+        android:layout_width = "match_parent"
+        android:layout_height="1dp"/>
+    <Switch
+        android:id="@+id/switch_notif_vibrate"
+        android:text="Notification Vibration"
+        android:textSize="16sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"/>
+    <View
+        android:background="#666464"
+        android:layout_width = "match_parent"
+        android:layout_height="1dp"/>
+
+</LinearLayout>
