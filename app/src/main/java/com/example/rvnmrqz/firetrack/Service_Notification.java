@@ -240,9 +240,11 @@ public class Service_Notification extends Service {
                             Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
                             r.play();
                             MainActivity_user.loadNotifications();
-                            MainActivity_user.showDialogNotif();
+                            MainActivity_user ma = new MainActivity_user();
+                            ma.showSnackbarNotif();
+                            //ma.showDialogNotif(getApplicationContext());
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            Log.wtf("insert","An error occurred while trying to notify the Main UI, exception: "+e.getMessage());
                         }
                     }
                     else{

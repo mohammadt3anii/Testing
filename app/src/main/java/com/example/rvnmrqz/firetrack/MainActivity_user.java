@@ -35,6 +35,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.android.volley.AuthFailureError;
@@ -191,6 +192,10 @@ public class MainActivity_user extends AppCompatActivity {
         }else{
             navigation.setSelectedItemId(R.id.navigation_report);
         }
+
+
+        //delete this
+        showSnackbarNotif();
     }
 
     //FRAME 1****************************************************************
@@ -300,9 +305,9 @@ public class MainActivity_user extends AppCompatActivity {
                         String message = null;
                         Log.wtf("LoadFeed: onErrorResponse","Volley Error \n"+volleyError.getMessage());
                         if (volleyError instanceof NetworkError) {
-                            message = "No internet connection";
+                            message = "Network Error Encountered";
                             Log.wtf("loadFeed (Volley Error)","NetworkError");
-                            showSnackbar("You're not connected to internet");
+                            //showSnackbar("You're not connected to internet");
                         } else if (volleyError instanceof ServerError) {
                             message = "Please check your internet connection";
                             Log.wtf("loadFeed (Volley Error)","ServerError");
@@ -316,7 +321,7 @@ public class MainActivity_user extends AppCompatActivity {
                             message = "No internet connection";
                             Log.wtf("loadFeed (Volley Error)","NoConnectionError");
                         } else if (volleyError instanceof TimeoutError) {
-                            message = "Connection TimeOut!\nPlease check your internet connection.";
+                            message = "Connection Timeout";
                             Log.wtf("loadFeed (Volley Error)","TimeoutError");
                         }
                         showFeedMessage(true,message);
@@ -813,14 +818,16 @@ public class MainActivity_user extends AppCompatActivity {
                 .setActionTextColor(getResources().getColor(android.R.color.holo_red_light ))
                 .show();
     }
-    public static void showSnackbarNotif(){
-        Log.wtf("showSnackBarNotif", "method is called");
-        View rootView = ((Activity)mainAcvitiyUser_static).getWindow().getDecorView().findViewById(android.R.id.content);
-        Snackbar.make(rootView, "You have a new notification", Snackbar.LENGTH_LONG)
+
+
+    public void showSnackbarNotif(){
+        RelativeLayout parentLayout = (RelativeLayout) findViewById(R.id.container);
+        Snackbar.make(parentLayout, "New Notification Received", Snackbar.LENGTH_LONG)
                 .show();
+        Log.wtf("showSnackBarNotif","snackbar shown");
     }
-    public static void showDialogNotif(){
-        new AlertDialog.Builder(mainAcvitiyUser_static)
+    public  void showDialogNotif(Context context){
+        new AlertDialog.Builder(context)
                 .setTitle("Notification")
                 .setMessage("New notification received")
                 .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
@@ -830,7 +837,6 @@ public class MainActivity_user extends AppCompatActivity {
                     }
                 })
                 .show();
-
     }
 
         
