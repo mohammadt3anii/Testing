@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -20,6 +21,8 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -153,6 +156,10 @@ public class Activity_Login extends AppCompatActivity {
         });
 
         checkBarangayDB();
+
+        if(!isNetworkAvailable()){
+            showSnackbar("You're offline");
+        }
     }
 
     private void sendPasswordRecovery(final String email_address){
@@ -433,5 +440,17 @@ public class Activity_Login extends AppCompatActivity {
         }
     }
 
+    protected void showSnackbar(String snackbarMsg){
+        RelativeLayout parent = (RelativeLayout) findViewById(R.id.login_parentlayout);
+        Snackbar.make(parent, snackbarMsg, Snackbar.LENGTH_LONG)
+                .setAction("Go online", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS));
+                    }
+                })
+                .setActionTextColor(getResources().getColor(android.R.color.holo_red_light ))
+                .show();
+    }
 
 }

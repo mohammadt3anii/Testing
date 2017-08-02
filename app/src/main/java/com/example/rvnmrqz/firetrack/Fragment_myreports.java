@@ -97,7 +97,6 @@ public class Fragment_myreports extends Fragment {
                     @Override
                     public void onResponse(String response) {
                         Log.wtf("loadRerports","response has bee received \nResponse:"+response);
-                        Toast.makeText(getActivity(), "Response has been received", Toast.LENGTH_SHORT).show();
                         showListview();
                         try {
                             JSONObject object = new JSONObject(response);
@@ -188,8 +187,6 @@ public class Fragment_myreports extends Fragment {
         layout_error_message.setVisibility(View.GONE);
         layout_list.setVisibility(View.VISIBLE);
     }
-
-
     protected void showSnackbar(String snackbarMsg){
         Snackbar.make(getActivity().findViewById(android.R.id.content), snackbarMsg, Snackbar.LENGTH_LONG)
                 .setAction("Go online", new View.OnClickListener() {
@@ -201,13 +198,11 @@ public class Fragment_myreports extends Fragment {
                 .setActionTextColor(getResources().getColor(android.R.color.holo_red_light ))
                 .show();
     }
-
     private boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-
 
 
 

@@ -10,6 +10,8 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -316,36 +318,40 @@ public class MainActivity_user extends AppCompatActivity {
         Log.wtf("Loadfeed","Loadfeed called");
         endPostMsgShown=false;
         showFeedLoading(true);
-        server_url = ServerInfoClass.HOST_ADDRESS+"/get_data.php";
-        requestQueue = Volley.newRequestQueue(this);
-        StringRequest request = new StringRequest(Request.Method.POST, server_url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        if(response!=null){
-                            try{
-                                Log.wtf("onResponse","Response is not null");
-                                JSONObject object = new JSONObject(response);
-                                JSONArray Jarray  = object.getJSONArray("mydata");
-                                Log.wtf("onResponse","Jarray has "+Jarray.length());
+        if(!isNetworkAvailable()){
+            showSnackbar();
+            showFeedMessage(true,"No Internet Connection");
+        }else{
+            server_url = ServerInfoClass.HOST_ADDRESS+"/get_data.php";
+            requestQueue = Volley.newRequestQueue(this);
+            StringRequest request = new StringRequest(Request.Method.POST, server_url,
+                    new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+                            if(response!=null){
+                                try{
+                                    Log.wtf("onResponse","Response is not null");
+                                    JSONObject object = new JSONObject(response);
+                                    JSONArray Jarray  = object.getJSONArray("mydata");
+                                    Log.wtf("onResponse","Jarray has "+Jarray.length());
 
-                                //clear the list in the UI
-                                feed_listview.setAdapter(null);
-                                //contactList.clear();
-                                post_id.clear();
-                                postername.clear();
-                                postdatetime.clear();
-                                postmessage.clear();
-                                postpicture.clear();
+                                    //clear the list in the UI
+                                    feed_listview.setAdapter(null);
+                                    //contactList.clear();
+                                    post_id.clear();
+                                    postername.clear();
+                                    postdatetime.clear();
+                                    postmessage.clear();
+                                    postpicture.clear();
 
-                                if(Jarray.length()>0) {
-                                    showFeedMessage(false,null);
-                                    showFeedLoading(false);
-                                    feed_postLayout.setVisibility(View.VISIBLE);
+                                    if(Jarray.length()>0) {
+                                        showFeedMessage(false,null);
+                                        showFeedLoading(false);
+                                        feed_postLayout.setVisibility(View.VISIBLE);
                                         for (int i = 0; i < Jarray.length(); i++) {
                                             JSONObject Jasonobject = Jarray.getJSONObject(i);
                                             String id = Jasonobject.getString("post_id");
-                                          //  String encoded_poster_image = Jasonobject.getString("")
+                                            //  String encoded_poster_image = Jasonobject.getString("")
                                             String poster_name = Jasonobject.getString("barangay_name");
                                             String datetime = Jasonobject.getString("post_datetime");
                                             String message = Jasonobject.getString("message");
@@ -360,62 +366,63 @@ public class MainActivity_user extends AppCompatActivity {
                                         noMorePost=false;
                                         sql_offset = Jarray.length();
                                         setListViewAdapter();
-                                }else{
-                                    //no post
-                                    showFeedMessage(true,"No Post Available");
-                                    feed_postLayout.setVisibility(View.GONE);
-                                    feed_messageLayout.setVisibility(View.VISIBLE);
+                                    }else{
+                                        //no post
+                                        showFeedMessage(true,"No Post Available");
+                                        feed_postLayout.setVisibility(View.GONE);
+                                        feed_messageLayout.setVisibility(View.VISIBLE);
+                                    }
+                                }catch (Exception ee){
+                                    showFeedMessage(true,"An error occurred while loading the feed");
+                                    Log.wtf("loadFeed_ERROR", ee.getMessage());
                                 }
-                            }catch (Exception ee){
-                                showFeedMessage(true,"An error occurred while loading the feed");
-                                Log.wtf("loadFeed_ERROR", ee.getMessage());
                             }
                         }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        String message = null;
-                        Log.wtf("LoadFeed: onErrorResponse","Volley Error \n"+volleyError.getMessage());
-                        if (volleyError instanceof NetworkError) {
-                            message = "Network Error Encountered";
-                            Log.wtf("loadFeed (Volley Error)","NetworkError");
-                            //showSnackbar("You're not connected to internet");
-                        } else if (volleyError instanceof ServerError) {
-                            message = "Please check your internet connection";
-                            Log.wtf("loadFeed (Volley Error)","ServerError");
-                        } else if (volleyError instanceof AuthFailureError) {
-                            message = "Please check your internet connection";
-                            Log.wtf("loadFeed (Volley Error)","AuthFailureError");
-                        } else if (volleyError instanceof ParseError) {
-                            message = "An error encountered, Please try again";
-                            Log.wtf("loadFeed (Volley Error)","ParseError");
-                        } else if (volleyError instanceof NoConnectionError) {
-                            message = "No internet connection";
-                            Log.wtf("loadFeed (Volley Error)","NoConnectionError");
-                        } else if (volleyError instanceof TimeoutError) {
-                            message = "Connection Timeout";
-                            Log.wtf("loadFeed (Volley Error)","TimeoutError");
+                    },
+                    new Response.ErrorListener() {
+                        @Override
+                        public void onErrorResponse(VolleyError volleyError) {
+                            String message = null;
+                            Log.wtf("LoadFeed: onErrorResponse","Volley Error \n"+volleyError.getMessage());
+                            if (volleyError instanceof NetworkError) {
+                                message = "Network Error Encountered";
+                                Log.wtf("loadFeed (Volley Error)","NetworkError");
+                                //showSnackbar("You're not connected to internet");
+                            } else if (volleyError instanceof ServerError) {
+                                message = "Please check your internet connection";
+                                Log.wtf("loadFeed (Volley Error)","ServerError");
+                            } else if (volleyError instanceof AuthFailureError) {
+                                message = "Please check your internet connection";
+                                Log.wtf("loadFeed (Volley Error)","AuthFailureError");
+                            } else if (volleyError instanceof ParseError) {
+                                message = "An error encountered, Please try again";
+                                Log.wtf("loadFeed (Volley Error)","ParseError");
+                            } else if (volleyError instanceof NoConnectionError) {
+                                message = "No internet connection";
+                                Log.wtf("loadFeed (Volley Error)","NoConnectionError");
+                            } else if (volleyError instanceof TimeoutError) {
+                                message = "Connection Timeout";
+                                Log.wtf("loadFeed (Volley Error)","TimeoutError");
+                            }
+                            showFeedMessage(true,message);
                         }
-                        showFeedMessage(true,message);
-                    }
-                }){
-                    @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
-                       Map<String,String> params = new HashMap<String, String>();
-                        params.put("qry","SELECT b.barangay_name,f.* FROM tbl_feed f INNER JOIN tbl_monitoring m ON f.creator_id = m.acc_id INNER JOIN tbl_barangay b ON b.barangay_id=m.barangay_id ORDER BY post_id desc  LIMIT "+sql_limit+";");
+                    }){
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError {
+                    Map<String,String> params = new HashMap<String, String>();
+                    params.put("qry","SELECT b.barangay_name,f.* FROM tbl_feed f INNER JOIN tbl_monitoring m ON f.creator_id = m.acc_id INNER JOIN tbl_barangay b ON b.barangay_id=m.barangay_id ORDER BY post_id desc  LIMIT "+sql_limit+";");
 
-                        return params;
-                 }
-        };
-        int socketTimeout = ServerInfoClass.TIME_OUT;
-        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
-                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
-                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-        request.setRetryPolicy(policy);
-        request.setShouldCache(false);
-        requestQueue.add(request);
+                    return params;
+                }
+            };
+            int socketTimeout = ServerInfoClass.TIME_OUT;
+            RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                    DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+            request.setRetryPolicy(policy);
+            request.setShouldCache(false);
+            requestQueue.add(request);
+        }
     }
     protected void setListViewAdapter(){
         adapter = new FeedAdapter(MainActivity_user.this,post_id,postername,postdatetime,postmessage,postpicture);
@@ -790,10 +797,8 @@ public class MainActivity_user extends AppCompatActivity {
         frame2.setVisibility(View.VISIBLE);
         frame1.setVisibility(View.GONE);
         frame3.setVisibility(View.GONE);
-
     }
     protected void showFrame3(){
-
         clearBackstack();
         if(!notificationsLoaded){
             loadNotifications();
@@ -929,9 +934,9 @@ public class MainActivity_user extends AppCompatActivity {
         return false;
     }
 
-    protected void showSnackbar(String snackbarMsg){
+    protected void showSnackbar(){
         View parentLayout = findViewById(android.R.id.content);
-        Snackbar.make(parentLayout, snackbarMsg, Snackbar.LENGTH_LONG)
+        Snackbar.make(parentLayout, "You're offline", Snackbar.LENGTH_LONG)
                 .setAction("Go online", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -941,7 +946,11 @@ public class MainActivity_user extends AppCompatActivity {
                 .setActionTextColor(getResources().getColor(android.R.color.holo_red_light ))
                 .show();
     }
-
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
 
     //activity visibility
     public static boolean activityVisible;

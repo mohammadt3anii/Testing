@@ -221,7 +221,7 @@ public class Service_Notification extends Service {
 
                     //insert in sqlite
                     dbhelper.insertUpdate(update_id,category,title,content,sender_id,datetime,opened);
-                    if(category.equalsIgnoreCase("notif")){
+                    if(category.trim().equalsIgnoreCase("notif")){
                         //notification received
                         notif_count++;
                         notificationReceived=true;
