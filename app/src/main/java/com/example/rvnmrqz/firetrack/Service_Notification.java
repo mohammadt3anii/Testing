@@ -5,6 +5,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -56,6 +57,9 @@ public class Service_Notification extends Service {
 
     RequestQueue requestQueue;
 
+    static SharedPreferences sharedPreferences;
+    static SharedPreferences.Editor editor;
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
@@ -85,6 +89,7 @@ public class Service_Notification extends Service {
         catch (Exception e){
             Log.wtf("SERVICE_ONCREATE", "Exception "+e.getMessage());
         }
+        initializeSharePref();
         maxNotifId = getLastNotificationId();
         startTimer();
         return START_STICKY;
@@ -194,72 +199,102 @@ public class Service_Notification extends Service {
 
     private void insert(String response){
         try{
+            int notif_count=0;
 
             String update_id,category,title,content,sender_id,datetime,opened="no";
             JSONObject object = new JSONObject(response);
             JSONArray Jarray  = object.getJSONArray("mydata");
-            boolean notificationReceived=false;
-            boolean queryReceived = false;
-            for (int i = 0; i < Jarray.length(); i++)
-            {
-                JSONObject Jasonobject = Jarray.getJSONObject(i);
-                update_id = Jasonobject.getString(dbhelper.COL_UPDATE_ID);
-                category = Jasonobject.getString(dbhelper.COL_CATEGORY);
-                title = Jasonobject.getString(dbhelper.COL_TITLE);
-                content = Jasonobject.getString(dbhelper.COL_CONTENT);
-                sender_id = Jasonobject.getString(dbhelper.COL_SENDER_ID);
-                datetime = Jasonobject.getString(dbhelper.COL_DATETIME);
+            if(Jarray.length()>0){
+                boolean notificationReceived=false;
+                boolean queryReceived = false;
+                for (int i = 0; i < Jarray.length(); i++)
+                {
+                    //extract json values
+                    JSONObject Jasonobject = Jarray.getJSONObject(i);
+                    update_id = Jasonobject.getString(dbhelper.COL_UPDATE_ID);
+                    category = Jasonobject.getString(dbhelper.COL_CATEGORY);
+                    title = Jasonobject.getString(dbhelper.COL_TITLE);
+                    content = Jasonobject.getString(dbhelper.COL_CONTENT);
+                    sender_id = Jasonobject.getString(dbhelper.COL_SENDER_ID);
+                    datetime = Jasonobject.getString(dbhelper.COL_DATETIME);
 
-                //insert in sqlite
-                dbhelper.insertUpdate(update_id,category,title,content,sender_id,datetime,opened);
-                if(category.equalsIgnoreCase("notif")){
-                    //notification received
-                    notificationReceived=true;
-                }else{
-                    //this is a SQL update,execute
-                    queryReceived=true;
-                    dbhelper.executeThisQuery(content);
+                    //insert in sqlite
+                    dbhelper.insertUpdate(update_id,category,title,content,sender_id,datetime,opened);
+                    if(category.equalsIgnoreCase("notif")){
+                        //notification received
+                        notif_count++;
+                        notificationReceived=true;
+                    }else{
+                        //this is a SQL update,execute
+                        queryReceived=true;
+                        dbhelper.executeThisQuery(content);
+                    }
                 }
-            }
-            if(notificationReceived || queryReceived){
-                //there is a new update received
-                int tmp = getLastNotificationId();
-                if(tmp>maxNotifId){
-                    //there is a notification
-                    maxNotifId=tmp;
-                    //show some notification in the drawer
-                    Log.wtf("maxnotifId", "New Value is "+maxNotifId);
-                    Log.wtf("onResponse","Notif is inserted");
-                }
-                if(notificationReceived){
-                    //a notification is received
-                    if(MainActivity_user.mainAcvitiyUser_static !=null){
-                        //app is running
-                        try {
-                            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-                            r.play();
-                            MainActivity_user.loadNotifications();
-                            MainActivity_user ma = new MainActivity_user();
-                            ma.showSnackbarNotif();
-                            //ma.showDialogNotif(getApplicationContext());
-                        } catch (Exception e) {
-                            Log.wtf("insert","An error occurred while trying to notify the Main UI, exception: "+e.getMessage());
+
+                if(notificationReceived || queryReceived){
+                    //there is a new update received
+                    int tmp = getLastNotificationId();
+                    if(tmp>maxNotifId){
+                        //there is a notification
+                        maxNotifId=tmp;
+                        //show some notification in the drawer
+                        Log.wtf("maxnotifId", "New Value is "+maxNotifId);
+                        Log.wtf("onResponse","Notif is inserted");
+                    }
+
+                    if(notificationReceived){
+                        //a notification is received
+                        int unopen = getUnOpenedNotifications();
+                        Log.wtf("Unopened Notif Count","Unopened: "+unopen);
+                        unopen = unopen+ notif_count;
+                        setUnOpenedNotifications(unopen);
+
+                        if(MainActivity_user.mainAcvitiyUser_static !=null){
+                            //app is running
+                            try {
+                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+                                Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+                                r.play();
+                                MainActivity_user.loadNotifications();
+                                MainActivity_user.showBottomNotification(2,unopen);
+                            } catch (Exception e) {
+                                Log.wtf("insert","An error occurred while trying to notify the Main UI, exception: "+e.getMessage());
+                            }
+                        }
+                        else{
+                            //app is not running
+                            showNotification(notif_count);
                         }
                     }
                     else{
-                        //app is not running
-                        showNotification();
+                        //else it is a query
+                        Log.wtf("SyncNotifications","There is a new QUERY Received");
                     }
                 }
-                else{
-                    //else it is a query
-                    Log.wtf("SyncNotifications","There is a new QUERY Received");
-                }
+            }
+            else{
+                // Jarray has 0 length
             }
         }catch (Exception ee){
             Toast.makeText(Service_Notification.this,ee.getMessage(),Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void initializeSharePref(){
+        sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
+
+    }
+    private int getUnOpenedNotifications(){
+        int count = sharedPreferences.getInt(MySharedPref.NOTIF_COUNT,0);
+        Log.wtf("getUnopenedNotif","Value : "+count);
+
+        return count;
+    }
+    private void setUnOpenedNotifications(int count){
+        editor = sharedPreferences.edit();
+        editor.putInt(MySharedPref.NOTIF_COUNT,count);
+        Log.wtf("setUnopenedNotif","New Value: "+getLastNotificationId());
+        editor.commit();
     }
 
     private int getLastNotificationId(){
@@ -281,7 +316,7 @@ public class Service_Notification extends Service {
         }
     }
 
-    protected void showNotification(){
+    protected void showNotification(int notif_count){
         final Intent mainIntent = new Intent(this,MainActivity_user.class);
         mainIntent.putExtra("notif","notify");
         final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
@@ -294,7 +329,7 @@ public class Service_Notification extends Service {
                 .setSmallIcon(R.drawable.fire)
                 .setTicker("New Notification Received")
                 .setContentTitle("FireTRACK")
-                .setContentText("New Notification")
+                .setContentText(notif_count+" New Notification(s)")
                 .setContentIntent(pendingIntent);
         nm = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE);
         nm.notify(100, b.build());

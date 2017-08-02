@@ -85,7 +85,7 @@
             android:layout_height="wrap_content" />
         <Button
             android:textColor="#ffffff"
-            android:background="#BC4C38"
+            android:background="@color/colorPrimaryDark"
             android:onClick="btnLoginClick"
             android:id="@+id/btnSignin"
             android:text="Sign in"

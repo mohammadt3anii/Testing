@@ -55,7 +55,7 @@
                 android:id="@+id/txtMessageBody"
                 android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ-ñ 1234567890\n"
                 android:gravity="left"
-                android:hint="Type Here"
+                android:hint="(Optional)"
                 android:lines="6"
                 android:maxLines="9"
                 android:maxLength="160"

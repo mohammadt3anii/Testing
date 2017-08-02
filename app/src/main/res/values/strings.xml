@@ -19,7 +19,7 @@
     <string name="title_activity_flash_">Flash_Activity</string>
     <string name="title_activity_settings">Settings</string>
 
-    <string name="reminder">Fake/Bogus reports are illegal and person caught with this act is liable for fine and charges.</string>
+    <string name="reminder">Fake/Bogus reports are illegal and person caught with this act is liable for fine or charges.</string>
 
 
     <string-array name="location_pop_up_menu">

@@ -440,7 +440,6 @@ public class Fragment_sms_reporting extends Fragment {
                  if(number!=null){
                     Log.wtf("btnClicked","Number is not null: "+number);
                      //check if message is not null
-                     if(!txtMessage.getText().toString().trim().equals("")){
                          Log.wtf("btnClicked","Message is not null");
                          String msg = txtMessage.getText().toString().trim();
                          if(coordinates!=null){
@@ -450,12 +449,6 @@ public class Fragment_sms_reporting extends Fragment {
                              txtLocation.setError("No Location Given");
                              txtLocation.requestFocus();
                          }
-                     }
-                     else{
-                         //no message yet
-                         txtMessage.requestFocus();
-                         txtMessage.setError("Message should not be empty");
-                     }
                  }else{
                      Log.wtf("btnClicked","number is null");
                      auto_barangay.requestFocus();

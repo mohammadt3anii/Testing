@@ -1,6 +1,5 @@
 package com.example.rvnmrqz.firetrack;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -9,6 +8,7 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -35,7 +35,6 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.android.volley.AuthFailureError;
@@ -52,6 +51,8 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
+import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -100,34 +101,19 @@ public class MainActivity_user extends AppCompatActivity {
     String server_url;
     RequestQueue requestQueue;
 
-    private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
-            = new BottomNavigationView.OnNavigationItemSelectedListener() {
+    //navigation buttons
+    static AHBottomNavigation bottomNavigation;
+    AHBottomNavigationItem item1,item2,item3;
 
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()) {
-                case R.id.navigation_report:
-                    showFrame1();
-                    return true;
-                case R.id.navigation_dashboard:
-                    showFrame2();
-                    return true;
-                case R.id.navigation_notifications:
-                    showFrame3();
-                    return true;
-            }
-            return false;
-        }
 
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.wtf("MainUser","ONCREATE");
         setContentView(R.layout.activity_main_user);
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
-        navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
+
+        initializeBottomNavigation();
 
         dbHelper = new DBHelper(this);
         mainAcvitiyUser_static = getApplicationContext();
@@ -178,6 +164,7 @@ public class MainActivity_user extends AppCompatActivity {
             //to sync notif
             //sync is not yet done
             Log.wtf("Sync Notif","SyncNotif have 0 length");
+            loadNotifications();
             new SyncNotifications(MainActivity_user.this,1);
         }else{
             //already done syncing before
@@ -188,14 +175,76 @@ public class MainActivity_user extends AppCompatActivity {
 
         String extra = getIntent().getStringExtra("notif");
         if(extra!=null){
-            navigation.setSelectedItemId(R.id.navigation_notifications);
+            Log.wtf("getString","extra string is not null");
+           bottomNavigation.setCurrentItem(2);
+            clearNotifications(2);
         }else{
-            navigation.setSelectedItemId(R.id.navigation_report);
+            Log.wtf("getString","extra string is null");
+           bottomNavigation.setCurrentItem(0);
+        }
+        loadUnopenednotificationsbadge();
+    }
+
+    protected void loadUnopenednotificationsbadge(){
+        SharedPreferences sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
+        int count = sharedPreferences.getInt(MySharedPref.NOTIF_COUNT,0);
+        if(count>0){
+            showBottomNotification(2,count);
         }
 
+    }
 
-        //delete this
-        showSnackbarNotif();
+    protected void initializeBottomNavigation(){
+        //CUSTOM BOTTOM NAVIGATION
+        bottomNavigation = (AHBottomNavigation) findViewById(R.id.bottom_navigation);
+
+        // Create items
+        item1 = new AHBottomNavigationItem("Report", R.drawable.fire_bw,R.color.colorBottomNavigationPrimary);
+        item2 = new AHBottomNavigationItem("Feed", R.drawable.feed, R.color.colorBottomNavigationPrimary);
+        item3 = new AHBottomNavigationItem("Notifications", R.drawable.ic_notifications, R.color.colorBottomNavigationPrimary);
+
+
+        // Add items
+        bottomNavigation.addItem(item1);
+        bottomNavigation.addItem(item2);
+        bottomNavigation.addItem(item3);
+
+        // Set background color
+        bottomNavigation.setDefaultBackgroundColor(Color.parseColor("#FEFEFE"));
+
+        // Change colors
+        bottomNavigation.setAccentColor(Color.parseColor("#F63D2B"));
+        bottomNavigation.setInactiveColor(Color.parseColor("#747474"));
+
+
+        // Set listeners
+        bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
+            @Override
+            public boolean onTabSelected(int position, boolean wasSelected) {
+
+                switch (position){
+                    case 0:
+                        showFrame1();
+                        break;
+                    case 1:
+                        showFrame2();
+                        break;
+                    case 2:
+                        showFrame3();
+                        clearNotifications(2);
+                        break;
+                    default:
+                        Toast.makeText(MainActivity_user.this, "Not in the choices", Toast.LENGTH_SHORT).show();
+                        break;
+                }
+                return true;
+            }
+        });
+        bottomNavigation.setOnNavigationPositionListener(new AHBottomNavigation.OnNavigationPositionListener() {
+            @Override public void onPositionChange(int y) {
+                // Manage the new y position
+            }
+        });
     }
 
     //FRAME 1****************************************************************
@@ -721,9 +770,9 @@ public class MainActivity_user extends AppCompatActivity {
             }
         }else{
             if(frame1.getVisibility()==View.GONE){
-                BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
-                View view = bottomNavigationView.findViewById(R.id.navigation_report);
-                view.performClick();
+                //BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.navigation);
+               // View view = bottomNavigationView.findViewById(R.id.navigation_report);
+               // view.performClick();
             }else{
                 super.onBackPressed();
             }
@@ -762,7 +811,9 @@ public class MainActivity_user extends AppCompatActivity {
             logout();
         }
         else if(id == R.id.menu_settings){
-            Toast.makeText(mainAcvitiyUser_static, "Add Settings Activity", Toast.LENGTH_SHORT).show();
+            SharedPreferences sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
+            Toast.makeText(mainAcvitiyUser_static, "Current unopened notif: "+sharedPreferences.getInt(MySharedPref.NOTIF_COUNT,0), Toast.LENGTH_SHORT).show();
+
         }
         else if(id == android.R.id.home){
             goBack();
@@ -820,24 +871,18 @@ public class MainActivity_user extends AppCompatActivity {
     }
 
 
-    public void showSnackbarNotif(){
-        RelativeLayout parentLayout = (RelativeLayout) findViewById(R.id.container);
-        Snackbar.make(parentLayout, "New Notification Received", Snackbar.LENGTH_LONG)
-                .show();
-        Log.wtf("showSnackBarNotif","snackbar shown");
-    }
-    public  void showDialogNotif(Context context){
-        new AlertDialog.Builder(context)
-                .setTitle("Notification")
-                .setMessage("New notification received")
-                .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-
-                    }
-                })
-                .show();
+    public static void showBottomNotification(int navitem, int notif_count)
+    {
+        bottomNavigation.setNotification((notif_count+""),navitem);
     }
 
-        
+    public void clearNotifications(int navitem){
+
+        bottomNavigation.setNotification("",navitem);
+        SharedPreferences sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(MySharedPref.NOTIF_COUNT,0);
+        editor.commit();
+        Log.wtf("clearnotifications()","notifications cleared");
+    }
 }

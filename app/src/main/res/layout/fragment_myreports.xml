@@ -28,10 +28,13 @@
        android:layout_height="match_parent">
         <TextView
             android:textSize="18sp"
+            android:textStyle="bold"
             android:id="@+id/myreports_messageLayout_txtview"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
        <Button
+           android:textColor="#fff"
+           android:backgroundTint="@color/colorPrimary"
            android:id="@+id/myreports_messageLayout_button"
            android:layout_width="wrap_content"
            android:layout_height="wrap_content" />

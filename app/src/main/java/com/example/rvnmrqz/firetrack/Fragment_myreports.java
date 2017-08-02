@@ -107,7 +107,7 @@ public class Fragment_myreports extends Fragment {
                                 Log.wtf("loadReports (onResponse)","EXTRACT JSON");
                             }else{
                                 Log.wtf("loadReports (onResponse)", "NO REPORTS YET");
-                                showErrorMessage("No reports yet",true,"Refresh");
+                                showErrorMessage("No Reports Yet",true,"Refresh");
                             }
                         }catch (Exception e){
                             showErrorMessage("An error occured while refreshing data",true,"Retry");
@@ -122,7 +122,7 @@ public class Fragment_myreports extends Fragment {
                         String message = null;
                         Log.wtf("LoadFeed: onErrorResponse","Volley Error \n"+volleyError.getMessage());
                         if (volleyError instanceof NetworkError) {
-                            message = "No internet connection";
+                            message = "Network Error Encountered";
                             Log.wtf("loadFeed (Volley Error)","NetworkError");
                             showSnackbar("You're not connected to internet");
                         } else if (volleyError instanceof ServerError) {
