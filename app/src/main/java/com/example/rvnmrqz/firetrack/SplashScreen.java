@@ -25,7 +25,7 @@ public class SplashScreen extends AppCompatActivity {
 
         getSupportActionBar().hide();
 
-        Toast.makeText(this, "Connection: "+ServerInfoClass.HOST_ADDRESS, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(this, "Connection: "+ServerInfoClass.HOST_ADDRESS, Toast.LENGTH_SHORT).show();
 
         sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
         final String logged = sharedPreferences.getString(MySharedPref.LOGGED,"");

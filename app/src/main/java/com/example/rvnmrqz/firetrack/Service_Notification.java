@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.media.MediaPlayer;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -200,7 +201,6 @@ public class Service_Notification extends Service {
     private void insert(String response){
         try{
             int notif_count=0;
-
             String update_id,category,title,content,sender_id,datetime,opened="no";
             JSONObject object = new JSONObject(response);
             JSONArray Jarray  = object.getJSONArray("mydata");
@@ -249,12 +249,9 @@ public class Service_Notification extends Service {
                         unopen = unopen+ notif_count;
                         setUnOpenedNotifications(unopen);
 
-                        if(MainActivity_user.mainAcvitiyUser_static !=null){
+                        if(MainActivity_user.mainAcvitiyUser_static !=null && MainActivity_user.activityVisible){
                             //app is running
                             try {
-                                Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-                                Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-                                r.play();
                                 MainActivity_user.loadNotifications();
                                 MainActivity_user.showBottomNotification(2,unopen);
                             } catch (Exception e) {
@@ -263,7 +260,10 @@ public class Service_Notification extends Service {
                         }
                         else{
                             //app is not running
-                            showNotification(notif_count);
+                            showNotification(unopen);
+                        }
+                        if(playNotifSound()){
+                            playRingtone();
                         }
                     }
                     else{
@@ -280,9 +280,24 @@ public class Service_Notification extends Service {
         }
     }
 
+    protected void playRingtone(){
+        try{
+            Log.wtf("PlayRingtone","Ringtone played");
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            MediaPlayer mp = MediaPlayer.create(getApplicationContext(), notification);
+            mp.start();
+        }catch (Exception e){
+            Log.wtf("Failed to play ringtone","Exception: "+e.getMessage());
+        }
+    }
+
     private void initializeSharePref(){
         sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
 
+    }
+
+    private boolean playNotifSound(){
+        return  sharedPreferences.getBoolean(MySharedPref.PLAY_NOTIFSOUND,true);
     }
     private int getUnOpenedNotifications(){
         int count = sharedPreferences.getInt(MySharedPref.NOTIF_COUNT,0);
@@ -323,7 +338,6 @@ public class Service_Notification extends Service {
                 (mainIntent), PendingIntent.FLAG_UPDATE_CURRENT);
         b = new NotificationCompat.Builder(this);
         b.setAutoCancel(true)
-                .setDefaults(NotificationCompat.DEFAULT_ALL)
                 .setOngoing(false)
                 .setWhen(System.currentTimeMillis())
                 .setSmallIcon(R.drawable.fire)
@@ -334,4 +348,6 @@ public class Service_Notification extends Service {
         nm = (NotificationManager) getSystemService( Context.NOTIFICATION_SERVICE);
         nm.notify(100, b.build());
     }
+
+
 }

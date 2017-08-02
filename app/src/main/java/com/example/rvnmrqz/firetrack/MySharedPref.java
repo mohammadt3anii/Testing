@@ -11,6 +11,7 @@ public class MySharedPref {
     public static String LOGGED = "logged"; //("user","truck")
     public static String NOTIF = "notif"; //("no","")
     public static String NOTIF_COUNT = "notif_count"; //(integer value)
+    public static String PLAY_NOTIFSOUND = "notif_sound"; //for notification sound (boolean)
 
 
 }
