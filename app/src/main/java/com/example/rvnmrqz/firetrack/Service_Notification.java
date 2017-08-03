@@ -43,7 +43,7 @@ import java.util.TimerTask;
 
 public class Service_Notification extends Service {
 
-    DBHelper dbhelper;
+    static DBHelper dbhelper;
     static int maxNotifId;
     static String userid,user_barangay_id;
     static Handler handler;
@@ -54,10 +54,10 @@ public class Service_Notification extends Service {
     int maxCount=5;
     boolean continueCount=true;
 
-    NotificationManager nm;
-    NotificationCompat.Builder b;
+    static NotificationManager nm;
+    static NotificationCompat.Builder b;
 
-    RequestQueue requestQueue;
+    static RequestQueue requestQueue;
 
     static SharedPreferences sharedPreferences;
     static SharedPreferences.Editor editor;
@@ -297,13 +297,10 @@ public class Service_Notification extends Service {
             Log.wtf("Failed to play ringtone","Exception: "+e.getMessage());
         }
     }
-
     private void initializeSharePref(){
         sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
 
     }
-
-
     private boolean playNotifSound(){
         return  sharedPreferences.getBoolean(MySharedPref.PLAY_NOTIFSOUND,true);
     }

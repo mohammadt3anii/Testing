@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.animation.AlphaAnimation;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -61,6 +62,7 @@ public class Activity_Login extends AppCompatActivity {
 
     Button btnOpenDB;
 
+    private AlphaAnimation buttonClickAnimation = new AlphaAnimation(1F, 0.8F);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -158,7 +160,7 @@ public class Activity_Login extends AppCompatActivity {
         checkBarangayDB();
 
         if(!isNetworkAvailable()){
-            showSnackbar("You're offline");
+            showSnackbar();
         }
     }
 
@@ -209,6 +211,7 @@ public class Activity_Login extends AppCompatActivity {
     }
 
     public void btnLoginClick(View view){
+        view.startAnimation(buttonClickAnimation);
         login();
     }
 
@@ -344,7 +347,7 @@ public class Activity_Login extends AppCompatActivity {
             }
         }
         else{
-            Toast.makeText(this, "Not connected to internet", Toast.LENGTH_SHORT).show();
+            showSnackbar();
         }
     }
 
@@ -440,9 +443,9 @@ public class Activity_Login extends AppCompatActivity {
         }
     }
 
-    protected void showSnackbar(String snackbarMsg){
+    protected void showSnackbar(){
         RelativeLayout parent = (RelativeLayout) findViewById(R.id.login_parentlayout);
-        Snackbar.make(parent, snackbarMsg, Snackbar.LENGTH_LONG)
+        Snackbar.make(parent, "You're offline", Snackbar.LENGTH_LONG)
                 .setAction("Go online", new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

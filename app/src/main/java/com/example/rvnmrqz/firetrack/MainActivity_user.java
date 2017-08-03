@@ -10,6 +10,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -58,6 +59,9 @@ import com.android.volley.toolbox.Volley;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
+
+import junit.framework.Test;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
@@ -108,6 +112,7 @@ public class MainActivity_user extends AppCompatActivity {
 
     //navigation buttons
     static AHBottomNavigation bottomNavigation;
+    static Bitmap postImageClicked;
     AHBottomNavigationItem item1,item2,item3;
 
     Activity main_user_activity;
@@ -280,9 +285,9 @@ public class MainActivity_user extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //for back button in action bar
+               // getSupportActionBar().setTitle("Reporting");
                 getSupportActionBar().setDisplayShowHomeEnabled(true);
                 getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-
                 initialLayout.setVisibility(View.GONE);
                 addToBackStack(new Fragment_report_options(),"report_options");
 
@@ -293,9 +298,12 @@ public class MainActivity_user extends AppCompatActivity {
         btnMyReports.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+              //  getSupportActionBar().setTitle("My Reports");
                 Log.wtf("btnMyReportListener","Button is clicked");
                 addToBackStack(new Fragment_myreports(),"myreports");
                 initialLayout.setVisibility(View.GONE);
+                getSupportActionBar().setDisplayShowHomeEnabled(true);
+                getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
             }
         });
@@ -434,7 +442,6 @@ public class MainActivity_user extends AppCompatActivity {
         feed_listview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
-
             }
         });
 
@@ -577,7 +584,6 @@ public class MainActivity_user extends AppCompatActivity {
         ArrayList<String> postmessage = new ArrayList<String>();
         ArrayList<String> postpicture = new ArrayList<String>();
 
-
         public FeedAdapter(Context context, ArrayList<String> post_id, ArrayList<String> postername,   ArrayList<String> postdatetime,  ArrayList<String> postmessage,  ArrayList<String> postpicture) {
             //Overriding Default Constructor off ArratAdapter
             super(context, R.layout.template_post,R.id.post_id,post_id);
@@ -587,7 +593,6 @@ public class MainActivity_user extends AppCompatActivity {
             this.postmessage=postmessage;
             this.postpicture=postpicture;
         }
-
         @NonNull
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
@@ -601,7 +606,7 @@ public class MainActivity_user extends AppCompatActivity {
             TextView name = (TextView) row.findViewById(R.id.poster_name);
             TextView datetime = (TextView) row.findViewById(R.id.post_datetime);
             TextView message = (TextView) row.findViewById(R.id.post_message);
-            ImageView picture  = (ImageView) row.findViewById(R.id.post_picture);
+            final ImageView picture  = (ImageView) row.findViewById(R.id.post_picture);
 
             //Providing the element of an array by specifying its position
             id.setText(post_id.get(position));
@@ -620,11 +625,22 @@ public class MainActivity_user extends AppCompatActivity {
                 }
             }
 
+            picture.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Log.wtf("adapter","Image is clicked");
+                    initialLayout.setVisibility(View.GONE);
+                    frame1.setVisibility(View.VISIBLE);
+                    frame2.setVisibility(View.VISIBLE);
+                    addToBackStack(new Fragment_PostZoom(),"post_zoom");
+                    BitmapDrawable drawable = (BitmapDrawable) picture.getDrawable();
+                    postImageClicked = drawable.getBitmap();
+                }
+            });
             return row;
         }
     }
     //***********************************************************************
-
 
     //FRAME 3****************************************************************
     //NOTIFICATIONS
@@ -791,12 +807,14 @@ public class MainActivity_user extends AppCompatActivity {
         frame1.setVisibility(View.VISIBLE);
         frame2.setVisibility(View.GONE);
         frame3.setVisibility(View.GONE);
+        getSupportActionBar().setTitle("FireTRACK");
     }
     protected void showFrame2(){
         clearBackstack();
         frame2.setVisibility(View.VISIBLE);
         frame1.setVisibility(View.GONE);
         frame3.setVisibility(View.GONE);
+        getSupportActionBar().setTitle("FireTRACK");
     }
     protected void showFrame3(){
         clearBackstack();
@@ -806,6 +824,7 @@ public class MainActivity_user extends AppCompatActivity {
         frame3.setVisibility(View.VISIBLE);
         frame1.setVisibility(View.GONE);
         frame2.setVisibility(View.GONE);
+        getSupportActionBar().setTitle("FireTRACK");
     }
 
     //BACKSTACKS
@@ -841,13 +860,18 @@ public class MainActivity_user extends AppCompatActivity {
         if(backStackEntryCount>0) {
             super.onBackPressed();
             backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();
-            if(backStackEntryCount==0){
-                initialLayout.setVisibility(View.VISIBLE);
+            Log.wtf("goBack()","backstack entry >0, entry count now after super.backpressed(): "+backStackEntryCount);
+            if(backStackEntryCount==0 && bottomNavigation.getCurrentItem()==0){
+                getSupportActionBar().setTitle("FireTRACK");
+                bottomNavigation.setCurrentItem(0);
+            }else if(backStackEntryCount==0 && bottomNavigation.getCurrentItem()==1){
+                bottomNavigation.setCurrentItem(1);
             }
         }else{
             //there is no backstack, return to home
             if(bottomNavigation.getCurrentItem()!=0){
                 //the selected tab is not home
+                getSupportActionBar().setTitle("FireTRACK");
                 bottomNavigation.setCurrentItem(0);
             }else{
                 super.onBackPressed();
@@ -891,6 +915,9 @@ public class MainActivity_user extends AppCompatActivity {
         else if(id == android.R.id.home){
             goBack();
             return true;
+        }
+        else if(id == R.id.testActivity){
+            startActivity(new Intent(MainActivity_user.this, TestActivity.class));
         }
 
         return super.onOptionsItemSelected(item);

@@ -65,6 +65,7 @@ public class Fragment_myreports extends Fragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //initialize here
+
         layout_error_message  = (LinearLayout) getActivity().findViewById(R.id.myreports_messageLayout);
         layout_progress = (LinearLayout) getActivity().findViewById(R.id.myreports_progressLayout);
         layout_list = (LinearLayout) getActivity().findViewById(R.id.myreports_listviewLayout);

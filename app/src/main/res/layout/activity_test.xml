@@ -6,17 +6,10 @@
     android:layout_height="match_parent"
     tools:context="com.example.rvnmrqz.firetrack.TestActivity">
 
-    <Button
-        android:id="@+id/btnShow"
-        android:text="Show"
-        android:layout_centerInParent="true"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-    <TextView
-        android:id="@+id/txtResult"
-        android:layout_above="@id/btnShow"
-        android:textSize="25sp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
+   <com.example.rvnmrqz.firetrack.TouchImageView
+       android:src="@drawable/camera"
+       android:layout_width="match_parent"
+       android:layout_height="match_parent"
+       />
 
 </RelativeLayout>

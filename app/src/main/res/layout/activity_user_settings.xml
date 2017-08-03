@@ -22,7 +22,7 @@
         android:layout_height="1dp"/>
     <Switch
         android:id="@+id/switch_playsound"
-        android:text="Notification Sound"
+        android:text="Sound"
         android:textSize="16sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -35,7 +35,7 @@
         android:layout_height="1dp"/>
     <Switch
         android:id="@+id/switch_notif_vibrate"
-        android:text="Notification Vibration"
+        android:text="Vibrate"
         android:textSize="16sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

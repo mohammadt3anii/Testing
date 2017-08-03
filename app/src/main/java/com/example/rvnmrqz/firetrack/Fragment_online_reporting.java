@@ -28,7 +28,9 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -97,7 +99,7 @@ public class Fragment_online_reporting extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Online Reporting");
         imgProof = (ImageView) getActivity().findViewById(R.id.img_proof);
         imgClickListener();
         txtLocation = (TextView) getActivity().findViewById(R.id.txtLocation);

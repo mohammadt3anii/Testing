@@ -34,18 +34,23 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
+            android:label="Login"
             android:name=".Activity_Login"
             android:screenOrientation="portrait" />
         <activity android:name=".TestActivity" />
         <activity
             android:name=".Activity_DatabaseManager"
             android:theme="@style/Theme.AppCompat.Light" />
+        <activity
+            android:name=".Activity_User_Settings"
+            android:label="Settings">
+        </activity>
 
         <service
             android:name=".Service_Notification"
             android:exported="false" />
 
-        <activity android:name=".Activity_User_Settings"></activity>
+
     </application>
 
 </manifest>

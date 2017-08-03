@@ -25,6 +25,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.TextViewCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -87,6 +89,7 @@ public class Fragment_sms_reporting extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("SMS Reporting");
         context = getActivity();
         dbHelper  = new DBHelper(getActivity());
         txtCounter = (TextView) getActivity().findViewById(R.id.txtCharCounter);

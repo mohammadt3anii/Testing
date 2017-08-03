@@ -16,4 +16,9 @@
     <item
         android:id="@+id/menu_logout"
         android:title="Logout" />
+    <item
+        android:id="@+id/testActivity"
+        android:title="Test Activity"
+        />
+
 </menu>
