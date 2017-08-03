@@ -45,9 +45,11 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
+import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
@@ -524,10 +526,11 @@ public class Fragment_online_reporting extends Fragment {
         btnSubmit.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Log.wtf("btnSubmitListener","Clicked");
                 if (coordinates != null) {
                     new AlertDialog.Builder(getActivity())
                             .setTitle("Confirmation")
-                            .setMessage("Continue sending the report?")
+                            .setMessage("Send your report now?")
                             .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -539,7 +542,8 @@ public class Fragment_online_reporting extends Fragment {
                                 public void onClick(DialogInterface dialog, int which) {
 
                                 }
-                            });
+                            })
+                    .show();
                 }//END OF COORDINATES IS NOT NULL
                 else {
                     txtLocation.requestFocus();
@@ -559,6 +563,7 @@ public class Fragment_online_reporting extends Fragment {
                     public void onResponse(String response) {
                         Log.wtf("Report Response", response);
                         closeLoadingDialog();
+                        Log.wtf("sendReport()","Response: "+response);
                         if (response.trim().equals("Process Successful")) {
                             //close reporting
                             Toast.makeText(getActivity(), "Report Sent", Toast.LENGTH_SHORT).show();
@@ -571,6 +576,7 @@ public class Fragment_online_reporting extends Fragment {
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError error) {
+                        Log.wtf("sendReport()","Error "+error.getMessage());
                         if (error == null) {
                             Toast.makeText(getActivity(), "No Response from server", Toast.LENGTH_SHORT).show();
                         }
@@ -586,12 +592,18 @@ public class Fragment_online_reporting extends Fragment {
                 return params;
             }
         };
+        int socketTimeout = ServerInfoClass.TIME_OUT; // 30 seconds
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        stringReq.setRetryPolicy(policy);
+        stringReq.setShouldCache(false);
         requestQue.add(stringReq);
     }
 
     private int getNearestBarangay(){
         int Barangay_ID=0;
-
+        //get the nearest barangay
 
         return Barangay_ID;
     }

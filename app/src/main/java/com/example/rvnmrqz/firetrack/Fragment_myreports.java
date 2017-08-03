@@ -3,6 +3,7 @@ package com.example.rvnmrqz.firetrack;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -80,6 +81,15 @@ public class Fragment_myreports extends Fragment {
         });
         dbHelper = new DBHelper(getActivity());
 
+        //get the user logged
+        Cursor c = dbHelper.getSqliteData("SELECT "+dbHelper.COL_ACC_ID+" FROM "+dbHelper.TABLE_USER+" WHERE "+dbHelper.COL_USER_LOC_ID+"=1;");
+        if(c!=null){
+            if(c.getCount()>0){
+                c.moveToFirst();
+                account_id = c.getInt(c.getColumnIndex(dbHelper.COL_ACC_ID));
+            }
+        }
+
         if(isNetworkAvailable()){
             //load listview
             loadReports();
@@ -104,6 +114,7 @@ public class Fragment_myreports extends Fragment {
                             JSONArray Jarray  = object.getJSONArray("mydata");
                             if(Jarray.length()>0){
                                 //extract the JSON
+                                Toast.makeText(getContext(), "Report Count: "+Jarray.length(), Toast.LENGTH_SHORT).show();
                                 Log.wtf("loadReports (onResponse)","EXTRACT JSON");
                             }else{
                                 Log.wtf("loadReports (onResponse)", "NO REPORTS YET");
@@ -149,6 +160,7 @@ public class Fragment_myreports extends Fragment {
                 Map<String,String> params = new HashMap<>();
 
                 String query = "SELECT * FROM "+dbHelper.TABLE_REPORTS+" WHERE "+dbHelper.COL_REPORTER_id+" = "+account_id+";";
+                Log.wtf("loadReports(), params","Query: "+query );
                 params.put("qry",query);
 
                 return params;
