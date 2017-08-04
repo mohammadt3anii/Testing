@@ -223,7 +223,7 @@ public class Activity_Login extends AppCompatActivity {
         Log.wtf("login","login clicked");
         if(isNetworkAvailable()){
             if(validateInput()) {
-                Log.wtf("login","worker");
+                Log.wtf("login()","CALLED");
 
                 showLoadingDialog();
 
@@ -242,20 +242,27 @@ public class Activity_Login extends AppCompatActivity {
                                             JSONArray Jarray  = object.getJSONArray("mydata");
                                             JSONObject Jasonobject = Jarray.getJSONObject(0);
 
-                                            int acc_type_id = Integer.parseInt(Jasonobject.getString("acc_type_id"));
+                                            acc_type = Jasonobject.getString(dbhelper.COL_ACC_TYPE);
                                             acc_id = Jasonobject.getString(dbhelper.COL_ACC_ID);
                                             username = Jasonobject.getString(dbhelper.COL_USERNAME);
                                             pass = Jasonobject.getString(dbhelper.COL_PASSWORD);
-                                            acc_type = Jasonobject.getString(dbhelper.COL_ACC_TYPE_ID);
+                                            acc_type = Jasonobject.getString(dbhelper.COL_ACC_TYPE);
 
-                                            switch (acc_type_id){
-                                                case 1:
+                                            switch (acc_type.trim().toLowerCase()){
+                                                case "super admin":
+                                                    Log.wtf("login()","Logged user is: \"super admin\"");
                                                     //super admin
                                                     break;
-                                                case 2:
+                                                case "admin":
+                                                    Log.wtf("login()","Logged user is: \"admin\"");
                                                     //admin
                                                     break;
-                                                case 3:
+                                                case "monitoring":
+                                                    Log.wtf("login()","Logged user is: \"monitoring\"");
+                                                    //monitoring personnel
+                                                    break;
+                                                case "user":
+                                                    Log.wtf("login()","Logged user is: \"user\"");
                                                     //user
                                                     fname = Jasonobject.getString(dbhelper.COL_FNAME);
 
@@ -282,7 +289,8 @@ public class Activity_Login extends AppCompatActivity {
                                                         finish();
                                                     }
                                                     break;
-                                                case 4:
+                                                case "truck":
+                                                    Log.wtf("login()","Logged user is: \"truck\"");
                                                     //truck
                                                     contact_no = Jasonobject.getString(dbhelper.COL_CONTACT_NO);
                                                     plateNo = Jasonobject.getString(dbhelper.COL_PLATE_NO);
@@ -291,7 +299,6 @@ public class Activity_Login extends AppCompatActivity {
                                                         Log.wtf("login","insert successful");
                                                         setSharedPrefData(MySharedPref.LOGGED,"truck");
                                                         Toast.makeText(Activity_Login.this, "Welcome "+plateNo+"!", Toast.LENGTH_SHORT).show();
-
                                                         //open truck UI
                                                         // startActivity(new Intent(getApplicationContext(),MainActivity_truck.class));
                                                         // finish();
@@ -307,7 +314,8 @@ public class Activity_Login extends AppCompatActivity {
                                         }
                                     }//end of if does not contains Warning
                                     else{
-                                        Toast.makeText(Activity_Login.this, "MySQL Connection Problem", Toast.LENGTH_SHORT).show();
+                                        Log.wtf("login()","Problem with PHP script: "+response);
+                                        Toast.makeText(Activity_Login.this, "PHP Script Problem", Toast.LENGTH_SHORT).show();
                                     }
                                 }else{
                                     //wrong pass
@@ -323,7 +331,7 @@ public class Activity_Login extends AppCompatActivity {
                                 closeLoadingDialog();
                                 if(error instanceof TimeoutError || error instanceof NoConnectionError) {
                                     Toast.makeText(getApplicationContext(),"Check your internet connection",Toast.LENGTH_SHORT).show();
-                                    // ...
+
                                 }else{
                                     Toast.makeText(Activity_Login.this, "Error is :"+error.getMessage(), Toast.LENGTH_SHORT).show();
                                 }

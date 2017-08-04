@@ -23,7 +23,7 @@ public class DBHelper extends SQLiteOpenHelper {
     Context con;
 
     long result;
-    private static  final  int DATABASE_VERSION=4;
+    private static  final  int DATABASE_VERSION=5;
     private static  final String DATABASE_NAME= "db_firetrack.db";
 
     //LOGGED USER
@@ -34,7 +34,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static  final String COL_ACC_ID = "acc_id";
     public static  final String COL_USERNAME = "acc_username";
     public static  final String COL_PASSWORD = "acc_password";
-    public static  final String COL_ACC_TYPE_ID = "acc_type_id";
+    public static  final String COL_ACC_TYPE = "acc_type";
 
     //NORMAL USER
     public static  final String COL_FNAME = "fname";
@@ -97,7 +97,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         COL_ACC_ID+" TEXT, "+
                         COL_USERNAME + " TEXT, "+
                         COL_PASSWORD + " TEXT, "+
-                        COL_ACC_TYPE_ID+" TEXT, "+
+                        COL_ACC_TYPE+" TEXT, "+
                         COL_FNAME+ " TEXT, "+
                         COL_MNAME+" TEXT, "+
                         COL_LNAME+" TEXT, "+
@@ -150,7 +150,7 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_USER_LOC_ID,1);
         contentValues.put(COL_ACC_ID,acc_id);
-        contentValues.put(COL_ACC_TYPE_ID, acc_type);
+        contentValues.put(COL_ACC_TYPE, acc_type);
         contentValues.put(COL_USERNAME,username);
         contentValues.put(COL_PASSWORD,pass);
         contentValues.put(COL_FNAME,fname);
@@ -172,7 +172,7 @@ public class DBHelper extends SQLiteOpenHelper {
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_USER_LOC_ID,1);
         contentValues.put(COL_ACC_ID,acc_id);
-        contentValues.put(COL_ACC_TYPE_ID, acc_type);
+        contentValues.put(COL_ACC_TYPE, acc_type);
         contentValues.put(COL_USERNAME,username);
         contentValues.put(COL_PASSWORD,pass);
         contentValues.put(COL_PLATE_NO,plateno);
