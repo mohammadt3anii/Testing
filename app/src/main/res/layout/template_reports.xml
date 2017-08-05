@@ -2,49 +2,80 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/rounded_shape"
     android:orientation="vertical"
-    android:padding="16dp">
-    <TextView
-        android:text="08-14-2017, 23:32:21"
-        android:textStyle="bold"
-        android:textSize="20sp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+    android:paddingTop="12sp"
+    >
         <TextView
-            android:text="Status: "
-            android:textSize="18sp"
-            android:textStyle="bold"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />x
-        <TextView
-            android:text="Pending"
-            android:textSize="18sp"
+            android:id="@+id/report_id"
+            android:visibility="gone"
+            android:textSize="0.5sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-    </LinearLayout>
+        <TextView
+            android:paddingLeft="12sp"
+            android:paddingRight="12sp"
+            android:id="@+id/report_datetime"
+            android:textStyle="bold"
+            android:textSize="20sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:paddingLeft="12sp"
+            android:paddingRight="12sp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="Status: "
+                android:textStyle="bold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/report_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <TextView
+            android:paddingLeft="12sp"
+            android:paddingRight="12sp"
+            android:textStyle="bold"
+            android:text="Coordinates"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <LinearLayout
+            android:paddingLeft="12sp"
+            android:paddingRight="12sp"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:text="{"
+                android:textSize="18sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/report_coordinates"
+                android:textAlignment="center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:text="}"
+                android:textSize="18sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+        <Button
+            android:minHeight="0dp"
+            android:minWidth="0dp"
+            android:id="@+id/report_showmap"
+            android:textSize="13sp"
+            android:textColor="@color/colorWhite"
+            android:backgroundTint="@color/colorPrimary"
+            android:layout_gravity="end"
+            android:textAllCaps="false"
+            android:text="Show in map"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
 
-    <TextView
-        android:textStyle="bold"
-        android:text="Coordinates"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <TextView
-        android:textAlignment="center"
-        android:textSize="18sp"
-        android:text="{12333212312312,343434341123}"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" />
-    <Button
-        android:textSize="13sp"
-        android:textColor="@color/colorWhite"
-        android:backgroundTint="@color/colorPrimary"
-        android:layout_gravity="end"
-        android:textAllCaps="false"
-        android:text="Show in map"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
 </LinearLayout>

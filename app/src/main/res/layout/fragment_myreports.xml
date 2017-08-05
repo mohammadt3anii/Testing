@@ -4,7 +4,9 @@
     android:layout_height="match_parent"
     tools:context="com.example.rvnmrqz.firetrack.Fragment_myreports">
 
+    <!-- LOADING -->
     <LinearLayout
+        android:background="#fff"
         android:id="@+id/myreports_progressLayout"
         android:gravity="center"
         android:orientation="vertical"
@@ -19,7 +21,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
-   <LinearLayout
+    <!-- MESSAGE -->
+    <LinearLayout
        android:visibility="gone"
        android:id="@+id/myreports_messageLayout"
        android:orientation="vertical"
@@ -39,7 +42,10 @@
            android:layout_width="wrap_content"
            android:layout_height="wrap_content" />
    </LinearLayout>
+    <!-- LISTVIEW -->
     <LinearLayout
+        android:padding="8dp"
+        android:background="#d3d6db"
         android:visibility="gone"
         android:id="@+id/myreports_listviewLayout"
         android:orientation="vertical"

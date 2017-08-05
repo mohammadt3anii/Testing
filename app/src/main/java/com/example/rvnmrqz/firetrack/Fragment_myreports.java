@@ -4,19 +4,28 @@ package com.example.rvnmrqz.firetrack;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -34,11 +43,13 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,8 +59,14 @@ public class Fragment_myreports extends Fragment {
     DBHelper dbHelper;
     LinearLayout layout_progress,layout_error_message,layout_list;
     TextView txtprogressMsg, txterrorMsg;
+    SwipeRefreshLayout listviewRefreshLayout;
+    ListView reportListview;
     Button btnRefresh;
     int account_id;
+    ArrayList<String> id;
+    ArrayList<String> datetime;
+    ArrayList<String>  status;
+    ArrayList<String>  coordinates;
 
     public Fragment_myreports() {
         // Required empty public constructor
@@ -71,7 +88,15 @@ public class Fragment_myreports extends Fragment {
         layout_list = (LinearLayout) getActivity().findViewById(R.id.myreports_listviewLayout);
         txterrorMsg = (TextView) getActivity().findViewById(R.id.myreports_messageLayout_txtview);
         txtprogressMsg = (TextView) getActivity().findViewById(R.id.myreports_progressLayout_txtView);
+        reportListview = (ListView) getActivity().findViewById(R.id.myreports_listview);
         btnRefresh = (Button) getActivity().findViewById(R.id.myreports_messageLayout_button);
+        listviewRefreshLayout = (SwipeRefreshLayout) getActivity().findViewById(R.id.myreports_list_swipeRefreshlayout);
+        listviewRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadReports();
+            }
+        });
         btnRefresh.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -79,6 +104,11 @@ public class Fragment_myreports extends Fragment {
             }
         });
         dbHelper = new DBHelper(getActivity());
+
+        id = new ArrayList<>();
+        datetime = new ArrayList<>();
+        status = new ArrayList<>();
+        coordinates = new ArrayList<>();
 
         //get the user logged
         Cursor c = dbHelper.getSqliteData("SELECT "+dbHelper.COL_ACC_ID+" FROM "+dbHelper.TABLE_USER+" WHERE "+dbHelper.COL_USER_LOC_ID+"=1;");
@@ -97,9 +127,15 @@ public class Fragment_myreports extends Fragment {
             showErrorMessage("No Internet Connection",true,"Retry");
             showSnackbar("You're offline");
         }
+
     }
 
     protected void loadReports(){
+        id.clear();
+        datetime.clear();
+        status.clear();
+        coordinates.clear();
+        listviewRefreshLayout.setRefreshing(false);
         showProgressLayout("Loading, Please wait...");
         String url =  ServerInfoClass.HOST_ADDRESS+"/get_data.php";
         RequestQueue requestQue = Volley.newRequestQueue(getActivity());
@@ -114,8 +150,17 @@ public class Fragment_myreports extends Fragment {
                             JSONArray Jarray  = object.getJSONArray("mydata");
                             if(Jarray.length()>0){
                                 //extract the JSON
-                                Toast.makeText(getContext(), "Report Count: "+Jarray.length(), Toast.LENGTH_SHORT).show();
-                                Log.wtf("loadReports (onResponse)","EXTRACT JSON");
+                                for(int x=0;x<Jarray.length();x++){
+                                    JSONObject Jasonobject = Jarray.getJSONObject(x);
+                                    id.add(Jasonobject.getString(dbHelper.COL_REPORT_ID));
+                                    datetime.add(Jasonobject.getString(dbHelper.COL_REPORT_DATETIME));
+                                    status.add(Jasonobject.getString(dbHelper.COL_REPORT_STATUS));
+                                    coordinates.add(Jasonobject.getString(dbHelper.COL_REPORT_COORDINATES));
+                                }
+                               //pass to adapater
+                                ReportAdapter reportAdapter = new ReportAdapter(getContext(),id,datetime,status,coordinates);
+                                reportListview.setAdapter(reportAdapter);
+
                             }else{
                                 Log.wtf("loadReports (onResponse)", "NO REPORTS YET");
                                 showErrorMessage("No Reports Yet",true,"Refresh");
@@ -216,5 +261,59 @@ public class Fragment_myreports extends Fragment {
         ConnectivityManager connectivityManager = (ConnectivityManager) getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+
+    class ReportAdapter extends ArrayAdapter {
+        ArrayList<String> report_id= new ArrayList<>();
+        ArrayList<String> datetime = new ArrayList<>();
+        ArrayList<String> status = new ArrayList<>();
+        ArrayList<String> coordinates = new ArrayList<>();
+
+
+        public ReportAdapter(Context context, ArrayList<String> report_id, ArrayList<String> datetime,   ArrayList<String> status,  ArrayList<String> coordinates) {
+            //Overriding Default Constructor off ArratAdapter
+            super(context, R.layout.template_post,R.id.post_id,report_id);
+            this.report_id = report_id;
+            this.datetime=datetime;
+            this.status=status;
+            this.coordinates=coordinates;
+
+        }
+        @NonNull
+        @Override
+        public View getView(int position, View convertView, ViewGroup parent) {
+            //Inflating the layout
+            LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View row = inflater.inflate(R.layout.template_reports,parent,false);
+
+            //Get the reference to the view objects
+            TextView txtid  = (TextView) row.findViewById(R.id.report_id);
+            final TextView txtdatetime = (TextView) row.findViewById(R.id.report_datetime);
+            final TextView txtstatus = (TextView) row.findViewById(R.id.report_status);
+            final TextView txtcoor = (TextView) row.findViewById(R.id.report_coordinates);
+            Button btnShowMap = (Button) row.findViewById(R.id.report_showmap);
+            btnShowMap.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    MapFragment mapfrag = new MapFragment();
+                    Bundle args = new Bundle();
+                    args.putString("coordinates",txtcoor.getText().toString());
+                    args.putString("title",txtdatetime.getText().toString());
+                    args.putString("snippet",txtstatus.getText().toString());
+                    mapfrag.setArguments(args);
+
+                    MainActivity_user.addToBackStack(mapfrag,"map");
+                }
+            });
+
+            //Providing the element of an array by specifying its position
+            txtid.setText(report_id.get(position));
+            txtdatetime.setText(datetime.get(position));
+            txtstatus.setText(status.get(position));
+            txtcoor.setText(coordinates.get(position));
+            return row;
+        }
     }
 }

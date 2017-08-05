@@ -194,11 +194,17 @@ public class MainActivity_user extends AppCompatActivity {
             Log.wtf("getString","extra string is null");
            bottomNavigation.setCurrentItem(0);
         }
-        if(isMyServiceRunning(Service_Notification.class)){
+        loadUnopenednotificationsbadge();
+    }
+
+
+    @Override
+    protected void onPostResume() {
+        super.onPostResume();
+
+        if(!isMyServiceRunning(Service_Notification.class)){
             startService(new Intent(MainActivity_user.this,Service_Notification.class));
         }
-
-        loadUnopenednotificationsbadge();
     }
 
     @Override
