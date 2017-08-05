@@ -28,7 +28,7 @@ import android.widget.Toast;
 public class Fragment_report_options extends Fragment {
     View myview;
     Button btnOnline,btnMessage;
-    int PERMISSION_SMS = 10,PERMISSION_CALL=20;
+    int PERMISSION_SMS = 10;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
 
@@ -41,7 +41,7 @@ public class Fragment_report_options extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Reporting");
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Reporting Options");
         btnOnline = (Button) getActivity().findViewById(R.id.btnOnlineReport);
         btnMessage = (Button) getActivity().findViewById(R.id.btnMessage);
         sharedPreferences = getActivity().getSharedPreferences(MySharedPref.SHAREDPREF_NAME, Context.MODE_PRIVATE);

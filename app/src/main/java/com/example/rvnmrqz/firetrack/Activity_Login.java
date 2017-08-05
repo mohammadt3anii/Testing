@@ -300,8 +300,7 @@ public class Activity_Login extends AppCompatActivity {
                                                         setSharedPrefData(MySharedPref.LOGGED,"truck");
                                                         Toast.makeText(Activity_Login.this, "Welcome "+plateNo+"!", Toast.LENGTH_SHORT).show();
                                                         //open truck UI
-                                                        // startActivity(new Intent(getApplicationContext(),MainActivity_truck.class));
-                                                        // finish();
+
                                                     }
                                                     break;
                                                 default:

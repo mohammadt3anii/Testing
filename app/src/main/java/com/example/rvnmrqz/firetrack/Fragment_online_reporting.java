@@ -62,6 +62,7 @@ import com.android.volley.toolbox.Volley;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -75,13 +76,11 @@ import static android.content.Context.LOCATION_SERVICE;
 public class Fragment_online_reporting extends Fragment {
     View myview;
     ImageView imgProof;
-
     int     CAMERA_PERMISSION =1,
             LOCATION_PERMISSION=2,
             TAKE_PICTURE_REQUEST=20,
             OPEN_GPS_SETTINGS_REQUEST=30,
             OPEN_PERMISSION_REQUEST=40;
-
     String encodedImage;
     private Uri imageUri;
     public static Uri finalImageUri=null;
@@ -93,9 +92,7 @@ public class Fragment_online_reporting extends Fragment {
     private LocationListener locationListener;
     String coordinates =null;
     String user_account_id;
-
-
-
+    int nearest_barangayid=-1;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -230,8 +227,6 @@ public class Fragment_online_reporting extends Fragment {
                     FileOutputStream fo = new FileOutputStream(f);
                     fo.write(bytes.toByteArray());
                     fo.close();
-
-                    // Toast.makeText(ra,f.toString(), Toast.LENGTH_SHORT).show();
 
                     imgProof.setImageBitmap(photo);
                     finalImageUri=Uri.fromFile(new File(f.toString())); //passes the lower reso file
@@ -627,11 +622,32 @@ public class Fragment_online_reporting extends Fragment {
         requestQue.add(stringReq);
     }
 
-    private int getNearestBarangay(){
-        int Barangay_ID=0;
-        //get the nearest barangay
+    private void getNearestBarangay(){
+        //get nearest barangay
+        ArrayList<Integer> barangay_id = new ArrayList();
+        ArrayList<String> barangay_coordinates = new ArrayList<>();
+        int id;
+        String coordinates;
+        Cursor c = dbhelper.getSqliteData("SELECT * FROM "+dbhelper.TABLE_BARANGAY+";");
+        if(c!=null){
+            if(c.getCount()>0){
+                c.moveToFirst();
+                //populate arraylist
+                do{
+                    id = c.getInt(c.getColumnIndex(dbhelper.COL_BARANGAY_ID));
+                    coordinates = c.getString(c.getColumnIndex(dbhelper.BARANGAY_COORDINATES));
+                    barangay_id.add(id);
+                    barangay_coordinates.add(coordinates);
+                }while (c.moveToNext());
 
-        return Barangay_ID;
+                for(int x =0; x<barangay_id.size();x++){
+                    int temp0;
+
+                }
+
+
+            }
+        }
     }
 
     private void showLoadingDialog() {

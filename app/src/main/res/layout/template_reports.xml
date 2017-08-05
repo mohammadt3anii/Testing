@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+    <TextView
+        android:text="08-14-2017, 23:32:21"
+        android:textStyle="bold"
+        android:textSize="20sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:text="Status: "
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />x
+        <TextView
+            android:text="Pending"
+            android:textSize="18sp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+    </LinearLayout>
+
+    <TextView
+        android:textStyle="bold"
+        android:text="Coordinates"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:text="{12333212312312,343434341123}"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <Button
+        android:textSize="13sp"
+        android:textColor="@color/colorWhite"
+        android:backgroundTint="@color/colorPrimary"
+        android:layout_gravity="end"
+        android:textAllCaps="false"
+        android:text="Show in map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</LinearLayout>

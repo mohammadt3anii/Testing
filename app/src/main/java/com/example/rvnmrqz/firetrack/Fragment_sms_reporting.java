@@ -57,6 +57,7 @@ import static android.content.Context.LOCATION_SERVICE;
 public class Fragment_sms_reporting extends Fragment {
 
     View myview;
+    String msg;
     static DBHelper dbHelper;
     static String number=null;
     static TextView txtCounter, txtMessage,txtNumber;
@@ -444,10 +445,26 @@ public class Fragment_sms_reporting extends Fragment {
                     Log.wtf("btnClicked","Number is not null: "+number);
                      //check if message is not null
                          Log.wtf("btnClicked","Message is not null");
-                         String msg = txtMessage.getText().toString().trim();
+                       msg = txtMessage.getText().toString().trim();
                          if(coordinates!=null){
-                             msg+="\n{"+coordinates+"}";
-                             sendSMS(number,msg);
+                             new android.support.v7.app.AlertDialog.Builder(getActivity())
+                                     .setTitle("Confirmation")
+                                     .setMessage("Send your report now?")
+                                     .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                         @Override
+                                         public void onClick(DialogInterface dialog, int which) {
+                                             msg +="\n{"+coordinates+"}";
+                                             sendSMS(number, msg);
+                                         }
+                                     })
+                                     .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                         @Override
+                                         public void onClick(DialogInterface dialog, int which) {
+
+                                         }
+                                     })
+                                     .show();
+
                          }else{
                              txtLocation.setError("No Location Given");
                              txtLocation.requestFocus();
@@ -525,7 +542,6 @@ public class Fragment_sms_reporting extends Fragment {
                     }
 
                 }, new IntentFilter(DELIVERED));
-
 
                 //SENDING THE MESSAGE
                 SmsManager sms = SmsManager.getDefault();

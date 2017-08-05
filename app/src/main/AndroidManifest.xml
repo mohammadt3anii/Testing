@@ -11,6 +11,7 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -34,8 +35,8 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
-            android:label="Login"
             android:name=".Activity_Login"
+            android:label="Login"
             android:screenOrientation="portrait" />
         <activity android:name=".TestActivity" />
         <activity
@@ -43,14 +44,24 @@
             android:theme="@style/Theme.AppCompat.Light" />
         <activity
             android:name=".Activity_User_Settings"
-            android:label="Settings">
-        </activity>
+            android:label="Settings" />
 
         <service
             android:name=".Service_Notification"
             android:exported="false" />
 
+        <receiver
+            android:name=".MyReceiver"
+            android:enabled="true"
+            android:exported="false">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
 
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
+
+        <activity android:name=".Activitiy_main_truck"></activity>
     </application>
 
 </manifest>

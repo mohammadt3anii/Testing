@@ -194,6 +194,10 @@ public class MainActivity_user extends AppCompatActivity {
             Log.wtf("getString","extra string is null");
            bottomNavigation.setCurrentItem(0);
         }
+        if(isMyServiceRunning(Service_Notification.class)){
+            startService(new Intent(MainActivity_user.this,Service_Notification.class));
+        }
+
         loadUnopenednotificationsbadge();
     }
 
@@ -328,7 +332,7 @@ public class MainActivity_user extends AppCompatActivity {
         showFeedLoading(true);
         if(!isNetworkAvailable()){
             showSnackbar();
-            showFeedMessage(true,"No Internet Connection");
+            showFeedMessage(true,"No Internet Connection","Retry");
         }else{
             server_url = ServerInfoClass.HOST_ADDRESS+"/get_data.php";
             requestQueue = Volley.newRequestQueue(this);
@@ -353,7 +357,7 @@ public class MainActivity_user extends AppCompatActivity {
                                     postpicture.clear();
 
                                     if(Jarray.length()>0) {
-                                        showFeedMessage(false,null);
+                                        showFeedMessage(false,null,null);
                                         showFeedLoading(false);
                                         feed_postLayout.setVisibility(View.VISIBLE);
                                         for (int i = 0; i < Jarray.length(); i++) {
@@ -376,12 +380,12 @@ public class MainActivity_user extends AppCompatActivity {
                                         setListViewAdapter();
                                     }else{
                                         //no post
-                                        showFeedMessage(true,"No Post Available");
+                                        showFeedMessage(true,"No Post Available","Refresh");
                                         feed_postLayout.setVisibility(View.GONE);
                                         feed_messageLayout.setVisibility(View.VISIBLE);
                                     }
                                 }catch (Exception ee){
-                                    showFeedMessage(true,"An error occurred while loading the feed");
+                                    showFeedMessage(true,"An error occurred while loading the feed","Retry");
                                     Log.wtf("loadFeed_ERROR", ee.getMessage());
                                 }
                             }
@@ -396,23 +400,30 @@ public class MainActivity_user extends AppCompatActivity {
                                 message = "Network Error Encountered";
                                 Log.wtf("loadFeed (Volley Error)","NetworkError");
                                 //showSnackbar("You're not connected to internet");
+
                             } else if (volleyError instanceof ServerError) {
                                 message = "Please check your internet connection";
                                 Log.wtf("loadFeed (Volley Error)","ServerError");
+
                             } else if (volleyError instanceof AuthFailureError) {
                                 message = "Please check your internet connection";
                                 Log.wtf("loadFeed (Volley Error)","AuthFailureError");
+
                             } else if (volleyError instanceof ParseError) {
                                 message = "An error encountered, Please try again";
                                 Log.wtf("loadFeed (Volley Error)","ParseError");
+
                             } else if (volleyError instanceof NoConnectionError) {
                                 message = "No internet connection";
                                 Log.wtf("loadFeed (Volley Error)","NoConnectionError");
+
                             } else if (volleyError instanceof TimeoutError) {
                                 message = "Connection Timeout";
                                 Log.wtf("loadFeed (Volley Error)","TimeoutError");
+
                             }
-                            showFeedMessage(true,message);
+                            showFeedMessage(true,message,"Refresh");
+
                         }
                     }){
                 @Override
@@ -466,13 +477,16 @@ public class MainActivity_user extends AppCompatActivity {
             }
         });
     }
-    protected void showFeedMessage(boolean showMessageLayout,String message){
+    protected void showFeedMessage(boolean showMessageLayout,String message,String buttonMessage){
         if(showMessageLayout){
             feed_loadingLayout.setVisibility(View.GONE);
             feed_postLayout.setVisibility(View.GONE);
             feed_messageLayout.setVisibility(View.VISIBLE);
             if(message!=null){
                 feed_messageTV.setText(message);
+            }
+            if(buttonMessage != null){
+                btnFeed_message.setText(buttonMessage);
             }
         }
     }
@@ -547,7 +561,7 @@ public class MainActivity_user extends AppCompatActivity {
                                 isFooterLoading=false;
 
                             }catch (Exception ee){
-                                showFeedMessage(true,"Can't load feed");
+                                showFeedMessage(true,"Can't load feed","Retry");
                                 Log.wtf("loadFeed_ERROR", ee.getMessage());
                             }
                         }

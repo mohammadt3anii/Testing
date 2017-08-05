@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -54,19 +55,17 @@ public class Fragment_myreports extends Fragment {
         // Required empty public constructor
     }
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_myreports, container, false);
     }
-
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         //initialize here
 
+        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("My Reports");
         layout_error_message  = (LinearLayout) getActivity().findViewById(R.id.myreports_messageLayout);
         layout_progress = (LinearLayout) getActivity().findViewById(R.id.myreports_progressLayout);
         layout_list = (LinearLayout) getActivity().findViewById(R.id.myreports_listviewLayout);
@@ -95,6 +94,7 @@ public class Fragment_myreports extends Fragment {
             loadReports();
         }else{
             //show snackbar
+            showErrorMessage("No Internet Connection",true,"Retry");
             showSnackbar("You're offline");
         }
     }
@@ -200,6 +200,7 @@ public class Fragment_myreports extends Fragment {
         layout_error_message.setVisibility(View.GONE);
         layout_list.setVisibility(View.VISIBLE);
     }
+
     protected void showSnackbar(String snackbarMsg){
         Snackbar.make(getActivity().findViewById(android.R.id.content), snackbarMsg, Snackbar.LENGTH_LONG)
                 .setAction("Go online", new View.OnClickListener() {
@@ -216,7 +217,4 @@ public class Fragment_myreports extends Fragment {
         NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
-
-
-
 }
