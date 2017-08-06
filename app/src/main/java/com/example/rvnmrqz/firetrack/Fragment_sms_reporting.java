@@ -340,7 +340,6 @@ public class Fragment_sms_reporting extends Fragment {
         }
     }
 
-
     //BARANGAY LIST
     protected static void populateAutoCompleteBarangay(){
         barangays = new ArrayList<>();
@@ -485,7 +484,6 @@ public class Fragment_sms_reporting extends Fragment {
                         new String[]{Manifest.permission.SEND_SMS},1);
             }
             else{
-
                 String SENT = "sent";
                 String DELIVERED = "delivered";
 
@@ -511,6 +509,7 @@ public class Fragment_sms_reporting extends Fragment {
 
                             case Activity.RESULT_OK:
                                 result = "Sent successful";
+                                MainActivity_user.somethingisnotyetdone=false;
                                 //PN.setText("");
                                 //MSG.setText("");
                                 break;
@@ -537,7 +536,7 @@ public class Fragment_sms_reporting extends Fragment {
                 getActivity().registerReceiver(new BroadcastReceiver() {
                     @Override
                     public void onReceive(Context context, Intent intent) {
-                        Toast.makeText(getActivity(), "Deliverd",
+                        Toast.makeText(getActivity(), "Delivered",
                                 Toast.LENGTH_LONG).show();
                     }
 

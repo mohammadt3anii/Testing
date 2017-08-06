@@ -324,9 +324,9 @@ public class Service_Notification extends Service {
         int lastId;
         Cursor c = dbhelper.getSqliteData("SELECT MAX("+dbhelper.COL_UPDATE_ID+") max_id FROM "+dbhelper.TABLE_UPDATES+";");
         if(c!=null){
-            Log.wtf("getLastNotificationId","c is not null");
             c.moveToFirst();
             String temp = c.getString(c.getColumnIndex("max_id"));
+            Log.wtf("getLastNotificationId","MAXID: "+temp);
             if(temp!=null){
                 lastId = Integer.parseInt(temp);
                 return lastId;

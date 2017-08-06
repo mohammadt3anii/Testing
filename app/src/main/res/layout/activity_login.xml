@@ -13,7 +13,7 @@
     >
 
     <Button
-        android:visibility="gone"
+
         android:id="@+id/btnOpenDB"
         android:textColor="#fff"
         android:layout_alignParentRight="true"

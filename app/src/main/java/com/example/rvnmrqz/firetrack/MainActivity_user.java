@@ -97,9 +97,7 @@ public class MainActivity_user extends AppCompatActivity {
      static ArrayList<String> notif_messages;
      static NotificationAdapter notif_adapter;
 
-
     public static Context mainAcvitiyUser_static;
-
     int sql_limit=5;
     int sql_offset=0;
 
@@ -116,6 +114,8 @@ public class MainActivity_user extends AppCompatActivity {
     AHBottomNavigationItem item1,item2,item3;
 
     Activity main_user_activity;
+    public static boolean somethingisnotyetdone=false;
+    int currentFrame=-1;
 
 
     @Override
@@ -175,12 +175,16 @@ public class MainActivity_user extends AppCompatActivity {
         if(syncNotif.length()==0){
             //to sync notif
             //sync is not yet done
-            Log.wtf("Sync Notif","SyncNotif have 0 length");
+            Log.wtf("Sync Notif","First notification sync is not yet done");
             loadNotifications();
             new SyncNotifications(MainActivity_user.this,1);
+
         }else{
             //already done syncing before
-            Log.wtf("Sync Notif", "SyncNotif length is not 0, value is "+syncNotif);
+            if(!isMyServiceRunning(Service_Notification.class)){
+                startService(new Intent(MainActivity_user.this,Service_Notification.class));
+            }
+            Log.wtf("Sync Notif", "Sync notif is already done, sharedpref value: "+syncNotif);
             loadNotifications();
         }
         loadFeed();
@@ -197,15 +201,6 @@ public class MainActivity_user extends AppCompatActivity {
         loadUnopenednotificationsbadge();
     }
 
-
-    @Override
-    protected void onPostResume() {
-        super.onPostResume();
-
-        if(!isMyServiceRunning(Service_Notification.class)){
-            startService(new Intent(MainActivity_user.this,Service_Notification.class));
-        }
-    }
 
     @Override
     protected void onNewIntent(Intent intent) {
@@ -665,7 +660,7 @@ public class MainActivity_user extends AppCompatActivity {
     //FRAME 3****************************************************************
     //NOTIFICATIONS
     public static void loadNotifications(){
-        Log.wtf("loadNotifications","Start");
+        Log.wtf("loadNotifications","method is called");
         notif_swipeRefreshLayout.setRefreshing(true);
 
         notif_adapter=null;
@@ -675,23 +670,20 @@ public class MainActivity_user extends AppCompatActivity {
 
         dbHelper = new DBHelper(mainAcvitiyUser_static);
         Cursor c = dbHelper.getSqliteData("SELECT * FROM "+dbHelper.TABLE_UPDATES+" WHERE "+dbHelper.COL_CATEGORY+" = 'notif' ORDER BY "+dbHelper.COL_UPDATE_ID+" desc;");
-
         if(c != null ){
             if(c.getCount()>0){
                 c.moveToFirst();
-            }
-            Log.wtf("loadNotifications","Cursor count "+c.getCount());
-            int counter=0;
-            int cursorLength = c.getCount();
-            while(counter<cursorLength){
-                notif_loc_id.add(c.getString(c.getColumnIndex(dbHelper.COL_UPDATE_LOC_ID)));
-                notif_titles.add(c.getString(c.getColumnIndex(dbHelper.COL_TITLE)));
-                notif_datetime.add(c.getString(c.getColumnIndex(dbHelper.COL_DATETIME)));
-                notif_messages.add(c.getString(c.getColumnIndex(dbHelper.COL_CONTENT)));
-                counter++;
-                c.moveToNext();
-            }
-            if(cursorLength>0){
+                Log.wtf("loadNotifications","Sqlite notif count "+c.getCount());
+                int counter=0;
+                int cursorLength = c.getCount();
+                while(counter<cursorLength){
+                    notif_loc_id.add(c.getString(c.getColumnIndex(dbHelper.COL_UPDATE_LOC_ID)));
+                    notif_titles.add(c.getString(c.getColumnIndex(dbHelper.COL_TITLE)));
+                    notif_datetime.add(c.getString(c.getColumnIndex(dbHelper.COL_DATETIME)));
+                    notif_messages.add(c.getString(c.getColumnIndex(dbHelper.COL_CONTENT)));
+                    counter++;
+                    c.moveToNext();
+                }
                 notif_adapter = new NotificationAdapter(mainAcvitiyUser_static,notif_loc_id,notif_titles,notif_datetime,notif_messages);
                 notif_listview.setAdapter(notif_adapter);
                 showBlankNotifLayout(false);
@@ -822,21 +814,28 @@ public class MainActivity_user extends AppCompatActivity {
 
     //FRAME TRANSITIONS
     protected void showFrame1(){
-        clearBackstack();
-        initialLayout.setVisibility(View.VISIBLE);
-        frame1.setVisibility(View.VISIBLE);
-        frame2.setVisibility(View.GONE);
-        frame3.setVisibility(View.GONE);
-        getSupportActionBar().setTitle("FireTRACK");
+            currentFrame=1;
+            clearBackstack();
+            initialLayout.setVisibility(View.VISIBLE);
+            frame1.setVisibility(View.VISIBLE);
+            frame2.setVisibility(View.GONE);
+            frame3.setVisibility(View.GONE);
+            getSupportActionBar().setTitle("FireTRACK");
+
+
     }
     protected void showFrame2(){
-        clearBackstack();
-        frame2.setVisibility(View.VISIBLE);
-        frame1.setVisibility(View.GONE);
-        frame3.setVisibility(View.GONE);
-        getSupportActionBar().setTitle("FireTRACK");
+            currentFrame=2;
+            clearBackstack();
+            frame2.setVisibility(View.VISIBLE);
+            frame1.setVisibility(View.GONE);
+            frame3.setVisibility(View.GONE);
+            getSupportActionBar().setTitle("FireTRACK");
+
+
     }
     protected void showFrame3(){
+       currentFrame=3;
         clearBackstack();
         if(!notificationsLoaded){
             loadNotifications();
@@ -872,7 +871,27 @@ public class MainActivity_user extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        goBack();
+        if(somethingisnotyetdone){
+            new AlertDialog.Builder(this)
+                    .setMessage("Go Back?")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            somethingisnotyetdone=false;
+                            goBack();
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+
+                        }
+                    })
+                    .show();
+        }else{
+            goBack();
+        }
+
     }
     public void goBack(){
         int backStackEntryCount = getSupportFragmentManager().getBackStackEntryCount();

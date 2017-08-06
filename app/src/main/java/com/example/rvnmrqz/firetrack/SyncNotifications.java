@@ -1,6 +1,8 @@
 package com.example.rvnmrqz.firetrack;
 
+import android.app.ActivityManager;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.util.Log;
@@ -47,11 +49,11 @@ public class SyncNotifications
         if(result!=null){
             result.moveToFirst();
             if(result.getCount()>0){
-                Log.wtf("SyncNotifications","result count is greater than 0");
+               // Log.wtf("SyncNotifications","result count is greater than 0");
                 user_id = result.getString(result.getColumnIndex(dbHelper.COL_ACC_ID));
                 user_barangay_id = result.getString(result.getColumnIndex(dbHelper.COL_BARANGAY_ID));
                 if(user_id !=null && user_barangay_id!=null){
-                    Log.wtf("SyncNotifications","both values is not null");
+                 //   Log.wtf("SyncNotifications","both values is not null");
                     finalMode = MODE;
                     sync(MODE);
                 }else{
@@ -125,6 +127,7 @@ public class SyncNotifications
             String update_id,category,title,content,sender_id,datetime,opened="yes";
             JSONObject object = new JSONObject(response);
             JSONArray Jarray  = object.getJSONArray("mydata");
+            Log.wtf("SyncNotifications: insert(response)","Notification Gathered Count: "+Jarray.length());
             for (int i = 0; i < Jarray.length(); i++)
             {
                 JSONObject Jasonobject = Jarray.getJSONObject(i);
@@ -137,18 +140,36 @@ public class SyncNotifications
                 //insert in sqlite
                 dbHelper.insertUpdate(update_id,category,title,content,sender_id,datetime,opened);
             }
+            Log.wtf("SyncNotifications: insert(response)","Notif is inserted to SQLite");
+
             if(Jarray.length()>0){
                 //there is a value retrieved
-                Log.wtf("insert","Load main notifications UI");
+
                 if(MainActivity_user.mainAcvitiyUser_static !=null){
                     MainActivity_user.loadNotifications();
+                    Log.wtf("SyncNotifications: insert(response)","Synced Notification loaded in main UI");
                 }
             }
-            Log.wtf("onResponse","Notif is inserted");
+
+
         }catch (Exception ee){
             Log.wtf("SyncNotifications_insert()","Exception: "+ee.getMessage());
             Toast.makeText(context, "A problem occurred while refreshing", Toast.LENGTH_SHORT).show();
         }
+
+        if(!isMyServiceRunning(Service_Notification.class)){
+            context.startService(new Intent(context,Service_Notification.class));
+        }
     }
 
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
