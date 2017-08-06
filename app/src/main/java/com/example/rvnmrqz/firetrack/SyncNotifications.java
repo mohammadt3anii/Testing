@@ -142,15 +142,19 @@ public class SyncNotifications
             }
             Log.wtf("SyncNotifications: insert(response)","Notif is inserted to SQLite");
 
-            if(Jarray.length()>0){
+            if(Jarray.length()>0) {
                 //there is a value retrieved
-
-                if(Activity_main_user.mainAcvitiyUser_static !=null){
+                if (Activity_main_user.mainAcvitiyUser_static != null) {
                     Activity_main_user.loadNotifications();
-                    Log.wtf("SyncNotifications: insert(response)","Synced Notification loaded in main UI");
+                    Log.wtf("SyncNotifications: insert(response)", "Synced Notification loaded in main UI");
                 }
             }
-
+            //inserting the max id
+            SharedPreferences sharedPreferences = context.getSharedPreferences(MySharedPref.SHAREDPREF_NAME, Context.MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putInt(MySharedPref.MAX_NOTIF_ID, getLastNotificationId());
+            editor.commit();
+            Log.wtf("SyncNotifications","New Shared Max id is saved: "+sharedPreferences.getInt(MySharedPref.MAX_NOTIF_ID,0));
 
         }catch (Exception ee){
             Log.wtf("SyncNotifications_insert()","Exception: "+ee.getMessage());
@@ -159,6 +163,25 @@ public class SyncNotifications
 
         if(!isMyServiceRunning(Service_Notification.class)){
             context.startService(new Intent(context,Service_Notification.class));
+        }
+    }
+
+    private int getLastNotificationId(){
+        int lastId;
+        Cursor c = dbHelper.getSqliteData("SELECT MAX("+dbHelper.COL_UPDATE_ID+") max_id FROM "+dbHelper.TABLE_UPDATES+";");
+        if(c!=null){
+            c.moveToFirst();
+            String temp = c.getString(c.getColumnIndex("max_id"));
+            Log.wtf("getLastSQLiteNotificationId","MAXID: "+temp);
+            if(temp!=null){
+                lastId = Integer.parseInt(temp);
+                return lastId;
+            }else{
+                return 0;
+            }
+        }else{
+            Log.wtf("getLastNotificationId","c is null");
+            return 0;
         }
     }
 

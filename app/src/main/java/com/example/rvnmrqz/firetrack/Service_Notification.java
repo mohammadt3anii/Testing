@@ -9,6 +9,8 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.MediaPlayer;
 import android.media.RingtoneManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
@@ -91,7 +93,7 @@ public class Service_Notification extends Service {
             Log.wtf("SERVICE_ONCREATE", "Exception "+e.getMessage());
         }
         initializeSharePref();
-        maxNotifId = getLastNotificationId();
+        maxNotifId = getSharedPrefMaxNotifID();
         startTimer();
         return START_STICKY;
     }
@@ -139,8 +141,14 @@ public class Service_Notification extends Service {
                     public void run() {
                         if(continueCount){
                             tick++;
-                            if(tick==maxCount){
-                                doWork();
+                            if(tick==maxCount) {
+                                if (isNetworkAvailable()){
+                                    doWork();
+                                }
+                                else{
+                                    Log.wtf("tick==maxcount","no network available, restarting");
+                                    restartCounting();
+                                }
                             }
                         }
                         Log.wtf("service_timer", "Timer Tick: "+tick);
@@ -198,6 +206,12 @@ public class Service_Notification extends Service {
         requestQueue.add(stringRequest);
     }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
     private void insert(String response){
         try{
             int notif_count=0;
@@ -233,10 +247,11 @@ public class Service_Notification extends Service {
 
                 if(notificationReceived || queryReceived){
                     //there is a new update received
-                    int tmp = getLastNotificationId();
+                    int tmp = getSQLiteLastNotificationId();
                     if(tmp>maxNotifId){
                         //there is a notification
                         maxNotifId=tmp;
+                        setSharedPrefMaxNotifID(maxNotifId);
                         //show some notification in the drawer
                         Log.wtf("maxnotifId", "New Value is "+maxNotifId);
                         Log.wtf("onResponse","Notif is inserted");
@@ -260,15 +275,15 @@ public class Service_Notification extends Service {
                         }
                         else{
                             //app is not running
-                            if(getSharedPrefValue(MySharedPref.NOTIFICATIONS)){
+                            if(getSharedPrefBooleanValue(MySharedPref.NOTIFICATIONS)){
                                 showNotification(unopen);
                             }
                         }
-                        if(getSharedPrefValue(MySharedPref.PLAY_VIBRATE) && getSharedPrefValue(MySharedPref.NOTIFICATIONS)){
+                        if(getSharedPrefBooleanValue(MySharedPref.PLAY_VIBRATE) && getSharedPrefBooleanValue(MySharedPref.NOTIFICATIONS)){
                             Vibrator vb = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
                             vb.vibrate(500);
                         }
-                        if(getSharedPrefValue(MySharedPref.NOTIFICATIONS) && playNotifSound()){
+                        if(getSharedPrefBooleanValue(MySharedPref.NOTIFICATIONS) && playNotifSound()){
                             playRingtone();
                         }
                     }
@@ -309,23 +324,35 @@ public class Service_Notification extends Service {
 
         return count;
     }
+    private int getSharedPrefMaxNotifID(){
+        int maxid = sharedPreferences.getInt(MySharedPref.MAX_NOTIF_ID,0);
+        Log.wtf("get shared Pref MAXID","Value : "+maxid);
+        return maxid;
+    }
+    private void setSharedPrefMaxNotifID(int value){
+        editor = sharedPreferences.edit();
+        editor.putInt(MySharedPref.MAX_NOTIF_ID,value);
+        Log.wtf("setSharedprefMaxid","New Max id is saved: "+value);
+    }
+
     private void setUnOpenedNotifications(int count){
         editor = sharedPreferences.edit();
         editor.putInt(MySharedPref.NOTIF_COUNT,count);
-        Log.wtf("setUnopenedNotif","New Value: "+getLastNotificationId());
         editor.commit();
+        Log.wtf("setUnopenedNotif","New Value: "+ getSQLiteLastNotificationId());
+
     }
-    protected boolean getSharedPrefValue(String key){
+    protected boolean getSharedPrefBooleanValue(String key){
         boolean val = sharedPreferences.getBoolean(key,true);
         return val;
     }
-    private int getLastNotificationId(){
+    private int getSQLiteLastNotificationId(){
         int lastId;
         Cursor c = dbhelper.getSqliteData("SELECT MAX("+dbhelper.COL_UPDATE_ID+") max_id FROM "+dbhelper.TABLE_UPDATES+";");
         if(c!=null){
             c.moveToFirst();
             String temp = c.getString(c.getColumnIndex("max_id"));
-            Log.wtf("getLastNotificationId","MAXID: "+temp);
+            Log.wtf("getSQLiteLastNotificationId","MAXID: "+temp);
             if(temp!=null){
                 lastId = Integer.parseInt(temp);
                 return lastId;
@@ -333,7 +360,7 @@ public class Service_Notification extends Service {
                 return 0;
             }
         }else{
-            Log.wtf("getLastNotificationId","c is null");
+            Log.wtf("getSQLiteLastNotificationId","c is null");
             return 0;
         }
     }

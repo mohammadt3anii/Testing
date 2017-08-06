@@ -172,7 +172,6 @@ public class Fragment_myreports extends Fragment {
                         if (volleyError instanceof NetworkError) {
                             message = "Network Error Encountered";
                             Log.wtf("loadFeed (Volley Error)","NetworkError");
-                            showSnackbar("You're not connected to internet");
                         } else if (volleyError instanceof ServerError) {
                             message = "Please check your internet connection";
                             Log.wtf("loadFeed (Volley Error)","ServerError");

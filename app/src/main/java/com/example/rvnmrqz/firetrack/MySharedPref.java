@@ -14,6 +14,6 @@ public class MySharedPref {
     public static String NOTIFICATIONS = "notifications";//master of notifications switch (boolean)
     public static String PLAY_NOTIFSOUND = "notif_sound"; //for notification sound (boolean)
     public static String PLAY_VIBRATE = "notif_vibrate";
-
+    public static String MAX_NOTIF_ID = "max_notif_id"; //integer
 
 }
