@@ -15,6 +15,7 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -36,8 +37,12 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 
@@ -54,7 +59,7 @@ public class Fragment_sms_reporting extends Fragment {
     static DBHelper dbHelper;
     static String number=null;
     static TextView txtCounter, txtMessage,txtNumber;
-    static AutoCompleteTextView auto_barangay;
+  //  static AutoCompleteTextView auto_barangay;
     Button btnSend;
     int ctr = 0;
     TextView txtLocation;
@@ -68,6 +73,10 @@ public class Fragment_sms_reporting extends Fragment {
     LocationListener locationListener;
     String coordinates = null;
 
+    LinearLayout loadinglayout;
+    ProgressBar loadingprogressbar;
+    TextView loadingTextview;
+
     int
             LOCATION_PERMISSION=2,
             OPEN_GPS_SETTINGS_REQUEST=30,
@@ -76,7 +85,7 @@ public class Fragment_sms_reporting extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        myview = inflater.inflate(R.layout.fragment_create_message, container, false);
+        myview = inflater.inflate(R.layout.fragment_sms_reporting, container, false);
         return myview;
     }
 
@@ -85,13 +94,13 @@ public class Fragment_sms_reporting extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("SMS Reporting");
         context = getActivity();
+        Activity_main_user.somethingisnotyetdone=true;
         dbHelper  = new DBHelper(getActivity());
         txtCounter = (TextView) getActivity().findViewById(R.id.txtCharCounter);
         txtMessage = (TextView) getActivity().findViewById(R.id.txtMessageBody);
         txtNumber = (TextView) getActivity().findViewById(R.id.txtSMSNumber);
-        auto_barangay = (AutoCompleteTextView) getActivity().findViewById(R.id.autoComplete_Barangay);
+       // auto_barangay = (AutoCompleteTextView) getActivity().findViewById(R.id.autoComplete_Barangay);
         btnSend = (Button) getActivity().findViewById(R.id.btnSendMessage);
-
         txtMessage.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -109,7 +118,12 @@ public class Fragment_sms_reporting extends Fragment {
 
             }
         });
-        auto_barangay.addTextChangedListener(new TextWatcher() {
+
+        loadinglayout = (LinearLayout) getActivity().findViewById(R.id.sms_loading_layout);
+        loadingprogressbar = (ProgressBar) getActivity().findViewById(R.id.sms_loading_progressbar);
+        loadingTextview = (TextView) getActivity().findViewById(R.id.sms_loading_textview);
+
+        /*auto_barangay.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
@@ -129,6 +143,7 @@ public class Fragment_sms_reporting extends Fragment {
 
             }
         });
+        */
         txtLocation = (TextView) getActivity().findViewById(R.id.txtSMSLocation);
         txtLocation.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -138,8 +153,8 @@ public class Fragment_sms_reporting extends Fragment {
         });
 
         btnSendListener();
-        populateAutoCompleteBarangay();
-        setDefaultBarangay();
+        //populateAutoCompleteBarangay();
+        //setDefaultBarangay();
         showLocationChoices();
     }
 
@@ -152,7 +167,6 @@ public class Fragment_sms_reporting extends Fragment {
     }
 
     protected void showLocationChoices(){
-
         Log.wtf("Dialog","Location Choices shown");
         android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(getActivity());
         builder.setTitle("Location to use");
@@ -176,6 +190,7 @@ public class Fragment_sms_reporting extends Fragment {
                             c.moveToFirst();
                             coordinates = c.getString(c.getColumnIndex(dbHelper.COL_COORDINATES));
                             txtLocation.setText("{"+coordinates+"}");
+                            showLoadingLayout(true,true,"Finding nearest fire station");
                         }else{
                             Toast.makeText(getActivity(), "No Coordinates Saved", Toast.LENGTH_SHORT).show();
                         }
@@ -198,10 +213,24 @@ public class Fragment_sms_reporting extends Fragment {
         alert.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
-                auto_barangay.requestFocus();
+             //   auto_barangay.requestFocus();
             }
         });
         alert.show();
+
+    }
+    protected void showLoadingLayout(boolean showlayout, boolean showprogress, String textviewMsg){
+        if(showlayout){
+            loadinglayout.setVisibility(View.VISIBLE);
+            if(showprogress){
+                loadingprogressbar.setVisibility(View.VISIBLE);
+            }else {
+                loadingprogressbar.setVisibility(View.GONE);
+            }
+            loadingTextview.setText(textviewMsg);
+        }else{
+            loadinglayout.setVisibility(View.GONE);
+        }
 
     }
 
@@ -236,6 +265,9 @@ public class Fragment_sms_reporting extends Fragment {
                     txtLocation.setText("{"+coordinates+"}");
                     Toast.makeText(getActivity(), "Location Added, Thanks!", Toast.LENGTH_SHORT).show();
                     stopLocationListener();
+                    //scan nearest fire station
+                    showLoadingLayout(true,true,"Finding nearest fire station");
+                    //method here for scanning nearest fire station
                 }
             }
 
@@ -270,6 +302,7 @@ public class Fragment_sms_reporting extends Fragment {
                 return;
             }
             Log.wtf("request Location","Called");
+           // showLoadingLayout(true,true,"Waiting for location");
             locationManager.requestLocationUpdates("gps", 10000, 0, locationListener);
 
         }catch (Exception e){
@@ -334,7 +367,8 @@ public class Fragment_sms_reporting extends Fragment {
     }
 
     //BARANGAY LIST
-    protected static void populateAutoCompleteBarangay(){
+  /*
+   protected static void populateAutoCompleteBarangay(){
         barangays = new ArrayList<>();
         cell = new ArrayList<>();
 
@@ -423,7 +457,98 @@ public class Fragment_sms_reporting extends Fragment {
                 }
             }
     }
+*/
 
+  //FINDING NEAREST FIRE STATION
+ /*
+  //  String position = origin_marker.getPosition().latitude+","+origin_marker.getPosition().longitude;
+                Log.wtf("onMarkerDragEnd","\nMarker: "+marker.getPosition()+"\nOrigin:"+origin_marker.getPosition());
+                BackgroundWorker backgroundWorker = new BackgroundWorker();
+                backgroundWorker.execute(position);
+
+  class BackgroundWorker extends AsyncTask<String,Void,Integer> {
+      LatLng origin_marker_position;
+
+      @Override
+      protected Integer doInBackground(String... params) {
+          try{
+              Log.wtf("doinBackground","CALLED");
+              String[] latlong =  params[0].split(",");
+              Log.wtf("latlong","value: "+params[0]);
+
+              double latitude = Double.parseDouble(latlong[0]);
+              double longitude = Double.parseDouble(latlong[1]);
+              origin_marker_position = new LatLng(latitude,longitude);
+              int index = findNearestPoint();
+              return index;
+          }catch (Exception e){
+              Log.wtf("doInbackground",e.getMessage());
+              return -1;
+          }
+
+      }
+
+      @Override
+      protected void onPreExecute() {
+          super.onPreExecute();
+          Log.wtf("onPreExecute","called");
+      }
+
+      private int findNearestPoint(){
+          try {
+              float nearest=0;
+              float temp1=0;
+              int index=0;
+              LatLng currentPosition = origin_marker_position;
+
+              nearest  =   getDistance(currentPosition, directionPositionLists[activeRoute].get(0));
+              for (int x=0;x<directionPositionLists[activeRoute].size();x++){
+
+                  temp1 = getDistance(currentPosition, directionPositionLists[activeRoute].get(x));
+                  Log.wtf("findnearestPointLoop["+x+"]","temp = "+temp1+"\nnearest = "+nearest);
+                  if(temp1<=nearest){
+                      nearest = temp1;
+                      index=x;
+                  }else{
+                      //temp is higher than the nearest
+                      // break;
+                  }
+              }
+              Log.wtf("(findNearestPoint)","Nearest point is index: "+index);
+              return index;
+
+          }catch (Exception e){
+              Log.wtf("Exception (findNearestPoint)",e.getMessage());
+              return -1;
+          }
+      }
+
+      @Override
+      protected void onPostExecute(Integer integer) {
+          super.onPostExecute(integer);
+          if(integer!=-1){
+              //animate camera
+              animateCameraView(integer+1);
+          }
+      }
+
+      private float getDistance(LatLng position, LatLng assumed){
+          float results[] = new float[1];
+          Location.distanceBetween(
+                  position.latitude,
+                  position.longitude,
+                  assumed.latitude,
+                  assumed.longitude,
+                  results);
+          Log.wtf("showDistance","Result is "+results[0]+" meter");
+
+          float value = results[0];
+          return value;
+      }
+
+
+  }
+*/
 
     //SENDING
     protected void btnSendListener(){
@@ -463,8 +588,8 @@ public class Fragment_sms_reporting extends Fragment {
                          }
                  }else{
                      Log.wtf("btnClicked","number is null");
-                     auto_barangay.requestFocus();
-                     auto_barangay.setError("Plese fill up with correct details");
+                     //auto_barangay.requestFocus();
+                  //   auto_barangay.setError("Plese fill up with correct details");
                  }
             }
         });

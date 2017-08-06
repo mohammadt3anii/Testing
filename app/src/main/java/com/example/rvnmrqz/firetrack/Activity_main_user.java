@@ -953,7 +953,7 @@ public class Activity_main_user extends AppCompatActivity {
                             goBack();
                         }
                     })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
 
@@ -1024,7 +1024,7 @@ public class Activity_main_user extends AppCompatActivity {
            startActivity(new Intent(Activity_main_user.this,Activity_User_Settings.class));
         }
         else if(id == android.R.id.home){
-            goBack();
+            onBackPressed();
             return true;
         }
        /* else if(id == R.id.testActivity){

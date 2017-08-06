@@ -119,7 +119,7 @@ public class SyncBarangay
             if (showMessage){
                 showMessage("Barangay details saved");
                 if(Fragment_sms_reporting.context!=null){
-                    Fragment_sms_reporting.populateAutoCompleteBarangay();
+                  //  Fragment_sms_reporting.populateAutoCompleteBarangay();
                 }
             }
             Log.wtf("onResponse","Barangay is inserted");

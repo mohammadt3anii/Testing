@@ -255,13 +255,11 @@ public class Fragment_myreports extends Fragment {
         return activeNetworkInfo != null && activeNetworkInfo.isConnected();
     }
 
-
     class ReportAdapter extends ArrayAdapter {
         ArrayList<String> report_id= new ArrayList<>();
         ArrayList<String> datetime = new ArrayList<>();
         ArrayList<String> status = new ArrayList<>();
         ArrayList<String> coordinates = new ArrayList<>();
-
 
         public ReportAdapter(Context context, ArrayList<String> report_id, ArrayList<String> datetime,   ArrayList<String> status,  ArrayList<String> coordinates) {
             //Overriding Default Constructor off ArratAdapter

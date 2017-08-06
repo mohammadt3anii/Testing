@@ -16,26 +16,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <TextView
-                android:text="To Barangay:"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <AutoCompleteTextView
-                android:inputType="textNoSuggestions"
-                android:hint="Barangay Name"
-                android:selectAllOnFocus="true"
-                android:id="@+id/autoComplete_Barangay"
-                android:completionThreshold="1"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:text="Number"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:id="@+id/txtSMSNumber"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-            <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="Location (Required)" />
@@ -45,11 +25,65 @@
                 android:padding="8dp"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
-                android:text="Tap to Set"
+                android:text="[Tap to Set]"
                 android:textSize="19sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
+            <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/sms_loading_layout"
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <ProgressBar
+                    android:id="@+id/sms_loading_progressbar"
+                    android:layout_alignParentLeft="true"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp" />
+                <TextView
+                    android:id="@+id/sms_loading_textview"
+                    android:paddingLeft="16dp"
+                    android:text="Finding nearest fire station"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+     <!--
+      <AutoCompleteTextView
+             android:inputType="textNoSuggestions"
+             android:hint="Barangay Name"
+             android:selectAllOnFocus="true"
+             android:id="@+id/autoComplete_Barangay"
+             android:completionThreshold="1"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content" />
+              -->
+            <TextView
+                android:text="To Barangay:"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/txtSMSBarangay"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:text="Number"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:paddingLeft="16dp"
+                    android:id="@+id/txtSMSNumber"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
             <RelativeLayout
+                android:paddingTop="4dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
                 <TextView
