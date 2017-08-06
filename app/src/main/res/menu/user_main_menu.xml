@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/menu_test"
+        android:title="@string/menu_test_activity" />
+    <item
+        android:id="@+id/menu_startService"
+        android:title="@string/menu_start_stop_service" />
+    <item
+        android:id="@+id/menu_user"
+        android:title="@string/menu_title_user" />
+    <item
+        android:id="@+id/menu_settings"
+        android:title="@string/menu_title_settings" />
+    <item
+        android:id="@+id/menu_logout"
+        android:title="Logout" />
+
+   <!-- <item
+        android:id="@+id/testActivity"
+        android:title="Test Activity"
+        />-->
+
+</menu>

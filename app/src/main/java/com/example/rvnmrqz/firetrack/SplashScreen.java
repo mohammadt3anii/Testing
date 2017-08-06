@@ -1,15 +1,12 @@
 package com.example.rvnmrqz.firetrack;
 
-import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
-import android.widget.Toast;
 
 public class SplashScreen extends AppCompatActivity {
 
@@ -40,7 +37,7 @@ public class SplashScreen extends AppCompatActivity {
                     switch (logged){
                         case "user":
                             //open user activity
-                            openActivity(MainActivity_user.class);
+                            openActivity(Activity_main_user.class);
                             break;
                         case "truck":
                             //open truck activity

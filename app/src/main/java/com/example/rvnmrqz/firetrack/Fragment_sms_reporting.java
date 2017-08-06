@@ -9,10 +9,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -24,8 +22,6 @@ import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.widget.TextViewCompat;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.telephony.SmsManager;
 import android.text.Editable;
@@ -40,9 +36,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.CheckBox;
-import android.widget.CheckedTextView;
-import android.widget.CompoundButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -509,7 +502,7 @@ public class Fragment_sms_reporting extends Fragment {
 
                             case Activity.RESULT_OK:
                                 result = "Sent successful";
-                                MainActivity_user.somethingisnotyetdone=false;
+                                Activity_main_user.somethingisnotyetdone=false;
                                 //PN.setText("");
                                 //MSG.setText("");
                                 break;

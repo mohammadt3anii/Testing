@@ -7,24 +7,28 @@
     android:layout_height="match_parent"
     tools:context="com.example.rvnmrqz.firetrack.Activity_main_truck">
 
-
     <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
-        android:id="@+id/truck_bottomnavigation"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent">
 
+        android:textAlignment="center"
+        android:id="@+id/truck_bottomnavigation"
+        android:layout_alignParentBottom="true"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
     </com.aurelhubert.ahbottomnavigation.AHBottomNavigation>
+
     <FrameLayout
+        android:layout_above="@id/truck_bottomnavigation"
         android:id="@+id/truck_containter"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-        </LinearLayout>
+        android:layout_height="match_parent"
+        >
+        <android.support.design.widget.FloatingActionButton
+            android:layout_gravity="bottom|right"
+            android:layout_margin="16dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
     </FrameLayout>
+
 
 
 </RelativeLayout>

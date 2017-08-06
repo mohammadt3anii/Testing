@@ -5,7 +5,7 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.rvnmrqz.firetrack.MainActivity_user">
+    tools:context="com.example.rvnmrqz.firetrack.Activity_main_user">
 
     <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
         android:layout_alignParentBottom="true"

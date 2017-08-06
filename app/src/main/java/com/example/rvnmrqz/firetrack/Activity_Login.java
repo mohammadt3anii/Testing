@@ -284,7 +284,7 @@ public class Activity_Login extends AppCompatActivity {
                                                         Log.wtf("login","insert successful");
                                                         setSharedPrefData(MySharedPref.LOGGED,"user");
                                                         Toast.makeText(Activity_Login.this, "Welcome "+fname+"!", Toast.LENGTH_SHORT).show();
-                                                        startActivity(new Intent(getApplicationContext(),MainActivity_user.class));
+                                                        startActivity(new Intent(getApplicationContext(),Activity_main_user.class));
                                                         finish();
                                                     }
                                                     break;
@@ -392,21 +392,16 @@ public class Activity_Login extends AppCompatActivity {
     }
     protected boolean validateEmail(){
         if(txtemail.getText().toString().trim().equalsIgnoreCase("")){
-            txtemail.setError("Email is required");
+            txtemail.setError("This is required");
             return false;
         }
         else{
-            if(!txtemail.getText().toString().contains("@")){
-                txtemail.setError("Invalid Email");
-                return false;
-            }
-            else{
                 if(txtemail.getText().length()<3){
-                    txtemail.setError("Invalid Email");
+                    txtemail.setError("Invalid Input");
                     return false;
-                }
-                txtemail.setError(null);
-            }
+                }else   txtemail.setError(null);
+
+
         }
         return true;
     }
@@ -431,12 +426,10 @@ public class Activity_Login extends AppCompatActivity {
         Cursor c = dbhelper.getSqliteData("SELECT * FROM "+dbhelper.TABLE_BARANGAY);
         if(c!=null){
            if(c.getCount()==0){// populating barangay table
-
                new SyncBarangay(this,1,false);
            }
         }
     }
-
 
     //SHARED PREFERENCE
     protected void setSharedPrefData(String key, String value){

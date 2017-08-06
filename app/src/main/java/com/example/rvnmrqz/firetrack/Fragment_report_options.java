@@ -54,7 +54,7 @@ public class Fragment_report_options extends Fragment {
         btnOnline.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MainActivity_user.addToBackStack(new Fragment_online_reporting(),"online_reporting");
+                Activity_main_user.addToBackStack(new Fragment_online_reporting(),"online_reporting");
             }
         });
 
@@ -121,13 +121,13 @@ public class Fragment_report_options extends Fragment {
     }
 
     private void openCreateMessage(){
-       MainActivity_user.addToBackStack(new Fragment_sms_reporting(),"sms_reporting");
+       Activity_main_user.addToBackStack(new Fragment_sms_reporting(),"sms_reporting");
     }
 
     //REMINDER
     protected void checkShowDialog(){
         Log.wtf("checkshowdialog","called");
-        if(MainActivity_user.reminderIsShown==false){
+        if(Activity_main_user.reminderIsShown==false){
             String show = getSharedPrefData(MySharedPref.REMINDER);
             if(show!=null){
                 show = show.trim();
@@ -149,8 +149,8 @@ public class Fragment_report_options extends Fragment {
     }
     protected void showReminder(){
         Log.wtf("ShowReminder","called");
-        MainActivity_user.reminderIsShown=true;
-        Log.wtf("showReminder","reminderisshown = "+MainActivity_user.reminderIsShown);
+        Activity_main_user.reminderIsShown=true;
+        Log.wtf("showReminder","reminderisshown = "+ Activity_main_user.reminderIsShown);
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View dialog =  inflater.inflate(R.layout.dialog_reminder, null);
         final CheckBox chk = (CheckBox) dialog.findViewById(R.id.chkDontShowAgain);

@@ -145,8 +145,8 @@ public class SyncNotifications
             if(Jarray.length()>0){
                 //there is a value retrieved
 
-                if(MainActivity_user.mainAcvitiyUser_static !=null){
-                    MainActivity_user.loadNotifications();
+                if(Activity_main_user.mainAcvitiyUser_static !=null){
+                    Activity_main_user.loadNotifications();
                     Log.wtf("SyncNotifications: insert(response)","Synced Notification loaded in main UI");
                 }
             }

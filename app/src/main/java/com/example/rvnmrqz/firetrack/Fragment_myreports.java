@@ -4,9 +4,6 @@ package com.example.rvnmrqz.firetrack;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -16,18 +13,15 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
@@ -43,11 +37,9 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -297,14 +289,14 @@ public class Fragment_myreports extends Fragment {
                 @Override
                 public void onClick(View v) {
 
-                    MapFragment mapfrag = new MapFragment();
+                    Fragment_myreportmap mapfrag = new Fragment_myreportmap();
                     Bundle args = new Bundle();
                     args.putString("coordinates",txtcoor.getText().toString());
                     args.putString("title",txtdatetime.getText().toString());
                     args.putString("snippet",txtstatus.getText().toString());
                     mapfrag.setArguments(args);
 
-                    MainActivity_user.addToBackStack(mapfrag,"map");
+                    Activity_main_user.addToBackStack(mapfrag,"map");
                 }
             });
 

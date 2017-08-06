@@ -60,15 +60,13 @@ import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
 
-import junit.framework.Test;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-public class MainActivity_user extends AppCompatActivity {
+public class Activity_main_user extends AppCompatActivity {
 
 
     LinearLayout frame1,frame2,frame3;
@@ -125,7 +123,7 @@ public class MainActivity_user extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         Log.wtf("MainUser","ONCREATE");
         setContentView(R.layout.activity_main_user);
-        main_user_activity = MainActivity_user.this;
+        main_user_activity = Activity_main_user.this;
         initializeBottomNavigation();
 
         dbHelper = new DBHelper(this);
@@ -179,12 +177,12 @@ public class MainActivity_user extends AppCompatActivity {
             //sync is not yet done
             Log.wtf("Sync Notif","First notification sync is not yet done");
             loadNotifications();
-            new SyncNotifications(MainActivity_user.this,1);
+            new SyncNotifications(Activity_main_user.this,1);
 
         }else{
             //already done syncing before
             if(!isMyServiceRunning(Service_Notification.class)){
-                startService(new Intent(MainActivity_user.this,Service_Notification.class));
+                startService(new Intent(Activity_main_user.this,Service_Notification.class));
             }
             Log.wtf("Sync Notif", "Sync notif is already done, sharedpref value: "+syncNotif);
             loadNotifications();
@@ -264,7 +262,7 @@ public class MainActivity_user extends AppCompatActivity {
                     switch (position) {
                         case 0:
                             if (somethingisnotyetdone) {
-                                new AlertDialog.Builder(MainActivity_user.this)
+                                new AlertDialog.Builder(Activity_main_user.this)
                                         .setMessage(notYetDoneMessage)
                                         .setCancelable(false)
                                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -290,7 +288,7 @@ public class MainActivity_user extends AppCompatActivity {
                             break;
                         case 1:
                             if (somethingisnotyetdone) {
-                                new AlertDialog.Builder(MainActivity_user.this)
+                                new AlertDialog.Builder(Activity_main_user.this)
                                         .setMessage(notYetDoneMessage)
                                         .setCancelable(false)
                                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -316,7 +314,7 @@ public class MainActivity_user extends AppCompatActivity {
                             break;
                         case 2:
                             if (somethingisnotyetdone) {
-                                new AlertDialog.Builder(MainActivity_user.this)
+                                new AlertDialog.Builder(Activity_main_user.this)
                                         .setMessage(notYetDoneMessage)
                                         .setCancelable(false)
                                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -343,7 +341,7 @@ public class MainActivity_user extends AppCompatActivity {
                             }
                             break;
                         default:
-                            Toast.makeText(MainActivity_user.this, "Not in the choices", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(Activity_main_user.this, "Not in the choices", Toast.LENGTH_SHORT).show();
                             break;
                     }
                 }else{
@@ -521,7 +519,7 @@ public class MainActivity_user extends AppCompatActivity {
         }
     }
     protected void setListViewAdapter(){
-        adapter = new FeedAdapter(MainActivity_user.this,post_id,postername,postdatetime,postmessage,postpicture);
+        adapter = new FeedAdapter(Activity_main_user.this,post_id,postername,postdatetime,postmessage,postpicture);
         feed_listview.setAdapter(adapter);
         listViewListners();
     }
@@ -548,7 +546,7 @@ public class MainActivity_user extends AppCompatActivity {
                     loadMore();
                 }
                 if(view.getLastVisiblePosition() == totalItemCount-1  && noMorePost==true && endPostMsgShown==false){
-                    Toast.makeText(MainActivity_user.this, "You've reached the end of the feed", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Activity_main_user.this, "You've reached the end of the feed", Toast.LENGTH_SHORT).show();
                     endPostMsgShown=true;
                 }
             }
@@ -626,7 +624,7 @@ public class MainActivity_user extends AppCompatActivity {
                                         postpicture.add(encoded_post_picture);
                                     }
                                     adapter.notifyDataSetChanged();
-                                  //  adapter = new FeedAdapter(MainActivity_user.this,post_id,postername,postdatetime,postmessage,postpicture);
+                                  //  adapter = new FeedAdapter(Activity_main_user.this,post_id,postername,postdatetime,postmessage,postpicture);
                                   //  feed_listview.setAdapter(adapter);
                                     Log.wtf("Loadmore","Loaded "+Jarray.length());
                                     sql_offset = sql_offset+Jarray.length();
@@ -995,7 +993,7 @@ public class MainActivity_user extends AppCompatActivity {
     //MENU
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main_menu, menu);
+        getMenuInflater().inflate(R.menu.user_main_menu, menu);
         return true;
     }
     @Override
@@ -1008,14 +1006,14 @@ public class MainActivity_user extends AppCompatActivity {
               Toast.makeText(this, "Add User Info Activity", Toast.LENGTH_SHORT).show();
         }
         else if(id == R.id.menu_test){
-            startActivity(new Intent(MainActivity_user.this,Activity_DatabaseManager.class));
+            startActivity(new Intent(Activity_main_user.this,Activity_DatabaseManager.class));
         }
         else if(id == R.id.menu_startService){
             if(isMyServiceRunning(Service_Notification.class)){
-                stopService(new Intent(MainActivity_user.this, Service_Notification.class));
+                stopService(new Intent(Activity_main_user.this, Service_Notification.class));
                 Toast.makeText(this, "Service Stopped", Toast.LENGTH_SHORT).show();
             }else{
-                startService(new Intent(MainActivity_user.this,Service_Notification.class));
+                startService(new Intent(Activity_main_user.this,Service_Notification.class));
                 Toast.makeText(this, "Service Started", Toast.LENGTH_SHORT).show();
             }
         }
@@ -1023,14 +1021,14 @@ public class MainActivity_user extends AppCompatActivity {
             logout();
         }
         else if(id == R.id.menu_settings){
-           startActivity(new Intent(MainActivity_user.this,Activity_User_Settings.class));
+           startActivity(new Intent(Activity_main_user.this,Activity_User_Settings.class));
         }
         else if(id == android.R.id.home){
             goBack();
             return true;
         }
        /* else if(id == R.id.testActivity){
-            startActivity(new Intent(MainActivity_user.this, TestActivity.class));
+            startActivity(new Intent(Activity_main_user.this, TestActivity.class));
         }
 */
         return super.onOptionsItemSelected(item);
@@ -1045,9 +1043,9 @@ public class MainActivity_user extends AppCompatActivity {
             public void onClick(DialogInterface dialog, int which) {
                 SharedPreferences sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
                 sharedPreferences.edit().clear().commit();
-                stopService(new Intent(MainActivity_user.this,Service_Notification.class));
+                stopService(new Intent(Activity_main_user.this,Service_Notification.class));
                 dbHelper.removeAllData();
-                startActivity(new Intent(MainActivity_user.this,SplashScreen.class));
+                startActivity(new Intent(Activity_main_user.this,SplashScreen.class));
                 finish();
             }
         });

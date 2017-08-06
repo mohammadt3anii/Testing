@@ -8,7 +8,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.media.MediaPlayer;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Handler;
@@ -250,11 +249,11 @@ public class Service_Notification extends Service {
                         unopen = unopen+ notif_count;
                         setUnOpenedNotifications(unopen);
 
-                        if(MainActivity_user.mainAcvitiyUser_static !=null && MainActivity_user.activityVisible){
+                        if(Activity_main_user.mainAcvitiyUser_static !=null && Activity_main_user.activityVisible){
                             //app is running
                             try {
-                                MainActivity_user.loadNotifications();
-                                MainActivity_user.showBottomNotification(2,unopen);
+                                Activity_main_user.loadNotifications();
+                                Activity_main_user.showBottomNotification(2,unopen);
                             } catch (Exception e) {
                                 Log.wtf("insert","An error occurred while trying to notify the Main UI, exception: "+e.getMessage());
                             }
@@ -340,7 +339,7 @@ public class Service_Notification extends Service {
     }
 
     protected void showNotification(int notif_count){
-        final Intent mainIntent = new Intent(this,MainActivity_user.class);
+        final Intent mainIntent = new Intent(this,Activity_main_user.class);
         mainIntent.putExtra("notif","notify");
         final PendingIntent pendingIntent = PendingIntent.getActivity(this, 0,
                 (mainIntent), PendingIntent.FLAG_UPDATE_CURRENT);
