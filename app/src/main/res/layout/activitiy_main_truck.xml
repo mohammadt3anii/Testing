@@ -5,10 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.rvnmrqz.firetrack.Activitiy_main_truck">
+    tools:context="com.example.rvnmrqz.firetrack.Activity_main_truck">
 
 
     <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
+        android:id="@+id/truck_bottomnavigation"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 

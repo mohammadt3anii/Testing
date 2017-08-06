@@ -40,7 +40,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Location" />
+                    android:text="Location (Required)" />
                 <TextView
                     android:id="@+id/txtLocation"
                     android:padding="8dp"
@@ -87,7 +87,7 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="center_horizontal"
                     android:background="@color/colorPrimary"
-                    android:drawableLeft="@drawable/ic_send_black_24dp"
+                    android:drawableLeft="@drawable/ic_send_white"
                     android:textColor="#ffffff"
                     android:paddingLeft="50dp"
                     android:paddingRight="50dp"

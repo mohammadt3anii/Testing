@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <TextView
-                android:text="Barangay"
+                android:text="To Barangay:"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <AutoCompleteTextView
@@ -27,13 +27,26 @@
                 android:completionThreshold="1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-
             <TextView
                 android:text="Number"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
             <TextView
                 android:id="@+id/txtSMSNumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Location (Required)" />
+            <TextView
+                android:textStyle="bold"
+                android:id="@+id/txtSMSLocation"
+                android:padding="8dp"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:text="Tap to Set"
+                android:textSize="19sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
             <RelativeLayout
@@ -62,19 +75,7 @@
                 android:scrollbars = "vertical"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Location" />
-            <TextView
-                android:id="@+id/txtSMSLocation"
-                android:padding="8dp"
-                android:focusable="true"
-                android:focusableInTouchMode="true"
-                android:text="Tap to Set"
-                android:textSize="19sp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+
             <TextView
                 android:id="@+id/txtLocationResult"
                 android:layout_width="match_parent"
@@ -88,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:background="@color/colorPrimary"
-                android:drawableLeft="@drawable/ic_send_black_24dp"
+                android:drawableLeft="@drawable/ic_send_white"
                 android:textColor="#ffffff"
                 android:paddingLeft="50dp"
                 android:paddingRight="50dp"

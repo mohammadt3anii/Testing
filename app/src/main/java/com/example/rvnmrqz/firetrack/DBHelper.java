@@ -167,7 +167,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return result;
     }
 
-    public long insertLoggedTruck(String acc_id, String username,String pass,String acc_type,String contact_no,String plateno){
+    public long insertLoggedTruck(String acc_id, String username,String pass,String acc_type,String plateno){
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(COL_USER_LOC_ID,1);
@@ -176,20 +176,21 @@ public class DBHelper extends SQLiteOpenHelper {
         contentValues.put(COL_USERNAME,username);
         contentValues.put(COL_PASSWORD,pass);
         contentValues.put(COL_PLATE_NO,plateno);
-        contentValues.put(COL_CONTACT_NO,contact_no);
+      //  contentValues.put(COL_CONTACT_NO,contact_no);
 
         result =  db.insertOrThrow(TABLE_USER,null,contentValues);
         return result;
     }
 
 
-    public long insertBarangay(String b_id,String b_name,String cellno, String tel) {
+    public long insertBarangay(String b_id,String b_name,String cellno, String tel,String coordinates) {
         SQLiteDatabase db = getWritableDatabase();
         ContentValues contentValues = new ContentValues();
         contentValues.put(BARANGAY_ID,b_id);
         contentValues.put(BARANGAY_NAME,b_name);
         contentValues.put(BARANGAY_CEL,cellno);
         contentValues.put(BARANGAY_TEL,tel);
+        contentValues.put(BARANGAY_COORDINATES,coordinates);
         long res = db.insertOrThrow(TABLE_BARANGAY,null,contentValues);
     return res;
     }

@@ -100,10 +100,9 @@ public class SyncBarangay
         requestQueue.add(request);
     }
 
-
     private void insert(String response){
         try{
-            String b_id,b_name,b_cell,b_tel;
+            String b_id,b_name,b_cell,b_tel,b_coordinates;
             JSONObject object = new JSONObject(response);
             JSONArray Jarray  = object.getJSONArray("mydata");
 
@@ -114,10 +113,9 @@ public class SyncBarangay
                 b_name = Jasonobject.getString(dbHelper.BARANGAY_NAME);
                 b_cell = Jasonobject.getString(dbHelper.BARANGAY_CEL);
                 b_tel = Jasonobject.getString(dbHelper.BARANGAY_TEL);
-
-                dbHelper.insertBarangay(b_id,b_name,b_cell,b_tel);
+                b_coordinates = Jasonobject.getString(dbHelper.BARANGAY_COORDINATES);
+                dbHelper.insertBarangay(b_id,b_name,b_cell,b_tel,b_coordinates);
             }
-
             if (showMessage){
                 showMessage("Barangay details saved");
                 if(Fragment_sms_reporting.context!=null){

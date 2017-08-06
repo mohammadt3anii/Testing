@@ -44,12 +44,12 @@ public class SplashScreen extends AppCompatActivity {
                             break;
                         case "truck":
                             //open truck activity
+                            openActivity(Activity_main_truck.class);
                             break;
                         case "":
                             //open login activity
                             openActivity(Activity_Login.class);
-                         //   Toast.makeText(SplashScreen.this, "change override in splashscreen login", Toast.LENGTH_SHORT).show();
-                           // openActivity(MainActivity_user.class);
+
                         default:
                             //no match
                             break;

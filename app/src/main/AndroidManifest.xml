@@ -61,7 +61,7 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".Activitiy_main_truck"></activity>
+        <activity android:name=".Activity_main_truck"></activity>
 
         <!-- GOOGLE MAPS -->
         <meta-data

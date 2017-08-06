@@ -1,5 +1,6 @@
 package com.example.rvnmrqz.firetrack;
 
+import android.animation.Animator;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -7,7 +8,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -84,7 +87,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback{
         LatLng philView = new LatLng(12.8797, 121.7740);
         mGooglemap.animateCamera(CameraUpdateFactory.newLatLngZoom(philView, 6));
         mGooglemap.animateCamera(CameraUpdateFactory.newLatLngZoom(camera,24));
-        addmarker(camera,title,snippetmsg);
+        mGooglemap.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                Toast.makeText(getContext(), "Changed", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+     //   addmarker(camera,title,snippetmsg);
     }
 
     protected void addmarker(LatLng coor,String title, String snippetmsg){

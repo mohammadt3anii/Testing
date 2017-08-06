@@ -70,7 +70,7 @@ public class Activity_Login extends AppCompatActivity {
 
          sharedPreferences = getSharedPreferences(MySharedPref.SHAREDPREF_NAME,MODE_PRIVATE);
 
-         btnOpenDB = (Button) findViewById(R.id.btnOpenDB);
+        btnOpenDB = (Button) findViewById(R.id.btnOpenDB);
         btnOpenDB.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -291,15 +291,16 @@ public class Activity_Login extends AppCompatActivity {
                                                 case "truck":
                                                     Log.wtf("login()","Logged user is: \"truck\"");
                                                     //truck
-                                                    contact_no = Jasonobject.getString(dbhelper.COL_CONTACT_NO);
+                                                    //contact_no = Jasonobject.getString(dbhelper.COL_CONTACT_NO);
                                                     plateNo = Jasonobject.getString(dbhelper.COL_PLATE_NO);
-                                                    res = dbhelper.insertLoggedTruck(acc_id, username, pass, acc_type, contact_no, plateNo);
+                                                    res = dbhelper.insertLoggedTruck(acc_id, username, pass, acc_type, plateNo);
                                                     if (res!=-1){
                                                         Log.wtf("login","insert successful");
                                                         setSharedPrefData(MySharedPref.LOGGED,"truck");
                                                         Toast.makeText(Activity_Login.this, "Welcome "+plateNo+"!", Toast.LENGTH_SHORT).show();
                                                         //open truck UI
-
+                                                        startActivity(new Intent(getApplicationContext(),Activity_main_truck.class));
+                                                        finish();
                                                     }
                                                     break;
                                                 default:

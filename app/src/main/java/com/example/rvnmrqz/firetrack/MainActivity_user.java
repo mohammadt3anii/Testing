@@ -108,14 +108,16 @@ public class MainActivity_user extends AppCompatActivity {
     String server_url;
     RequestQueue requestQueue;
 
+    static Bitmap postImageClicked;
     //navigation buttons
     static AHBottomNavigation bottomNavigation;
-    static Bitmap postImageClicked;
     AHBottomNavigationItem item1,item2,item3;
 
     Activity main_user_activity;
-    public static boolean somethingisnotyetdone=false;
+    public  static  boolean somethingisnotyetdone=false;
+    boolean goingback=false;
     int currentFrame=-1;
+    String notYetDoneMessage= "Leave without sending?";
 
 
     @Override
@@ -258,20 +260,94 @@ public class MainActivity_user extends AppCompatActivity {
             @Override
             public boolean onTabSelected(int position, boolean wasSelected) {
 
-                switch (position){
-                    case 0:
-                        showFrame1();
-                        break;
-                    case 1:
-                        showFrame2();
-                        break;
-                    case 2:
-                        showFrame3();
-                        clearNotifications(2);
-                        break;
-                    default:
-                        Toast.makeText(MainActivity_user.this, "Not in the choices", Toast.LENGTH_SHORT).show();
-                        break;
+                if (!goingback) {
+                    switch (position) {
+                        case 0:
+                            if (somethingisnotyetdone) {
+                                new AlertDialog.Builder(MainActivity_user.this)
+                                        .setMessage(notYetDoneMessage)
+                                        .setCancelable(false)
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                somethingisnotyetdone = false;
+                                                goingback = false;
+                                                showFrame1();
+                                            }
+                                        })
+                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                Log.wtf("Dialog on click", "User clicked cancel");
+                                                goingback = true;
+                                                bottomNavigation.setCurrentItem(0);
+                                            }
+                                        })
+                                        .show();
+                            } else {
+                                showFrame1();
+                            }
+                            break;
+                        case 1:
+                            if (somethingisnotyetdone) {
+                                new AlertDialog.Builder(MainActivity_user.this)
+                                        .setMessage(notYetDoneMessage)
+                                        .setCancelable(false)
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                somethingisnotyetdone = false;
+                                                goingback = false;
+                                                showFrame2();
+                                            }
+                                        })
+                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                Log.wtf("Dialog on click", "User clicked cancel");
+                                                goingback = true;
+                                                bottomNavigation.setCurrentItem(0);
+                                            }
+                                        })
+                                        .show();
+                            } else {
+                                showFrame2();
+                            }
+                            break;
+                        case 2:
+                            if (somethingisnotyetdone) {
+                                new AlertDialog.Builder(MainActivity_user.this)
+                                        .setMessage(notYetDoneMessage)
+                                        .setCancelable(false)
+                                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                somethingisnotyetdone = false;
+                                                goingback = false;
+                                                showFrame3();
+                                                clearNotifications(2);
+                                            }
+                                        })
+                                        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                                            @Override
+                                            public void onClick(DialogInterface dialog, int which) {
+                                                Log.wtf("Dialog on click", "User clicked cancel");
+                                                goingback = true;
+                                                bottomNavigation.setCurrentItem(0);
+                                            }
+                                        })
+                                        .show();
+                            } else {
+                                showFrame3();
+                                clearNotifications(2);
+                            }
+                            break;
+                        default:
+                            Toast.makeText(MainActivity_user.this, "Not in the choices", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                }else{
+                    goingback=false;
                 }
                 return true;
             }
@@ -821,8 +897,6 @@ public class MainActivity_user extends AppCompatActivity {
             frame2.setVisibility(View.GONE);
             frame3.setVisibility(View.GONE);
             getSupportActionBar().setTitle("FireTRACK");
-
-
     }
     protected void showFrame2(){
             currentFrame=2;
@@ -873,7 +947,7 @@ public class MainActivity_user extends AppCompatActivity {
     public void onBackPressed() {
         if(somethingisnotyetdone){
             new AlertDialog.Builder(this)
-                    .setMessage("Go Back?")
+                    .setMessage(notYetDoneMessage)
                     .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -955,10 +1029,10 @@ public class MainActivity_user extends AppCompatActivity {
             goBack();
             return true;
         }
-        else if(id == R.id.testActivity){
+       /* else if(id == R.id.testActivity){
             startActivity(new Intent(MainActivity_user.this, TestActivity.class));
         }
-
+*/
         return super.onOptionsItemSelected(item);
     }
 
