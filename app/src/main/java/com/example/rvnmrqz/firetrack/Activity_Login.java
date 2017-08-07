@@ -337,19 +337,15 @@ public class Activity_Login extends AppCompatActivity {
                                     message = "Network Error Encountered";
                                     Log.wtf("loadFeed (Volley Error)","NetworkError");
                                     //showSnackbar("You're not connected to internet");
-
                                 } else if (volleyError instanceof ServerError) {
                                     message = "Please check your internet connection";
                                     Log.wtf("loadFeed (Volley Error)","ServerError");
-
                                 } else if (volleyError instanceof AuthFailureError) {
                                     message = "Please check your internet connection";
                                     Log.wtf("loadFeed (Volley Error)","AuthFailureError");
-
                                 } else if (volleyError instanceof ParseError) {
                                     message = "An error encountered, Please try again";
                                     Log.wtf("loadFeed (Volley Error)","ParseError");
-
                                 } else if (volleyError instanceof NoConnectionError) {
                                     message = "No internet connection";
                                     Log.wtf("loadFeed (Volley Error)","NoConnectionError");

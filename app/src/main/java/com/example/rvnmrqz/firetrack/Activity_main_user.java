@@ -487,15 +487,12 @@ public class Activity_main_user extends AppCompatActivity {
                             } else if (volleyError instanceof ParseError) {
                                 message = "An error encountered, Please try again";
                                 Log.wtf("loadFeed (Volley Error)","ParseError");
-
                             } else if (volleyError instanceof NoConnectionError) {
                                 message = "No internet connection";
                                 Log.wtf("loadFeed (Volley Error)","NoConnectionError");
-
                             } else if (volleyError instanceof TimeoutError) {
                                 message = "Connection Timeout";
                                 Log.wtf("loadFeed (Volley Error)","TimeoutError");
-
                             }
                             showFeedMessage(true,message,"Refresh");
 

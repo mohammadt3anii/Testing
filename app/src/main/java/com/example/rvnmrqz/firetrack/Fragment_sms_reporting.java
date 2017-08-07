@@ -194,6 +194,7 @@ public class Fragment_sms_reporting extends Fragment {
                             coordinates = c.getString(c.getColumnIndex(dbHelper.COL_COORDINATES));
                             txtLocation.setText("{"+coordinates+"}");
                             showLoadingLayout(true,true,"Finding nearest fire station");
+                            findNearestBarangay();
                         }else{
                             Toast.makeText(getActivity(), "No Coordinates Saved", Toast.LENGTH_SHORT).show();
                         }
@@ -379,7 +380,6 @@ public class Fragment_sms_reporting extends Fragment {
     protected void findNearestBarangay(){
         BackgroundWorker backgroundWorker = new BackgroundWorker();
         backgroundWorker.execute(coordinates);
-
     }
 
   class BackgroundWorker extends AsyncTask<String,Void,Integer> {
