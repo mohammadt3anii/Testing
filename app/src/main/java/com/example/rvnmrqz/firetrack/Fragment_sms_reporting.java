@@ -63,9 +63,12 @@ public class Fragment_sms_reporting extends Fragment {
     Button btnSend;
     int ctr = 0;
     TextView txtLocation;
-    static ArrayList<String> barangays;
-    static ArrayList<String> cell;
+    static ArrayList<String> b_name;
+    static ArrayList<String> b_cell;
+    static ArrayList<LatLng> b_coordinates;
+
     public static Activity context;
+
     int barangay_local_id;
     static String selectedBarangay=null;
 
@@ -268,6 +271,7 @@ public class Fragment_sms_reporting extends Fragment {
                     //scan nearest fire station
                     showLoadingLayout(true,true,"Finding nearest fire station");
                     //method here for scanning nearest fire station
+                    findNearestBarangay();
                 }
             }
 
@@ -366,108 +370,20 @@ public class Fragment_sms_reporting extends Fragment {
         }
     }
 
-    //BARANGAY LIST
-  /*
-   protected static void populateAutoCompleteBarangay(){
-        barangays = new ArrayList<>();
-        cell = new ArrayList<>();
-
-        //Popualting arraylist
-        Cursor c = dbHelper.getSqliteData("SELECT * FROM "+dbHelper.TABLE_BARANGAY+";");
-        if(c!=null && c.getCount()>0){
-            Log.wtf("getBarangay","cursor is not null");
-            c.moveToFirst();
-            do{
-                barangays.add(c.getString(c.getColumnIndex(dbHelper.BARANGAY_NAME)));
-                cell.add(c.getString(c.getColumnIndex(dbHelper.BARANGAY_CEL)));
-            }while (c.moveToNext());
-        }
-        else{
-            Log.wtf("getBarangay","cursor is null");
-            Toast.makeText(context, "There are No Barangay contact details saved", Toast.LENGTH_SHORT).show();
-            new AlertDialog.Builder(context)
-                    .setTitle("Sync Barangay Details")
-                    .setMessage("Do you want to sync barangay details?")
-                    .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            new SyncBarangay(context,1,true);
-                        }
-                    })
-                    .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-
-                        }
-                    })
-                    .show();
-        }
-
-        //passing arraylist to adapter
-        final ArrayAdapter<String> adapter = new ArrayAdapter<String>(context, R.layout.support_simple_spinner_dropdown_item, barangays);
-        auto_barangay.setAdapter(adapter);
-
-        //select listener
-        auto_barangay.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
-                int index = barangays.indexOf(adapter.getItem(position)); // to get the original position of item in arraylist
-                if(cell.get(index).trim().equals("null")){
-                    number=null;
-                    txtNumber.setText("<NO NUMBER>");
-                    auto_barangay.setError("Barangay has NO number");
-                }
-                else{
-                    txtNumber.setText(cell.get(index)+"");
-                    txtMessage.requestFocus();
-                    number=cell.get(index).trim();
-                }
-                selectedBarangay=auto_barangay.getText().toString();
-
-            }
-        });
-    }
-    protected void setDefaultBarangay(){
-        //get the barangay id of user logged
-        //set the barangay details in textviews
-        Cursor c = dbHelper.getSqliteData("SELECT "+dbHelper.BARANGAY_LOC_ID+" FROM "+dbHelper.TABLE_BARANGAY+" u INNER JOIN "+dbHelper.TABLE_USER +" b ON u."+dbHelper.COL_BARANGAY_ID+" = b."+dbHelper.COL_BARANGAY_ID+";" );
-        if(c!=null && c.getCount()>0){
-                Log.wtf("setDefualtBarangay","c is not null");
-                c.moveToFirst();
-                barangay_local_id = Integer.parseInt(c.getString(c.getColumnIndex(dbHelper.BARANGAY_LOC_ID)));
-                Log.wtf("setDefualtBarangay","barangay_local_id: "+barangay_local_id);
-
-                auto_barangay.setText(barangays.get(barangay_local_id));
-                String number = cell.get(barangay_local_id);
-                if(number.equals("null")){
-                    txtNumber.setText("<NO NUMBER>");
-                    auto_barangay.setError("Barangay has NO number");
-                    this.number=null;
-                }else{
-                    txtNumber.setText(number);
-                    this.number = number;
-                }
-                selectedBarangay = auto_barangay.getText().toString();
-                auto_barangay.requestFocus();
-                try{
-                    getActivity().getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
-                }catch (Exception e){
-                    Toast.makeText(getActivity(), "Failed to open keyboard", Toast.LENGTH_SHORT).show();
-                }
-            }
-    }
-*/
-
   //FINDING NEAREST FIRE STATION
- /*
-  //  String position = origin_marker.getPosition().latitude+","+origin_marker.getPosition().longitude;
-                Log.wtf("onMarkerDragEnd","\nMarker: "+marker.getPosition()+"\nOrigin:"+origin_marker.getPosition());
-                BackgroundWorker backgroundWorker = new BackgroundWorker();
-                backgroundWorker.execute(position);
+
+   // String position = origin_marker.getPosition().latitude+","+origin_marker.getPosition().longitude;
+     //           Log.wtf("onMarkerDragEnd","\nMarker: "+marker.getPosition()+"\nOrigin:"+origin_marker.getPosition());
+
+
+    protected void findNearestBarangay(){
+        BackgroundWorker backgroundWorker = new BackgroundWorker();
+        backgroundWorker.execute(coordinates);
+
+    }
 
   class BackgroundWorker extends AsyncTask<String,Void,Integer> {
-      LatLng origin_marker_position;
+      LatLng reporter_location;
 
       @Override
       protected Integer doInBackground(String... params) {
@@ -478,15 +394,15 @@ public class Fragment_sms_reporting extends Fragment {
 
               double latitude = Double.parseDouble(latlong[0]);
               double longitude = Double.parseDouble(latlong[1]);
-              origin_marker_position = new LatLng(latitude,longitude);
+              reporter_location = new LatLng(latitude,longitude);
               int index = findNearestPoint();
               return index;
           }catch (Exception e){
               Log.wtf("doInbackground",e.getMessage());
               return -1;
           }
-
       }
+
 
       @Override
       protected void onPreExecute() {
@@ -499,14 +415,16 @@ public class Fragment_sms_reporting extends Fragment {
               float nearest=0;
               float temp1=0;
               int index=0;
-              LatLng currentPosition = origin_marker_position;
+              LatLng reporter = reporter_location;
 
-              nearest  =   getDistance(currentPosition, directionPositionLists[activeRoute].get(0));
-              for (int x=0;x<directionPositionLists[activeRoute].size();x++){
+              nearest  =   getDistance(reporter, b_coordinates.get(0));
+              for (int x=0;x<b_coordinates.size();x++){
 
-                  temp1 = getDistance(currentPosition, directionPositionLists[activeRoute].get(x));
+                  temp1 = getDistance(reporter, b_coordinates.get(x));
+
                   Log.wtf("findnearestPointLoop["+x+"]","temp = "+temp1+"\nnearest = "+nearest);
                   if(temp1<=nearest){
+                        //temp is lower
                       nearest = temp1;
                       index=x;
                   }else{
@@ -527,8 +445,10 @@ public class Fragment_sms_reporting extends Fragment {
       protected void onPostExecute(Integer integer) {
           super.onPostExecute(integer);
           if(integer!=-1){
-              //animate camera
-              animateCameraView(integer+1);
+              Log.wtf("onPostExecute","worker is done");
+              //hide the loading layout
+              //show the barangay name in textview and its number
+
           }
       }
 
@@ -548,7 +468,7 @@ public class Fragment_sms_reporting extends Fragment {
 
 
   }
-*/
+
 
     //SENDING
     protected void btnSendListener(){
