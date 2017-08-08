@@ -28,7 +28,8 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 
 public class Activity_main_truck extends AppCompatActivity {
 
-    RelativeLayout tab1,tab2,tab3;
+    FrameLayout tab1;
+    RelativeLayout tab2,tab3;
     ImageButton btnFullscreen;
     boolean fullscreen=false;
     public static AHBottomNavigation bottomNavigation;
@@ -43,7 +44,7 @@ public class Activity_main_truck extends AppCompatActivity {
 
         dbHelper = new DBHelper(this);
         frameContainer = (FrameLayout) findViewById(R.id.truck_containter);
-        tab1 = (RelativeLayout) findViewById(R.id.truck_tab1);
+        tab1 = (FrameLayout) findViewById(R.id.truck_tab1);
         tab2 = (RelativeLayout) findViewById(R.id.truck_tab2);
         tab3 = (RelativeLayout) findViewById(R.id.truck_tab3);
         btnFullscreen = (ImageButton) findViewById(R.id.truck_imgbtnFullScreen);
