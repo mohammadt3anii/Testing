@@ -6,7 +6,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.rvnmrqz.firetrack.Activity_main_truck">
-
     <com.aurelhubert.ahbottomnavigation.AHBottomNavigation
         android:textAlignment="center"
         android:id="@+id/truck_bottomnavigation"
@@ -19,14 +18,49 @@
         android:layout_above="@id/truck_bottomnavigation"
         android:id="@+id/truck_containter"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
-        <android.support.design.widget.FloatingActionButton
-            android:id="@+id/truck_floatingbutton"
-            android:layout_gravity="bottom|right"
-            android:layout_margin="16dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+        android:layout_height="match_parent">
+        <!--MAP-->
+        <RelativeLayout
+            android:background="#dcc2a4"
+            android:id="@+id/truck_tab1"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <ImageButton
+                android:id="@+id/truck_imgbtnFullScreen"
+                android:src="@drawable/ic_fulllscreen_black"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <FrameLayout
+                android:id="@+id/truck_fragment_container"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </FrameLayout>
+        </RelativeLayout>
+        <!--REPORTS-->
+        <RelativeLayout
+            android:visibility="gone"
+            android:id="@+id/truck_tab2"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_centerInParent="true"
+                android:text="REPORT LAYOUT"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
+        <!--ACCOUNT-->
+        <RelativeLayout
+            android:visibility="gone"
+            android:id="@+id/truck_tab3"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:layout_centerInParent="true"
+                android:text="ACCOUNT LAYOUT"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </RelativeLayout>
     </FrameLayout>
+
 
 </RelativeLayout>

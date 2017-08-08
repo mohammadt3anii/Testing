@@ -23,10 +23,9 @@
         android:layout_above="@id/app_title"
         android:layout_width="150dp"
         android:layout_height="150dp" />
-
     <TextView
         android:textAlignment="center"
-        android:text="Copyright © 2017"
+        android:text="Exclusive for Valenzuela City Only"
         android:padding="16dp"
         android:layout_alignParentBottom="true"
         android:layout_width="match_parent"

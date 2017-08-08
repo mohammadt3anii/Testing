@@ -19,36 +19,22 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
 
-public class Fragment_myreportmap extends Fragment implements OnMapReadyCallback{
+public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
 
     GoogleMap mGooglemap;
     MapView mMapView;
 
-    private LatLng camera;
-    String title="",snippetmsg="";
-   // private LatLng camera = new LatLng(12.8797, 121.7740);
-    LinearLayout progresslayout, maplayout;
     View myview;
-    Marker mark;
 
-    public Fragment_myreportmap() {
+
+    public Fragment_truck_map() {
         // Required empty public constructor
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        String cor = getArguments().getString("coordinates");
-        title = getArguments().getString("title");
-        snippetmsg = getArguments().getString("snippet");
-        if(cor!=null){
-            try{
-                String[] latLng = cor.split(",");
-                camera = new LatLng( Double.parseDouble(latLng[0]), Double.parseDouble(latLng[1]));
-            }catch (Exception e){
-                camera = new LatLng(12.8797, 121.7740);
-            }
-        }
+
 
     }
 
@@ -62,9 +48,6 @@ public class Fragment_myreportmap extends Fragment implements OnMapReadyCallback
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        ((AppCompatActivity)getActivity()).getSupportActionBar().setTitle("Map View");
-        progresslayout = (LinearLayout) getActivity().findViewById(R.id.map_progresslayout);
-        maplayout = (LinearLayout) getActivity().findViewById(R.id.map_maplayout);
 
         mMapView = (MapView) myview.findViewById(R.id.map);
         if(mMapView !=null){
@@ -82,14 +65,7 @@ public class Fragment_myreportmap extends Fragment implements OnMapReadyCallback
         mGooglemap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         //philippine view
         LatLng philView = new LatLng(12.8797, 121.7740);
-      //  mGooglemap.animateCamera(CameraUpdateFactory.newLatLngZoom(philView, 6));
-        mGooglemap.animateCamera(CameraUpdateFactory.newLatLngZoom(camera,24));
-        addmarker(camera,title,snippetmsg);
-    }
-
-    protected void addmarker(LatLng coor,String title, String snippetmsg){
-        mark =  mGooglemap.addMarker(new MarkerOptions().position(coor).title(title).snippet(snippetmsg));
-      //  mark.showInfoWindow();
+        mGooglemap.animateCamera(CameraUpdateFactory.newLatLngZoom(philView, 6));
     }
 
 }

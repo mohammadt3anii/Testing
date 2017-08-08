@@ -14,13 +14,17 @@ import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
@@ -37,6 +41,8 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.android.volley.AuthFailureError;
@@ -53,6 +59,7 @@ import com.android.volley.TimeoutError;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.model.LatLng;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -62,6 +69,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static android.content.Context.LOCATION_SERVICE;
+import static com.google.android.gms.internal.zzip.runOnUiThread;
 
 
 /**
@@ -85,9 +93,22 @@ public class Fragment_online_reporting extends Fragment {
     Button btnSubmit;
     private LocationManager locationManager;
     private LocationListener locationListener;
-    String coordinates =null;
+
     String user_account_id;
-    int nearest_barangayid=-1;
+
+    int barangay_local_id=-1;
+    static String selectedBarangay=null;
+    static String number=null;
+    String coordinates =null;
+
+    LinearLayout loadinglayout;
+    ProgressBar loadingprogressbar;
+    TextView loadingTextview;
+
+
+    static ArrayList<Integer> b_local_id;
+    static ArrayList<String> b_name;
+    static ArrayList<LatLng> b_coordinates;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -114,6 +135,11 @@ public class Fragment_online_reporting extends Fragment {
         btnSubmitListener();
         txtAdditionalInfo = (EditText) getActivity().findViewById(R.id.txtAdditionalInfo);
         txtDigits = (TextView) getActivity().findViewById(R.id.txtDigits);
+
+        loadinglayout = (LinearLayout) getActivity().findViewById(R.id.online_loading_layout);
+        loadingprogressbar = (ProgressBar) getActivity().findViewById(R.id.online_loading_progressbar);
+        loadingTextview = (TextView) getActivity().findViewById(R.id.online_loading_textview);
+
         txtAdditionalInfo.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -131,6 +157,9 @@ public class Fragment_online_reporting extends Fragment {
 
             }
         });
+        populateBarangayArrayListDetails();
+
+
 
         pd = new ProgressDialog(getActivity());
 
@@ -264,6 +293,21 @@ public class Fragment_online_reporting extends Fragment {
         super.onDestroyView();
     }
 
+    protected void showLoadingLayout(boolean showlayout, boolean showprogress, String textviewMsg){
+        if(showlayout){
+            loadinglayout.setVisibility(View.VISIBLE);
+            if(showprogress){
+                loadingprogressbar.setVisibility(View.VISIBLE);
+            }else {
+                loadingprogressbar.setVisibility(View.GONE);
+            }
+            loadingTextview.setText(textviewMsg);
+        }else{
+            loadinglayout.setVisibility(View.GONE);
+        }
+
+    }
+
     protected void showLocationChoices(){
 
         Log.wtf("Dialog","Location Choices shown");
@@ -289,6 +333,9 @@ public class Fragment_online_reporting extends Fragment {
                             c.moveToFirst();
                             coordinates = c.getString(c.getColumnIndex(dbhelper.COL_COORDINATES));
                             txtLocation.setText("{"+coordinates+"}");
+                            showLoadingLayout(true,true,"Finding nearest fire station");
+                            barangay_local_id=-1;
+                            findNearestBarangay();
                         }else{
                             Toast.makeText(getActivity(), "No Coordinates Saved", Toast.LENGTH_SHORT).show();
                         }
@@ -298,6 +345,8 @@ public class Fragment_online_reporting extends Fragment {
                         Log.wtf("Dialog","Current Location Selected");
                         txtLocation.setText("Tap to Set");
                         coordinates=null;
+                        barangay_local_id=-1;
+                        showLoadingLayout(false,false,null);
                         getCurrentLocation();
                         break;
                     case 2:
@@ -358,6 +407,10 @@ public class Fragment_online_reporting extends Fragment {
                     txtLocation.setText("{"+coordinates+"}");
                     Toast.makeText(getActivity(), "Location Added, Thanks!", Toast.LENGTH_SHORT).show();
                     stopLocationListener();
+                    //scan nearest fire station
+                    showLoadingLayout(true,true,"Finding nearest fire station");
+                    //method here for scanning nearest fire station
+                    findNearestBarangay();
                 }
             }
 
@@ -523,28 +576,34 @@ public class Fragment_online_reporting extends Fragment {
             @Override
             public void onClick(View v) {
                 Log.wtf("btnSubmitListener","Clicked");
-                if (coordinates != null) {
-                    new AlertDialog.Builder(getActivity())
-                            .setTitle("Confirmation")
-                            .setMessage("Send your report now?")
-                            .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    sendReport();
-                                }
-                            })
-                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
+                if(isNetworkAvailable()){
+                    //network is available
+                    if (coordinates != null) {
+                        new AlertDialog.Builder(getActivity())
+                                .setTitle("Confirmation")
+                                .setMessage("Send your report now?")
+                                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        sendReport();
+                                    }
+                                })
+                                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
 
-                                }
-                            })
-                    .show();
-                }//END OF COORDINATES IS NOT NULL
-                else {
-                    txtLocation.requestFocus();
-                    txtLocation.setError("No Location Given");
+                                    }
+                                })
+                                .show();
+                    }//END OF COORDINATES IS NOT NULL
+                    else {
+                        txtLocation.requestFocus();
+                        txtLocation.setError("No Location Given");
+                    }
+                }else{
+                    showSnackbar();
                 }
+
             }
         });
     }
@@ -619,34 +678,6 @@ public class Fragment_online_reporting extends Fragment {
         requestQue.add(stringReq);
     }
 
-    private void getNearestBarangay(){
-        //get nearest barangay
-        ArrayList<Integer> barangay_id = new ArrayList();
-        ArrayList<String> barangay_coordinates = new ArrayList<>();
-        int id;
-        String coordinates;
-        Cursor c = dbhelper.getSqliteData("SELECT * FROM "+dbhelper.TABLE_BARANGAY+";");
-        if(c!=null){
-            if(c.getCount()>0){
-                c.moveToFirst();
-                //populate arraylist
-                do{
-                    id = c.getInt(c.getColumnIndex(dbhelper.COL_BARANGAY_ID));
-                    coordinates = c.getString(c.getColumnIndex(dbhelper.BARANGAY_COORDINATES));
-                    barangay_id.add(id);
-                    barangay_coordinates.add(coordinates);
-                }while (c.moveToNext());
-
-                for(int x =0; x<barangay_id.size();x++){
-                    int temp0;
-
-                }
-
-
-            }
-        }
-    }
-
     private void showLoadingDialog() {
            pd.setTitle("Submitting");
            pd.setMessage("Please wait...");
@@ -659,8 +690,169 @@ public class Fragment_online_reporting extends Fragment {
                 pd.dismiss();
             }
 
+    private boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        return activeNetworkInfo != null && activeNetworkInfo.isConnected();
+    }
+
+    //FINDING NEAREST FIRE STATION
+    private void populateBarangayArrayListDetails(){
+        b_local_id = new ArrayList<>();
+        b_name = new ArrayList<>();
+        b_coordinates = new ArrayList<>();
+
+        Log.wtf("populateBarangayArrayList()","CALLED");
+        dbhelper = new DBHelper(getActivity());
+        Cursor c = dbhelper.getSqliteData("SELECT * FROM "+dbhelper.TABLE_BARANGAY);
+        if(c!=null){
+            if(c.getCount()>0){
+                c.moveToFirst();
+                do{
+                    int barangay_local_id = c.getInt(c.getColumnIndex(dbhelper.BARANGAY_LOC_ID));
+                    String name = c.getString(c.getColumnIndex(dbhelper.BARANGAY_NAME));
+                    String coor = c.getString(c.getColumnIndex(dbhelper.BARANGAY_COORDINATES));
+                    Log.wtf("Index: "+c.getString(c.getColumnIndex(dbhelper.BARANGAY_LOC_ID)),"Name: "+name+"\nCoordinates: "+coor);
+                    b_local_id.add(barangay_local_id);
+                    b_name.add(name);
+                    if(coor==null){
+                        Log.wtf("populatebarangay()","coordinate is null");
+                        b_coordinates.add(null);
+                    }else{
+                        if(coor.trim().equalsIgnoreCase("") || coor.trim().equalsIgnoreCase("null")){
+                            Log.wtf("populatebarangay()","coordinate is NOT NULL, "+coor);
+                            b_coordinates.add(null);
+                        }
+                        else{
+                            try{
+                                String latlng[] = coor.trim().split(",");
+                                double lat = Double.parseDouble(latlng[0].trim());
+                                double longti = Double.parseDouble(latlng[1].trim());
+                                LatLng latLng = new LatLng(lat,longti);
+                                Log.wtf("populateBarangayarrayList()","Latlng: "+latLng);
+                                b_coordinates.add(latLng);
+                            }catch (Exception e){
+                                Log.wtf("populatebarangaylist (convertion of string to latlng)","Exception: "+e.getMessage());
+                                b_coordinates.add(null);
+                            }
+                        }
+                    }
+                }while (c.moveToNext());
+            }
+        }
+    }
+    protected void findNearestBarangay(){
+        BackgroundWorker backgroundWorker =  new BackgroundWorker();
+        backgroundWorker.execute(coordinates);
+    }
+    class BackgroundWorker extends AsyncTask<String,Void,Integer> {
+        LatLng reporter_location;
+        @Override
+        protected Integer doInBackground(String... params) {
+            try{
+                Log.wtf("doinBackground","CALLED");
+                String[] latlong =  params[0].split(",");
+                Log.wtf("latlong","value: "+params[0]);
+
+                double latitude = Double.parseDouble(latlong[0]);
+                double longitude = Double.parseDouble(latlong[1]);
+                reporter_location = new LatLng(latitude,longitude);
+                int index = findNearestPoint();
+                return index;
+            }catch (Exception e){
+                Log.wtf("doInbackground",e.getMessage());
+                return -1;
+            }
+        }
 
 
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            Log.wtf("onPreExecute","called");
+        }
+
+
+        private int findNearestPoint(){
+            try {
+                Log.wtf("FindNearestPoint()","CALLED");
+                float nearest=0;
+                float temp1=0;
+                int index=0;
+                LatLng reporter = reporter_location;
+
+                //find the first index of not null
+                for (int y = 0; y<b_coordinates.size();y++){
+                    if(b_coordinates.get(y)!=null){
+                        index = y;
+                        break;
+                    }
+                }
+
+                Log.wtf("findNearest()","Index nearest is "+index);
+                nearest  =   getDistance(reporter, b_coordinates.get(index));
+
+                for (int x=index;x<b_coordinates.size();x++){
+                    if(b_coordinates.get(x)!=null){
+                        temp1 = getDistance(reporter, b_coordinates.get(x));
+                        Log.wtf("findnearestPointLoop["+x+"]","temp = "+temp1+"\nnearest = "+nearest);
+                        if(temp1<=nearest){
+                            //temp is lower
+                            nearest = temp1;
+                            index=x;// index ng array list
+                        }
+                    }
+                }
+                Log.wtf("(findNearestPoint)","Nearest point is index: "+index);
+                return index;
+
+            }catch (Exception e){
+                Log.wtf("Exception (findNearestPoint)",e.getMessage());
+                return -1;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(final Integer index) {
+            super.onPostExecute(index);
+            if(index!=-1){
+                Log.wtf("onPostExecute","worker is done, index: "+index);
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        showLoadingLayout(true,false,"Ready to Send");
+                        barangay_local_id = b_local_id.get(index);
+                        Toast.makeText(getActivity(), "You can now send your report", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }
+
+        private float getDistance(LatLng position, LatLng assumed){
+            float results[] = new float[1];
+            Location.distanceBetween(
+                    position.latitude,
+                    position.longitude,
+                    assumed.latitude,
+                    assumed.longitude,
+                    results);
+            Log.wtf("showDistance","Result is "+results[0]+" meter");
+            float value = results[0];
+            return value;
+        }
+    }//end of backgroundworker
+
+    protected void showSnackbar(){
+        View parentLayout = getActivity().findViewById(android.R.id.content);
+        Snackbar.make(parentLayout, "You're offline", Snackbar.LENGTH_LONG)
+                .setAction("Go online", new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        startActivity(new Intent(android.provider.Settings.ACTION_WIFI_SETTINGS));
+                    }
+                })
+                .setActionTextColor(getResources().getColor(android.R.color.holo_red_light ))
+                .show();
+    }
 }
 
 

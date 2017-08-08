@@ -47,16 +47,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>
-     <!--
-      <AutoCompleteTextView
-             android:inputType="textNoSuggestions"
-             android:hint="Barangay Name"
-             android:selectAllOnFocus="true"
-             android:id="@+id/autoComplete_Barangay"
-             android:completionThreshold="1"
-             android:layout_width="match_parent"
-             android:layout_height="wrap_content" />
-              -->
+
             <TextView
                 android:text="To Barangay:"
                 android:layout_width="match_parent"

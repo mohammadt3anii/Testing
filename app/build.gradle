@@ -39,3 +39,4 @@ dependencies {
     compile 'com.aurelhubert:ahbottomnavigation:2.0.6'
     testCompile 'junit:junit:4.12'
 }
+

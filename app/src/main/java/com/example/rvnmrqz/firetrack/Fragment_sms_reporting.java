@@ -64,6 +64,8 @@ public class Fragment_sms_reporting extends Fragment {
     Button btnSend;
     int ctr = 0;
     TextView txtLocation;
+
+    static ArrayList<Integer> b_local_id;
     static ArrayList<String> b_name;
     static ArrayList<String> b_cell;
     static ArrayList<LatLng> b_coordinates;
@@ -197,7 +199,6 @@ public class Fragment_sms_reporting extends Fragment {
                         barangay_local_id=-1;
                         number=null;
                         txtBarangayName.setText("");
-                        txtNumber.setText("");
                         getCurrentLocation();
                         break;
                     case 2:
@@ -301,7 +302,6 @@ public class Fragment_sms_reporting extends Fragment {
                 return;
             }
             Log.wtf("request Location","Called");
-           // showLoadingLayout(true,true,"Waiting for location");
             locationManager.requestLocationUpdates("gps", 10000, 0, locationListener);
 
         }catch (Exception e){
@@ -365,57 +365,7 @@ public class Fragment_sms_reporting extends Fragment {
         }
     }
 
-    //FINDING NEAREST FIRE STATION
-    private void populateBarangayArrayListDetails(){
-        b_name = new ArrayList<>();
-        b_cell = new ArrayList<>();
-        b_coordinates = new ArrayList<>();
 
-        Log.wtf("populateBarangayArrayList()","CALLED");
-        dbHelper = new DBHelper(getActivity());
-        Cursor c = dbHelper.getSqliteData("SELECT * FROM "+dbHelper.TABLE_BARANGAY);
-        if(c!=null){
-            if(c.getCount()>0){
-                c.moveToFirst();
-                do{
-                    String name = c.getString(c.getColumnIndex(dbHelper.BARANGAY_NAME));
-                    String cell = c.getString(c.getColumnIndex(dbHelper.BARANGAY_CEL));
-                    String coor = c.getString(c.getColumnIndex(dbHelper.BARANGAY_COORDINATES));
-                    Log.wtf("Index: "+c.getString(c.getColumnIndex(dbHelper.BARANGAY_LOC_ID)),"Name: "+name+"\nCellphone: "+cell+"\nCoordinates: "+coor);
-
-                    b_name.add(name);
-                    b_cell.add(cell);
-
-                    if(coor==null){
-                        Log.wtf("populatebarangay()","coordinate is null");
-                        b_coordinates.add(null);
-                    }else{
-                        if(coor.trim().equalsIgnoreCase("") || coor.trim().equalsIgnoreCase("null")){
-                            Log.wtf("populatebarangay()","coordinate is NOT NULL, "+coor);
-                            b_coordinates.add(null);
-                        }
-                        else{
-                            try{
-                                String latlng[] = coor.trim().split(",");
-                                double lat = Double.parseDouble(latlng[0].trim());
-                                double longti = Double.parseDouble(latlng[1].trim());
-                                LatLng latLng = new LatLng(lat,longti);
-                                Log.wtf("populateBarangayarrayList()","Latlng: "+latLng);
-                                b_coordinates.add(latLng);
-                            }catch (Exception e){
-                                Log.wtf("populatebarangaylist (convertion of string to latlng)","Exception: "+e.getMessage());
-                                b_coordinates.add(null);
-                            }
-                        }
-                    }
-                }while (c.moveToNext());
-            }
-        }
-    }
-    protected void findNearestBarangay(){
-        BackgroundWorker backgroundWorker = new BackgroundWorker();
-        backgroundWorker.execute(coordinates);
-    }
 
     //SENDING
     protected void btnSendListener(){
@@ -600,6 +550,60 @@ public class Fragment_sms_reporting extends Fragment {
     }
 
 
+    //FINDING NEAREST FIRE STATION
+    private void populateBarangayArrayListDetails(){
+        b_local_id = new ArrayList<>();
+        b_name = new ArrayList<>();
+        b_cell = new ArrayList<>();
+        b_coordinates = new ArrayList<>();
+
+        Log.wtf("populateBarangayArrayList()","CALLED");
+        dbHelper = new DBHelper(getActivity());
+        Cursor c = dbHelper.getSqliteData("SELECT * FROM "+dbHelper.TABLE_BARANGAY);
+        if(c!=null){
+            if(c.getCount()>0){
+                c.moveToFirst();
+                do{
+                    int barangay_loc_id = c.getInt(c.getColumnIndex(dbHelper.BARANGAY_LOC_ID));
+                    String name = c.getString(c.getColumnIndex(dbHelper.BARANGAY_NAME));
+                    String cell = c.getString(c.getColumnIndex(dbHelper.BARANGAY_CEL));
+                    String coor = c.getString(c.getColumnIndex(dbHelper.BARANGAY_COORDINATES));
+                    Log.wtf("Index: "+c.getString(c.getColumnIndex(dbHelper.BARANGAY_LOC_ID)),"Name: "+name+"\nCellphone: "+cell+"\nCoordinates: "+coor);
+
+                    b_local_id.add(barangay_loc_id);
+                    b_name.add(name);
+                    b_cell.add(cell);
+
+                    if(coor==null){
+                        Log.wtf("populatebarangay()","coordinate is null");
+                        b_coordinates.add(null);
+                    }else{
+                        if(coor.trim().equalsIgnoreCase("") || coor.trim().equalsIgnoreCase("null")){
+                            Log.wtf("populatebarangay()","coordinate is NOT NULL, "+coor);
+                            b_coordinates.add(null);
+                        }
+                        else{
+                            try{
+                                String latlng[] = coor.trim().split(",");
+                                double lat = Double.parseDouble(latlng[0].trim());
+                                double longti = Double.parseDouble(latlng[1].trim());
+                                LatLng latLng = new LatLng(lat,longti);
+                                Log.wtf("populateBarangayarrayList()","Latlng: "+latLng);
+                                b_coordinates.add(latLng);
+                            }catch (Exception e){
+                                Log.wtf("populatebarangaylist (convertion of string to latlng)","Exception: "+e.getMessage());
+                                b_coordinates.add(null);
+                            }
+                        }
+                    }
+                }while (c.moveToNext());
+            }
+        }
+    }
+    protected void findNearestBarangay(){
+        BackgroundWorker backgroundWorker = new BackgroundWorker();
+        backgroundWorker.execute(coordinates);
+    }
     class BackgroundWorker extends AsyncTask<String,Void,Integer> {
         LatLng reporter_location;
 
@@ -628,6 +632,36 @@ public class Fragment_sms_reporting extends Fragment {
             Log.wtf("onPreExecute","called");
         }
 
+        @Override
+        protected void onPostExecute(final Integer index) {
+            super.onPostExecute(index);
+            if(index!=-1){
+                Log.wtf("onPostExecute","worker is done, index: "+index);
+                runOnUiThread(new Runnable() {
+                    public void run() {
+                        showLoadingLayout(false,false,null);
+                        barangay_local_id = index;
+                        number = b_cell.get(index);
+                        if(number!=null){
+                            if(number.trim().equalsIgnoreCase("null") || number.trim().equalsIgnoreCase("")){
+                                txtNumber.setText("NO NUMBER");
+                                number=null;
+                            }else{
+                                txtNumber.setText(b_cell.get(index));
+                            }
+                        }else{
+                            txtNumber.setText("NO NUMBER");
+                            number=null;
+                        }
+                        txtBarangayName.setText(b_name.get(index));
+                    }
+                });
+
+                //hide the loading layout
+                //show the barangay name in textview and its number
+
+            }
+        }
 
         private int findNearestPoint(){
             try {
@@ -665,37 +699,6 @@ public class Fragment_sms_reporting extends Fragment {
             }catch (Exception e){
                 Log.wtf("Exception (findNearestPoint)",e.getMessage());
                 return -1;
-            }
-        }
-
-        @Override
-        protected void onPostExecute(final Integer index) {
-            super.onPostExecute(index);
-            if(index!=-1){
-                Log.wtf("onPostExecute","worker is done, index: "+index);
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        showLoadingLayout(false,false,null);
-                        barangay_local_id = index;
-                        number = b_cell.get(index);
-                        if(number!=null){
-                            if(number.trim().equalsIgnoreCase("null") || number.trim().equalsIgnoreCase("")){
-                                txtNumber.setText("NO NUMBER");
-                                number=null;
-                            }else{
-                                txtNumber.setText(b_cell.get(index));
-                            }
-                        }else{
-                            txtNumber.setText("NO NUMBER");
-                            number=null;
-                        }
-                        txtBarangayName.setText(b_name.get(index));
-                    }
-                });
-
-                //hide the loading layout
-                //show the barangay name in textview and its number
-
             }
         }
 
