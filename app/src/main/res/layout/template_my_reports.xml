@@ -4,8 +4,7 @@
     android:layout_height="match_parent"
     android:background="@drawable/rounded_shape"
     android:orientation="vertical"
-    android:paddingTop="12sp"
-    >
+    android:paddingTop="12sp">
         <TextView
             android:id="@+id/report_id"
             android:visibility="gone"

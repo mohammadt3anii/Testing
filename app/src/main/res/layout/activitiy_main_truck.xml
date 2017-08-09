@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -19,36 +18,102 @@
         android:id="@+id/truck_containter"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        <!--MAP-->
+        <!--TAB 1-->
         <FrameLayout
-            android:background="#dcc2a4"
+
             android:id="@+id/truck_tab1"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
+            <!--MAP-->
             <FrameLayout
                 android:id="@+id/truck_fragment_container"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
             </FrameLayout>
-            <ImageButton
-                android:id="@+id/truck_imgbtnFullScreen"
-                android:src="@drawable/ic_fulllscreen_black"
+            <!--FULL SCREEN BUTTON-->
+            <LinearLayout
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+                android:layout_height="wrap_content">
+                <ImageButton
+                    android:layout_margin="8dp"
+                    android:padding="4dp"
+                    android:background="#80ffffff"
+                    android:id="@+id/truck_imgbtnFullScreen"
+                    android:src="@drawable/ic_fulllscreen_black"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <!--LOADING LAYOUT-->
+            <LinearLayout
+                android:id="@+id/tab1_loadinglayout"
+                android:visibility="gone"
+                android:background="#80ffffff"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                    <ProgressBar
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+                    <TextView
+                        android:text="Loading"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" />
+            </LinearLayout>
         </FrameLayout>
-        <!--REPORTS-->
+        <!--TAB 2-->
         <RelativeLayout
-            android:visibility="gone"
             android:id="@+id/truck_tab2"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <TextView
-                android:layout_centerInParent="true"
-                android:text="REPORT LAYOUT"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
+            <!--LISTVIEW LAYOUT-->
+            <LinearLayout
+                android:id="@+id/tab2_listviewlayout"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ListView
+                    android:id="@+id/truck_listview_reports"
+                    android:dividerHeight="10.0sp"
+                    android:divider="#80ffffff"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                </ListView>
+            </LinearLayout>
+            <!--LOADING LAYOUT-->
+            <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/tab2_loadinglayout"
+                android:gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <ProgressBar
+                    android:id="@+id/tab2_loading_progressbar"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:id="@+id/tab2_loading_textview"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+            <!--ERROR MESSAGE LAYOUT-->
+            <LinearLayout
+                android:visibility="gone"
+                android:id="@+id/tab2_errormessagelayout"
+                android:gravity="center"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+                <TextView
+                    android:id="@+id/tab2_errorTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <Button
+                    android:id="@+id/tab2_errorButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
         </RelativeLayout>
-        <!--ACCOUNT-->
+        <!--TAB 3-->
         <RelativeLayout
             android:visibility="gone"
             android:id="@+id/truck_tab3"
@@ -61,6 +126,4 @@
                 android:layout_height="wrap_content" />
         </RelativeLayout>
     </FrameLayout>
-
-
 </RelativeLayout>

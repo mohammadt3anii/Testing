@@ -274,7 +274,7 @@ public class Fragment_myreports extends Fragment {
         public View getView(int position, View convertView, ViewGroup parent) {
             //Inflating the layout
             LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            View row = inflater.inflate(R.layout.template_reports,parent,false);
+            View row = inflater.inflate(R.layout.template_my_reports,parent,false);
 
             //Get the reference to the view objects
             TextView txtid  = (TextView) row.findViewById(R.id.report_id);

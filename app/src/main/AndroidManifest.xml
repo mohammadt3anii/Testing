@@ -51,7 +51,7 @@
             android:exported="false" />
 
         <receiver
-            android:name=".MyReceiver"
+            android:name=".RebootReceiver"
             android:enabled="true"
             android:exported="false">
             <intent-filter>

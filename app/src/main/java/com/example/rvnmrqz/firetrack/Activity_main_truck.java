@@ -51,7 +51,6 @@ public class Activity_main_truck extends AppCompatActivity {
         initializeBottomNav();
         btnFullScreenListener();
         displayFragmentMap();
-
     }
 
 
@@ -119,27 +118,52 @@ public class Activity_main_truck extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if(!fullscreen){
-                    fullscreen=true;
-                    //make it fullscreen
-                    btnFullscreen.setImageResource(R.drawable.ic_fullscreen_exit_black);
-                    bottomNavigation.setVisibility(View.GONE);
-                    getSupportActionBar().hide();
-                    //  bottomNavigation.hideBottomNavigation();
+                    fullScreenMap();
                 }else{
                     //exit from fullscreen
-                    btnFullscreen.setImageResource(R.drawable.ic_fulllscreen_black);
-                    fullscreen=false;
-                    getSupportActionBar().show();
-                    bottomNavigation.setVisibility(View.VISIBLE);
-                    bottomNavigation.restoreBottomNavigation();
+                   exitFullScreenMap();
                 }
             }
         });
     }
+    protected void fullScreenMap(){
+        fullscreen=true;
+        //make it fullscreen
+        btnFullscreen.setImageResource(R.drawable.ic_fullscreen_exit_black);
+        bottomNavigation.setVisibility(View.GONE);
+        getSupportActionBar().hide();
+    }
+    protected void exitFullScreenMap(){
+        btnFullscreen.setImageResource(R.drawable.ic_fulllscreen_black);
+        fullscreen=false;
+        getSupportActionBar().show();
+        bottomNavigation.setVisibility(View.VISIBLE);
+        bottomNavigation.restoreBottomNavigation();
+    }
     protected void displayFragmentMap(){
-
       FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.truck_fragment_container,new Fragment_truck_map()).commit();
+    }
+    //************************************************************
+
+    //TAB2
+    protected void loadReportNotifications(){
+
+
+    }
+    public static void setReportNotificationBadge(int notifcount){
+        bottomNavigation.setNotification((notifcount+""),1);
+    }
+    //************************************************************
+
+
+    @Override
+    public void onBackPressed() {
+        if(fullscreen){
+            exitFullScreenMap();
+        }else{
+            super.onBackPressed();
+        }
     }
 
     @Override

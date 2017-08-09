@@ -321,7 +321,9 @@ public class Activity_Login extends AppCompatActivity {
                                     }
                                 }else{
                                     //wrong pass
-                                    enableForgotPass();
+                                       if(email_address.contains("@")){
+                                           enableForgotPass();
+                                       }
                                     Toast.makeText(Activity_Login.this, "Wrong username or password", Toast.LENGTH_SHORT).show();
                                 }
                                 closeLoadingDialog();

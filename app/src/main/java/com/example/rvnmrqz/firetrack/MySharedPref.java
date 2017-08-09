@@ -7,8 +7,9 @@ package com.example.rvnmrqz.firetrack;
 public class MySharedPref {
 
     public static String SHAREDPREF_NAME = "fireTRACK";
-    public static String REMINDER = "reminder"; //("no","")
     public static String LOGGED = "logged"; //("user","truck")
+
+    public static String REMINDER = "reminder"; //("no","")
     public static String NOTIF = "notif"; //("no","")
     public static String NOTIF_COUNT = "notif_count"; //(integer value)
     public static String NOTIFICATIONS = "notifications";//master of notifications switch (boolean)

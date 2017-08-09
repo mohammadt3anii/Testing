@@ -23,7 +23,6 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
 
     GoogleMap mGooglemap;
     MapView mMapView;
-
     View myview;
 
 
@@ -35,13 +34,12 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        myview = inflater.inflate(R.layout.fragment_map, container, false);
+        myview = inflater.inflate(R.layout.fragment_truck_map, container, false);
         return myview;
     }
 

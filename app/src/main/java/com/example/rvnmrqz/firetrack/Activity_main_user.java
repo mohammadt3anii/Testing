@@ -982,7 +982,24 @@ public class Activity_main_user extends AppCompatActivity {
                 getSupportActionBar().setTitle("FireTRACK");
                 bottomNavigation.setCurrentItem(0);
             }else{
-                super.onBackPressed();
+                //already in home
+                new AlertDialog.Builder(this)
+                        .setTitle("Closing")
+                        .setMessage("You're about to close the application, continue?")
+                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                Activity_main_user.this.finish();
+                            }
+                        })
+                        .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .show();
+
             }
         }
     }
