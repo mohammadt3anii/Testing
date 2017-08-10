@@ -3,60 +3,77 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp">
+    android:padding="8dp"
+    android:background="@drawable/rounded_shape">
+    <TextView
+        android:id="@+id/report_template_firenotif_id"
+        android:visibility="gone"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
     <ImageView
-        android:layout_margin="4dp"
+        android:id="@+id/report_template_image"
         android:src="@drawable/fire_picture_sample"
         android:scaleType="centerCrop"
-        android:id="@+id/report_image"
+        android:layout_width="85dp"
+        android:layout_height="110dp"
+        android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
-        android:layout_width="80dp"
-        android:layout_height="105dp" />
+        android:layout_alignParentStart="true" />
     <LinearLayout
-        android:layout_toRightOf="@id/report_image"
+        android:layout_toRightOf="@id/report_template_image"
         android:paddingLeft="8dp"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
         <TextView
-            android:id="@+id/report_datetime"
+            android:textColor="#2d2d2d"
+            android:id="@+id/report_template_datetime"
+            android:textSize="18sp"
             android:text="12-04-2017 06:56:32"
             android:textStyle="bold"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-        <LinearLayout
-            android:orientation="horizontal"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-            <TextView
-                android:text="Coordinates: "
-                android:textStyle="bold"
+            android:layout_height="match_parent">
+            <ImageButton
+                android:id="@+id/report_template_showInMapButton"
+                android:scaleType="centerInside"
+                android:layout_alignParentLeft="true"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:backgroundTint="@color/colorPrimary"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:src="@drawable/ic_pin_in_map" />
+            <LinearLayout
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@id/report_template_showInMapButton"
+                android:orientation="vertical"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-            <TextView
-                android:id="@+id/report_coordinates"
-                android:text="120.4455231,14.5522680"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content" />
-        </LinearLayout>
-        <Button
-            android:layout_gravity="right"
-            android:text="Show in Map"
-            android:textAllCaps="false"
-            android:backgroundTint="@color/colorPrimary"
-            android:textColor="@color/colorWhite"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+                android:layout_height="wrap_content">
+                <TextView
+                    android:textColor="#2d2d2d"
+                    android:text="Coordinates"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+                <TextView
+                    android:textColor="#2d2d2d"
+                    android:id="@+id/report_template_coordinates"
+                    android:text="120.4455231,14.5522680"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+        </RelativeLayout>
         <TextView
-            android:text="Details"
+            android:textColor="#2d2d2d"
+            android:text="More Details"
             android:textStyle="bold"
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
         <com.ms.square.android.expandabletextview.ExpandableTextView
-            android:id="@+id/notif_message"
-            app:maxCollapsedLines="1"
+            android:id="@+id/report_template_moreDetails"
+            app:maxCollapsedLines="0"
             app:animDuration="200"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
@@ -82,6 +99,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
             <Button
+                android:id="@+id/report_template_declineButton"
                 android:textColor="@color/colorWhite"
                 android:minWidth="0dp"
                 android:minHeight="0dp"
@@ -91,6 +109,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content" />
             <Button
+                android:id="@+id/report_template_acceptButton"
                 android:textColor="@color/colorWhite"
                 android:minWidth="0dp"
                 android:minHeight="0dp"

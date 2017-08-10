@@ -77,12 +77,32 @@ public class DBHelper extends SQLiteOpenHelper {
     //reports
     public static final String TABLE_REPORTS ="tbl_reports";
     public static final String COL_REPORT_ID = "report_id";
-    public static final String COL_REPORTER_id ="reporter_id";
-    public static final String COL_REPORT_STATUS ="report_status";
+    public static final String COL_REPORT_FIRE_STATUS = "fire_status"; //on going | stopped
+    public static final String COL_ALARM_LEVEL = "alarm_level";
+    public static final String COL_REPORTER_id ="reporter_id"; //Account_id of the user
+    public static final String COL_REPORT_STATUS ="report_status"; //APPROVED|DECLINED
     public static final String COL_REPORT_DATETIME = "report_datetime";
     public static final String COL_REPORT_ADDITIONAL_INFO = "additional_info";
     public static final String COL_REPORT_COORDINATES  = "coordinates";
     public static final String COL_REPORT_PICUTRE = "picture";
+
+    //firenotifs
+    //not used in sqlite, just used to reference online table
+    public static final String TABLE_FIRENOTIFS="tbl_firenotifs";
+    public static final String COL_FIRENOTIF_ID="firenotif_id";
+    //public static final String COL_REPORT_ID = "report_id";
+    public static final String COL_FIRENOTIF_RECEIVER = "firenotif_receiver";
+    public static final String COL_BARANGAY_ID_SENDER = "barangay_id_sender";
+    public static final String COL_DELIVERED = "delivered";
+
+    //firenotif_response
+    public static final String TABLE_FIRENOTIF_RESPONSE = "firenotif_response";
+    public static final String COL_RESPONSE_ID = "response_id";
+    public static final String COL_RESPONDENT_ID= "respondent_id";
+    //public static final String COL_FIRENOTIF_ID = "firenotif_id";
+    public static final String COL_RESPONSES_DATETIME = "response_datetime";
+    public static final String COL_RESPONSE = "response";
+
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);

@@ -20,7 +20,6 @@
         android:layout_height="match_parent">
         <!--TAB 1-->
         <FrameLayout
-
             android:id="@+id/truck_tab1"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
@@ -62,19 +61,22 @@
         </FrameLayout>
         <!--TAB 2-->
         <RelativeLayout
+            android:visibility="gone"
             android:id="@+id/truck_tab2"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <!--LISTVIEW LAYOUT-->
             <LinearLayout
+                android:padding="8dp"
                 android:id="@+id/tab2_listviewlayout"
                 android:visibility="gone"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent">
+                android:layout_height="match_parent"
+                android:background="#a7a7a7">
                 <ListView
-                    android:id="@+id/truck_listview_reports"
+                    android:id="@+id/tab2_listview_reports"
                     android:dividerHeight="10.0sp"
-                    android:divider="#80ffffff"
+                    android:divider="@android:color/transparent"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
                 </ListView>
@@ -84,6 +86,7 @@
                 android:visibility="gone"
                 android:id="@+id/tab2_loadinglayout"
                 android:gravity="center"
+                android:orientation="vertical"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <ProgressBar
@@ -91,6 +94,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <TextView
+                    android:text="Loading, Please wait..."
                     android:id="@+id/tab2_loading_textview"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
@@ -104,11 +108,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
                 <TextView
+                    android:textSize="18sp"
+                    android:textStyle="bold"
                     android:id="@+id/tab2_errorTextView"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
                 <Button
                     android:id="@+id/tab2_errorButton"
+                    android:backgroundTint="@color/colorPrimary"
+                    android:textColor="@color/colorWhite"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content" />
             </LinearLayout>

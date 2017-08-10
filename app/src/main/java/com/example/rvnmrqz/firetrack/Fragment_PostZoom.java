@@ -43,10 +43,8 @@ public class Fragment_PostZoom extends Fragment {
         txtClose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(getContext(), "Close Zoom Layout", Toast.LENGTH_SHORT).show();
                 getActivity().getSupportFragmentManager().popBackStack();
                 Activity_main_user.bottomNavigation.setCurrentItem(1);
-
             }
         });
 

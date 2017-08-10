@@ -297,7 +297,8 @@ public class Service_Notification extends Service {
                 // Jarray has 0 length
             }
         }catch (Exception ee){
-            Toast.makeText(Service_Notification.this,ee.getMessage(),Toast.LENGTH_SHORT).show();
+            Log.wtf("Notification_service: Insert()","An exceotion occured: "+ee.getMessage());
+            // Toast.makeText(Service_Notification.this,ee.getMessage(),Toast.LENGTH_SHORT).show();
         }
     }
 
