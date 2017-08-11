@@ -41,10 +41,11 @@
         <activity android:name=".TestActivity" />
         <activity
             android:name=".Activity_DatabaseManager"
-            android:theme="@style/Theme.AppCompat.Light" />
+            android:theme="@style/Theme.AppCompat.Light"/>
         <activity
             android:name=".Activity_User_Settings"
-            android:label="Settings" />
+            android:label="Settings"
+            android:screenOrientation="portrait"/>
 
         <service
             android:name=".Service_Notification"
@@ -61,7 +62,9 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".Activity_main_truck"></activity>
+        <activity
+            android:name=".Activity_main_truck"
+            android:screenOrientation="portrait"></activity>
 
         <!-- GOOGLE MAPS -->
         <meta-data

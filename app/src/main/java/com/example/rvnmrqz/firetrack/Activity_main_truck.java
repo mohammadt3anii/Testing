@@ -1,7 +1,6 @@
 package com.example.rvnmrqz.firetrack;
 
 
-import android.app.Fragment;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -12,7 +11,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -25,6 +23,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.FrameLayout;
@@ -53,17 +53,11 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
-import com.google.android.gms.ads.formats.NativeAd;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -76,11 +70,16 @@ public class Activity_main_truck extends AppCompatActivity {
     public static AHBottomNavigation bottomNavigation;
     AHBottomNavigationItem item1,item2,item3;
 
+    Animation anim_slideLeft, anim_slideRight;
+
     //tab 1
     FrameLayout tab1;
     ImageButton btnFullscreen;
+    static ImageButton btnShowRoutesDetails;
     boolean fullscreen=false;
     FrameLayout frameContainer;
+    public static LinearLayout routesDetailsLayout,  button_extra_Layout_showDetails;
+    public static boolean routesDetailsIsShown = true;
 
     //tab 2
     RelativeLayout tab2;
@@ -120,13 +119,77 @@ public class Activity_main_truck extends AppCompatActivity {
                 account_id = c.getString(c.getColumnIndex(dbHelper.COL_ACC_ID));
             }
         }
-
         frameContainer = (FrameLayout) findViewById(R.id.truck_containter);
         tab1 = (FrameLayout) findViewById(R.id.truck_tab1);
         tab2 = (RelativeLayout) findViewById(R.id.truck_tab2);
         tab3 = (RelativeLayout) findViewById(R.id.truck_tab3);
         btnFullscreen = (ImageButton) findViewById(R.id.truck_imgbtnFullScreen);
         initializeBottomNav();
+
+        //tab 1
+        routesDetailsLayout = (LinearLayout) findViewById(R.id.truck_routesDetailsLayout);
+        btnShowRoutesDetails = (ImageButton) findViewById(R.id.truck_imgbtnShowRouteDetails);
+        btnShowRoutesDetails.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Animation counterclockwise = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.rotate_counterclock);
+                Animation clockwise = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.rotate_clockwise);
+
+                if(routesDetailsIsShown){
+                    //hide it
+                    btnShowRoutesDetails.startAnimation(clockwise);
+                    anim_slideLeft = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.slide_left);
+                    routesDetailsLayout.startAnimation(anim_slideLeft);
+                    anim_slideLeft.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                            Log.wtf("anim_slideLeft","onAnimationStart");
+                            routesDetailsIsShown=false;
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            Log.wtf("anim_slideLeft","onAnimationEnd");
+                            routesDetailsLayout.setVisibility(View.INVISIBLE);
+                            routesDetailsIsShown=false;
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+                }else{
+                    //show it
+                    btnShowRoutesDetails.startAnimation(counterclockwise);
+                    anim_slideRight = AnimationUtils.loadAnimation(getApplicationContext(),R.anim.slide_right);
+                    routesDetailsLayout.startAnimation(anim_slideRight);
+                    anim_slideRight.setAnimationListener(new Animation.AnimationListener() {
+                        @Override
+                        public void onAnimationStart(Animation animation) {
+                            Log.wtf("anim_slideRight","onAnimationStart");
+                            routesDetailsIsShown=true;
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animation animation) {
+                            Log.wtf("anim_slideRight","onAnimationEnd");
+                            routesDetailsLayout.setVisibility(View.VISIBLE);
+                            routesDetailsIsShown=true;
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animation animation) {
+
+                        }
+                    });
+                }
+            }
+        });
+        button_extra_Layout_showDetails = (LinearLayout) findViewById(R.id.truck_button_extra_Layout_showDetails);
+        if(routesDetailsLayout.isShown()) routesDetailsIsShown=true;
+        else  routesDetailsIsShown=false;
+
         btnFullScreenListener();
         displayFragmentMap();
 
@@ -136,9 +199,7 @@ public class Activity_main_truck extends AppCompatActivity {
         tab2_swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.tab2_swipeRefreshLayout);
         tab2_swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
-            public void onRefresh() { loadReportNotifications(); tab2_swipeRefreshLayout.setRefreshing(false);
-            }
-        });
+            public void onRefresh() { loadReportNotifications(); tab2_swipeRefreshLayout.setRefreshing(false);}});
         tab2_errormsgLayout = (LinearLayout) findViewById(R.id.tab2_errormessagelayout);
         tab2_errorTxt = (TextView) findViewById(R.id.tab2_errorTextView);
         tab2_errorButton = (Button) findViewById(R.id.tab2_errorButton);
@@ -148,11 +209,9 @@ public class Activity_main_truck extends AppCompatActivity {
                 loadReportNotifications();
             }
         });
-
         tab2_loadingLayout = (LinearLayout) findViewById(R.id.tab2_loadinglayout);
         tab2_loadingProgressbar = (ProgressBar) findViewById(R.id.tab2_loading_progressbar);
         tab2_loadingTxt = (TextView) findViewById(R.id.tab2_loading_textview);
-
         tab2_zoomlayout = (FrameLayout) findViewById(R.id.tab2_zoomlayout);
         tab2_zoomExitTxt = (TextView) findViewById(R.id.truck_tab2_zoom_txtClose);
         tab2_zoomExitTxt.setOnClickListener(new View.OnClickListener() {
@@ -260,6 +319,18 @@ public class Activity_main_truck extends AppCompatActivity {
     protected void displayFragmentMap(){
       FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.truck_fragment_container,new Fragment_truck_map()).commit();
+    }
+    public static void showRoutesDetails(boolean show){
+        routesDetailsIsShown=false;
+        if(show){
+            button_extra_Layout_showDetails.setVisibility(View.VISIBLE);
+            btnShowRoutesDetails.performClick();
+
+        }else{
+            button_extra_Layout_showDetails.setVisibility(View.INVISIBLE);
+            routesDetailsLayout.setVisibility(View.INVISIBLE);
+
+        }
     }
 
     //************************************************************

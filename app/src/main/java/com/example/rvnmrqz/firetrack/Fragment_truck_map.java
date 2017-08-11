@@ -1,6 +1,7 @@
 package com.example.rvnmrqz.firetrack;
 
 import android.os.Bundle;
+import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
@@ -38,6 +39,8 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
     static LatLng destinationLatlng;
     Animation anim_down, anim_up;
 
+    LinearLayout loadinglayout;
+
     static LinearLayout confirmationLayout;
     Button btnAccept,btnDecline, btnCancel;
 
@@ -62,6 +65,7 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        loadinglayout = (LinearLayout) getActivity().findViewById(R.id.truck_map_progresslayout);
         confirmationLayout = (LinearLayout) getActivity().findViewById(R.id.truck_map_confirmationLayout);
         btnAccept = (Button) getActivity().findViewById(R.id.confirmation_acceptButton);
         btnDecline = (Button) getActivity().findViewById(R.id.confirmation_declineButton);
@@ -72,8 +76,6 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
             mMapView.onResume();
             mMapView.getMapAsync(this);
         }
-
-
         confirmationButtonListener();
     }
 
@@ -86,9 +88,9 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
         resetMapView();
     }
 
-
     //PREVIEW AND CONFIRMATION
     public static void showPreviewOnMap(boolean show){
+        Activity_main_truck.showRoutesDetails(true);
         if(show){
            confirmationLayout.setVisibility(View.VISIBLE);
         }else{
@@ -102,6 +104,9 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
                 Log.wtf("confirmationListener","Button Accept is clicked");
                 Toast.makeText(getContext(),"Accept is clicked",Toast.LENGTH_SHORT).show();
                 hideConfirmationLayout();
+
+                //remove the item from the list and insert in tbl_firenotif_response
+
             }
         });
         btnDecline.setOnClickListener(new View.OnClickListener() {
@@ -109,7 +114,11 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
             public void onClick(View v) {
                 Log.wtf("confirmationListener","Button Decline is clicked");
                 Toast.makeText(getContext(),"Decline is clicked",Toast.LENGTH_SHORT).show();
+                resetMapView();
                 hideConfirmationLayout();
+
+                //remove the item from the list and insert in tbl_firenotif_response
+
             }
         });
         btnCancel.setOnClickListener(new View.OnClickListener() {
@@ -143,7 +152,6 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
         });
     }
 
-
     protected static void addDestinationmarker(LatLng coor,String title, String snippetmsg){
         destinationLatlng = coor;
         animateSingleCameraView(false,destinationLatlng);
@@ -166,9 +174,12 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
     }
 
     protected void resetMapView(){
+        loadinglayout.setVisibility(View.GONE);
         mGooglemap.clear();
         LatLng valenzuela_center = new LatLng(14.699006, 120.983371);
         mGooglemap.animateCamera(CameraUpdateFactory.newLatLngZoom(valenzuela_center, 13.5f));
+        Activity_main_truck.showRoutesDetails(false);
+
     }
 
 
