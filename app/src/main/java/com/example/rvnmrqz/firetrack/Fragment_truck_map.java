@@ -1,5 +1,6 @@
 package com.example.rvnmrqz.firetrack;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.MainThread;
 import android.support.annotation.Nullable;
@@ -32,12 +33,13 @@ import java.nio.DoubleBuffer;
 
 public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
 
+    Context context;
     static GoogleMap mGooglemap;
     MapView mMapView;
     View myview;
     static Marker destination_marker;
     static LatLng destinationLatlng;
-    Animation anim_down, anim_up;
+    Animation anim_down;
 
     static LinearLayout loadinglayout;
 
@@ -81,11 +83,24 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
-        MapsInitializer.initialize(getContext());
+        MapsInitializer.initialize(context);
         mGooglemap = googleMap;
         mGooglemap.getUiSettings().setMapToolbarEnabled(false);
         mGooglemap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         resetMapView();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        Log.wtf("onAttach","Called");
+        super.onAttach(context);
+        this.context = context;
     }
 
     //PREVIEW AND CONFIRMATION
