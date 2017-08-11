@@ -14,6 +14,7 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -89,7 +90,7 @@ public class Fragment_myreportmap extends Fragment implements OnMapReadyCallback
 
     protected void addmarker(LatLng coor,String title, String snippetmsg){
         mark =  mGooglemap.addMarker(new MarkerOptions().position(coor).title(title).snippet(snippetmsg));
-      //  mark.showInfoWindow();
+        mark.setIcon(BitmapDescriptorFactory.fromResource(R.drawable.fire));
     }
 
 }

@@ -3,10 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="com.example.rvnmrqz.firetrack.Fragment_truck_map">
-
+    <!--PROGRESS LAYOUT-->
     <LinearLayout
         android:visibility="gone"
-        android:id="@+id/map_progresslayout"
+        android:id="@+id/truck_map_progresslayout"
         android:orientation="vertical"
         android:gravity="center"
         android:layout_width="match_parent"
@@ -15,6 +15,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
     </LinearLayout>
+    <!--MAP LAYOUT-->
     <LinearLayout
         android:id="@+id/map_maplayout"
         android:orientation="vertical"
@@ -26,26 +27,41 @@
             android:layout_height="match_parent">
         </com.google.android.gms.maps.MapView>
     </LinearLayout>
+    <!--CONFIRMATION LAYOUT-->
     <LinearLayout
+        android:id="@+id/truck_map_confirmationLayout"
         android:visibility="gone"
-        android:id="@+id/map_report_confirmationLayout"
         android:layout_gravity="bottom"
-        android:orientation="horizontal"
+        android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <Button
+                android:id="@+id/confirmation_declineButton"
+                android:text="Decline"
+                android:textColor="@color/colorWhite"
+                android:backgroundTint="@color/colorPrimary"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <Button
+                android:id="@+id/confirmation_acceptButton"
+                android:text="Accept"
+                android:textColor="@color/colorWhite"
+                android:backgroundTint="@color/colorPrimary"
+                android:layout_weight="1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
         <Button
-            android:text="Decline"
+            android:id="@+id/confirmation_cancelButton"
+            android:text="Cancel"
             android:textColor="@color/colorWhite"
             android:backgroundTint="@color/colorPrimary"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
-        <Button
-            android:text="Accept"
-            android:textColor="@color/colorWhite"
-            android:backgroundTint="@color/colorPrimary"
-            android:layout_weight="1"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content" />
     </LinearLayout>
 

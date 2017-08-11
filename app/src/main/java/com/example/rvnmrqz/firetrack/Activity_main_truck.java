@@ -14,6 +14,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -37,6 +38,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
+import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.NetworkError;
 import com.android.volley.NoConnectionError;
 import com.android.volley.ParseError;
@@ -51,10 +53,12 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigation;
 import com.aurelhubert.ahbottomnavigation.AHBottomNavigationItem;
+import com.google.android.gms.ads.formats.NativeAd;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
 import com.ms.square.android.expandabletextview.ExpandableTextView;
 
 import org.json.JSONArray;
@@ -78,14 +82,17 @@ public class Activity_main_truck extends AppCompatActivity {
     boolean fullscreen=false;
     FrameLayout frameContainer;
 
-
     //tab 2
     RelativeLayout tab2;
+    SwipeRefreshLayout tab2_swipeRefreshLayout;
     LinearLayout tab2_listLayout, tab2_loadingLayout, tab2_errormsgLayout;
+    FrameLayout tab2_zoomlayout;
     ListView tab2_listview;
-    TextView tab2_loadingTxt, tab2_errorTxt;
+    TextView tab2_loadingTxt, tab2_errorTxt, tab2_zoomExitTxt;
     Button tab2_errorButton;
     ProgressBar tab2_loadingProgressbar;
+    TouchImageView tab2_zoomTouchimage;
+    boolean imageIsZoomed=false;
 
     ArrayList<String> report_firenotif_ids_list= new ArrayList<String>();
     ArrayList<String> report_images_list= new ArrayList<String>();
@@ -126,7 +133,12 @@ public class Activity_main_truck extends AppCompatActivity {
         //tab2
         tab2_listLayout = (LinearLayout) findViewById(R.id.tab2_listviewlayout);
         tab2_listview = (ListView) findViewById(R.id.tab2_listview_reports);
-
+        tab2_swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.tab2_swipeRefreshLayout);
+        tab2_swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() { loadReportNotifications(); tab2_swipeRefreshLayout.setRefreshing(false);
+            }
+        });
         tab2_errormsgLayout = (LinearLayout) findViewById(R.id.tab2_errormessagelayout);
         tab2_errorTxt = (TextView) findViewById(R.id.tab2_errorTextView);
         tab2_errorButton = (Button) findViewById(R.id.tab2_errorButton);
@@ -140,6 +152,17 @@ public class Activity_main_truck extends AppCompatActivity {
         tab2_loadingLayout = (LinearLayout) findViewById(R.id.tab2_loadinglayout);
         tab2_loadingProgressbar = (ProgressBar) findViewById(R.id.tab2_loading_progressbar);
         tab2_loadingTxt = (TextView) findViewById(R.id.tab2_loading_textview);
+
+        tab2_zoomlayout = (FrameLayout) findViewById(R.id.tab2_zoomlayout);
+        tab2_zoomExitTxt = (TextView) findViewById(R.id.truck_tab2_zoom_txtClose);
+        tab2_zoomExitTxt.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                zoomImageExit();
+            }
+        });
+        tab2_zoomTouchimage = (TouchImageView) findViewById(R.id.truck_tab2_touchimageview);
+
 
         loadReportNotifications();
     }
@@ -168,6 +191,10 @@ public class Activity_main_truck extends AppCompatActivity {
         bottomNavigation.setOnTabSelectedListener(new AHBottomNavigation.OnTabSelectedListener() {
             @Override
             public boolean onTabSelected(int position, boolean wasSelected) {
+                if(imageIsZoomed){
+                    zoomImageExit();
+                }
+
                 switch (position){
                     case 0:
                         showTab1();
@@ -234,6 +261,7 @@ public class Activity_main_truck extends AppCompatActivity {
       FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.truck_fragment_container,new Fragment_truck_map()).commit();
     }
+
     //************************************************************
 
     //TAB2
@@ -275,14 +303,6 @@ public class Activity_main_truck extends AppCompatActivity {
 
                         //do extraction
 
-                       /* ArrayList<String> report_firenotif_ids_list= new ArrayList<String>();
-                        ArrayList<String> report_images_list= new ArrayList<String>();
-                        ArrayList<String> report_coordinates_list = new ArrayList<String>();
-                        ArrayList<String> report_datetime_list = new ArrayList<String>();
-                        ArrayList<String> report_firestatus_list = new ArrayList<String>();
-                        ArrayList<String> report_alarmlevel_list = new ArrayList<String>();
-                        ArrayList<String> report_additionalInfo_list= new ArrayList<String>();
-                        */
                         String notif_id,encoded_image,coordinates,datetime,firestatus,alarmlevel,additionalInfo;
 
                         for (int i = 0; i < Jarray.length(); i++) {
@@ -338,6 +358,11 @@ public class Activity_main_truck extends AppCompatActivity {
                     Log.wtf("LoadReportNotifications Exception","Error : "+e.getMessage());
                     showTab2MessageLayout(true,e.getMessage(),true,"Retry");
                 }
+
+
+                if(tab2_swipeRefreshLayout.isRefreshing()){
+                    tab2_swipeRefreshLayout.setRefreshing(false);
+                }
             }
         }, new Response.ErrorListener() {
             @Override
@@ -367,6 +392,9 @@ public class Activity_main_truck extends AppCompatActivity {
                     Log.wtf("loadFeed (Volley Error)","TimeoutError");
                 }
                 Log.wtf("Volley Error Message","Error: "+volleyError.getMessage());
+                if(tab2_swipeRefreshLayout.isRefreshing()){
+                    tab2_swipeRefreshLayout.setRefreshing(false);
+                }
                 showTab2MessageLayout(true,message,true,"Retry");
             }
         }){
@@ -378,6 +406,12 @@ public class Activity_main_truck extends AppCompatActivity {
                 return params;
             }
         };
+        int socketTimeout = ServerInfoClass.TIME_OUT;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        stringRequest.setRetryPolicy(policy);
+        stringRequest.setShouldCache(false);
         requestQueue.add(stringRequest);
 
     }
@@ -416,6 +450,21 @@ public class Activity_main_truck extends AppCompatActivity {
             tab2_errormsgLayout.setVisibility(View.GONE);
         }
     }
+    protected void zoomImage(Bitmap bitmap){
+        tab2_zoomlayout.setVisibility(View.VISIBLE);
+        try{
+            tab2_zoomTouchimage.setImageBitmap(bitmap);
+            imageIsZoomed=true;
+        }catch (Exception e){
+            Toast.makeText(this, "Cant load the image", Toast.LENGTH_SHORT).show();
+            Log.wtf("zoomImage()","Exception Encountered: "+e.getMessage());
+        }
+    }
+    protected void zoomImageExit(){
+        tab2_zoomlayout.setVisibility(View.GONE);
+        imageIsZoomed=false;
+    }
+
     public static void setReportNotificationBadge(int notifcount){
         bottomNavigation.setNotification((notifcount+""),1);
     }
@@ -450,23 +499,32 @@ public class Activity_main_truck extends AppCompatActivity {
         }
         @NonNull
         @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
+        public View getView(final int position, View convertView, final ViewGroup parent) {
             //Inflating the layout
             LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View row = inflater.inflate(R.layout.template_fire_report,parent,false);
 
             //Get the reference to the view objects
             TextView id  = (TextView) row.findViewById(R.id.report_template_firenotif_id);
-            ImageView imageView = (ImageView) row.findViewById(R.id.report_template_image);
+            final ImageView imageView = (ImageView) row.findViewById(R.id.report_template_image);
             TextView datetime = (TextView) row.findViewById(R.id.report_template_datetime);
             TextView coordinates = (TextView) row.findViewById(R.id.report_template_coordinates);
-            ExpandableTextView additionalInfo = (ExpandableTextView) row.findViewById(R.id.report_template_moreDetails);
+            TextView moredetailsTXT = (TextView) row.findViewById(R.id.report_template_moredetailsTXT);
+            ExpandableTextView moreDetails = (ExpandableTextView) row.findViewById(R.id.report_template_moreDetails);
+            final ImageButton btnExpand = (ImageButton) row.findViewById(R.id.expand_collapse);
             ImageButton btnShowInMap = (ImageButton) row.findViewById(R.id.report_template_showInMapButton);
 
             btnShowInMap.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(Activity_main_truck.this, "Show in map button is clicked", Toast.LENGTH_SHORT).show();
+                    //extract the coordinate
+                    String parts[] = report_coordinates_list.get(position).trim().split(",");
+                    Double latitude = Double.parseDouble(parts[0]);
+                    Double longtitude = Double.parseDouble(parts[1]);
+
+                    bottomNavigation.setCurrentItem(0);
+                    Fragment_truck_map.showPreviewOnMap(true);
+                    Fragment_truck_map.addDestinationmarker(new LatLng(latitude,longtitude),"Fire Location",report_coordinates_list.get(position));
                 }
             });
             Button btnAccept = (Button) row.findViewById(R.id.report_template_acceptButton);
@@ -484,18 +542,28 @@ public class Activity_main_truck extends AppCompatActivity {
                 }
             });
 
+
+            moredetailsTXT.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    btnExpand.performClick();
+                }
+            });
+            moreDetails.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    btnExpand.performClick();
+                }
+            });
+
             //Providing the element of an array by specifying its position
             id.setText(report_firenotif_ids_list.get(position));
             datetime.setText(report_datetime_list.get(position));
             coordinates.setText(report_coordinates_list.get(position));
 
-            String fire_stat = report_firestatus_list.get(position);
-            String alarmlvl = report_alarmlevel_list.get(position);
-            String additionalinfo = report_additionalInfo_list.get(position);
+            String moredetails = "Fire Status: "+report_firestatus_list.get(position)+"\nAlarm Level: "+report_alarmlevel_list.get(position)+"\nAdditional Info: "+report_additionalInfo_list.get(position);
 
-            String moredetails = "Fire Status: "+fire_stat+"\nAlarm Level: "+alarmlvl+"\nAdditional Info: "+additionalinfo;
-
-            additionalInfo.setText(moredetails);
+            moreDetails.setText(moredetails);
 
             String encoded_post_picture = report_images_list.get(position);
             if(encoded_post_picture!=null && encoded_post_picture.length()>10){
@@ -516,29 +584,57 @@ public class Activity_main_truck extends AppCompatActivity {
                 public void onClick(View v) {
                     Log.wtf("adapter","Image is clicked");
                     Toast.makeText(Activity_main_truck.this, "image is clicked", Toast.LENGTH_SHORT).show();
-                   // initialLayout.setVisibility(View.GONE);
-                    //frame1.setVisibility(View.VISIBLE);
-                    //frame2.setVisibility(View.VISIBLE);
-                    //addToBackStack(new Fragment_PostZoom(),"post_zoom");
-                    //BitmapDrawable drawable = (BitmapDrawable) picture.getDrawable();
-                    //postImageClicked = drawable.getBitmap();
+                    Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+                    zoomImage(bitmap);
                 }
             });
-
-
 
             return row;
         }
     }
     //************************************************************
 
-
     @Override
     public void onBackPressed() {
-        if(fullscreen){
-            exitFullScreenMap();
-        }else{
-            super.onBackPressed();
+        switch (bottomNavigation.getCurrentItem()){
+            case 0:
+                //map
+                if(fullscreen){
+                    exitFullScreenMap();
+                }else{
+                    new AlertDialog.Builder(this)
+                            .setTitle("Closing")
+                            .setMessage("You're about to exit the app, continue?")
+                            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    finish();
+                                }
+                            })
+                            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+
+                                }
+                            })
+                            .show();
+                }
+                break;
+            case 1:
+                //reports
+                if(imageIsZoomed){
+                    zoomImageExit();
+                }else{
+                    bottomNavigation.setCurrentItem(0);
+                }
+                break;
+            case 2:
+                //my account
+                super.onBackPressed();
+                break;
+            default:
+                Log.wtf("onBackPressed","DEFAULT IN SWITCH");
+                break;
         }
     }
 

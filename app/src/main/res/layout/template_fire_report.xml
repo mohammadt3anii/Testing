@@ -16,7 +16,6 @@
         android:scaleType="centerCrop"
         android:layout_width="85dp"
         android:layout_height="110dp"
-        android:layout_centerVertical="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
     <LinearLayout
@@ -66,6 +65,7 @@
             </LinearLayout>
         </RelativeLayout>
         <TextView
+            android:id="@+id/report_template_moredetailsTXT"
             android:textColor="#2d2d2d"
             android:text="More Details"
             android:textStyle="bold"
