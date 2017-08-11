@@ -39,7 +39,7 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
     static LatLng destinationLatlng;
     Animation anim_down, anim_up;
 
-    LinearLayout loadinglayout;
+    static LinearLayout loadinglayout;
 
     static LinearLayout confirmationLayout;
     Button btnAccept,btnDecline, btnCancel;
@@ -173,14 +173,12 @@ public class Fragment_truck_map extends Fragment implements OnMapReadyCallback{
         mGooglemap.animateCamera(CameraUpdateFactory.newCameraPosition(position));
     }
 
-    protected void resetMapView(){
+    public static void resetMapView(){
         loadinglayout.setVisibility(View.GONE);
+        confirmationLayout.setVisibility(View.GONE);
         mGooglemap.clear();
         LatLng valenzuela_center = new LatLng(14.699006, 120.983371);
         mGooglemap.animateCamera(CameraUpdateFactory.newLatLngZoom(valenzuela_center, 13.5f));
         Activity_main_truck.showRoutesDetails(false);
-
     }
-
-
 }

@@ -11,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AlertDialog;
@@ -73,6 +74,7 @@ public class Activity_main_truck extends AppCompatActivity {
     Animation anim_slideLeft, anim_slideRight;
 
     //tab 1
+    int shownfirenotifid_in_Map;
     FrameLayout tab1;
     ImageButton btnFullscreen;
     static ImageButton btnShowRoutesDetails;
@@ -92,6 +94,7 @@ public class Activity_main_truck extends AppCompatActivity {
     ProgressBar tab2_loadingProgressbar;
     TouchImageView tab2_zoomTouchimage;
     boolean imageIsZoomed=false;
+    ReportAdapter adapter;
 
     ArrayList<String> report_firenotif_ids_list= new ArrayList<String>();
     ArrayList<String> report_images_list= new ArrayList<String>();
@@ -411,7 +414,7 @@ public class Activity_main_truck extends AppCompatActivity {
                         //initialize the adapter
                         showTab2Listview(true);
                         tab2_listview.setAdapter(null);
-                        ReportAdapter adapter = new ReportAdapter(getApplicationContext(),
+                        adapter = new ReportAdapter(getApplicationContext(),
                                 report_firenotif_ids_list,
                                 report_images_list,
                                 report_coordinates_list,
@@ -421,16 +424,16 @@ public class Activity_main_truck extends AppCompatActivity {
                                 report_additionalInfo_list);
                         tab2_listview.setAdapter(adapter);
 
+                        updateDeliveredReportsNotif();
+
                     }else{
                         //show no reports yet UI
-                        showTab2MessageLayout(true,"No Fire Reports Yet",true,"Refresh");
+                        showTab2MessageLayout(true,"No Fire Reports",true,"Refresh");
                     }
                 }catch (Exception e){
                     Log.wtf("LoadReportNotifications Exception","Error : "+e.getMessage());
                     showTab2MessageLayout(true,e.getMessage(),true,"Retry");
                 }
-
-
                 if(tab2_swipeRefreshLayout.isRefreshing()){
                     tab2_swipeRefreshLayout.setRefreshing(false);
                 }
@@ -589,6 +592,7 @@ public class Activity_main_truck extends AppCompatActivity {
                 @Override
                 public void onClick(View v) {
                     //extract the coordinate
+                    shownfirenotifid_in_Map = Integer.parseInt(report_firenotif_ids_list.get(position));
                     String parts[] = report_coordinates_list.get(position).trim().split(",");
                     Double latitude = Double.parseDouble(parts[0]);
                     Double longtitude = Double.parseDouble(parts[1]);
@@ -602,14 +606,14 @@ public class Activity_main_truck extends AppCompatActivity {
             btnAccept.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(Activity_main_truck.this, "Button Accept is clicked", Toast.LENGTH_SHORT).show();
+                   showConfirmationDialog(position,report_firenotif_ids_list.get(position),1);
                 }
             });
             Button btnDecline = (Button) row.findViewById(R.id.report_template_declineButton);
             btnDecline.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Toast.makeText(Activity_main_truck.this, "Button Decline is clicked", Toast.LENGTH_SHORT).show();
+                    showConfirmationDialog(position,report_firenotif_ids_list.get(position),0);
                 }
             });
 
@@ -663,6 +667,155 @@ public class Activity_main_truck extends AppCompatActivity {
             return row;
         }
     }
+
+    protected void showConfirmationDialog(final int position, final String notif_id, final int respond){
+        String response = "accept";
+        if(respond==0) response="decline";
+
+        new AlertDialog.Builder(this)
+                .setTitle("Confirmation")
+                .setMessage("You are about to "+response+" this report, continue?")
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        sendResponse(position,notif_id,respond);
+                    }
+                })
+                .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                })
+                .show();
+    }
+    protected void sendResponse(final int position, String notif_id, final int respond ){
+        String response = "ACCEPTED";
+        if(respond==0) response="DECLINED";
+
+        final String query = "INSERT INTO "+dbHelper.TABLE_FIRENOTIF_RESPONSE+"("+dbHelper.COL_FIRENOTIF_ID+","+dbHelper.COL_RESPONSE+","+dbHelper.COL_RESPONSES_DATETIME+") VALUES("+notif_id+",'"+response+"',NOW());";
+
+        String url = ServerInfoClass.HOST_ADDRESS+"/do_query.php";
+        RequestQueue requestQueue  = Volley.newRequestQueue(getApplicationContext());
+        StringRequest request = new StringRequest(Request.Method.POST, url
+                , new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                Log.wtf("updateDeliveredReportsNotif()","Response: "+response);
+                //delete from the listview
+                if(response.trim().equalsIgnoreCase("Process Successful")){
+                    // plot the position in map
+                    if(shownfirenotifid_in_Map == Integer.parseInt(report_firenotif_ids_list.get(position)) && respond==0){
+                        //it is currently shown in map and it is declined
+                        Fragment_truck_map.resetMapView();
+                    }
+                    deleteIndexFromList(position);
+
+                }
+
+
+            }
+        }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                Log.wtf("updateDeliveredReportsNotif()","Error: "+error.getMessage());
+                //show an error message
+
+            }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<>();
+                String entries ="";
+                for(int x = 0;x<report_firenotif_ids_list.size();x++){
+                    entries= entries+report_firenotif_ids_list.get(x);
+                    if(x!=(report_firenotif_ids_list.size()-1)){
+                        //not the last item in the list
+                        entries = entries+", ";
+                    }
+                }
+                 Log.wtf("updateDeliveredReportsNotif()","Map<String><String>, Query: "+query);
+                params.put("query",query);
+                return params;
+            }
+        };
+        int socketTimeout = ServerInfoClass.TIME_OUT;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        request.setRetryPolicy(policy);
+        request.setShouldCache(false);
+        requestQueue.add(request);
+    }
+    protected void updateDeliveredReportsNotif(){
+        Log.wtf("updateDeliveredReportsNotif()","CALLED");
+        String url = ServerInfoClass.HOST_ADDRESS+"/do_query.php";
+        RequestQueue requestQueue  = Volley.newRequestQueue(getApplicationContext());
+        StringRequest request = new StringRequest(Request.Method.POST, url
+                , new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Log.wtf("updateDeliveredReportsNotif()","Response: "+response);
+
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        Log.wtf("updateDeliveredReportsNotif()","Error: "+error.getMessage());
+                    }
+        }){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String,String> params = new HashMap<>();
+                String entries ="";
+                for(int x = 0;x<report_firenotif_ids_list.size();x++){
+                    entries= entries+report_firenotif_ids_list.get(x);
+                    if(x!=(report_firenotif_ids_list.size()-1)){
+                        //not the last item in the list
+                        entries = entries+", ";
+                    }
+                }
+                String query = "UPDATE "+dbHelper.TABLE_FIRENOTIFS+" SET "+dbHelper.COL_DELIVERED+" = 1 WHERE "+dbHelper.COL_FIRENOTIF_ID+" IN("+entries+");";
+                Log.wtf("updateDeliveredReportsNotif()","Map<String><String>, Query: "+query);
+                params.put("query",query);
+                return params;
+            }
+        };
+        int socketTimeout = ServerInfoClass.TIME_OUT;
+        RetryPolicy policy = new DefaultRetryPolicy(socketTimeout,
+                DefaultRetryPolicy.DEFAULT_MAX_RETRIES,
+                DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+        request.setRetryPolicy(policy);
+        request.setShouldCache(false);
+        requestQueue.add(request);
+    }
+    protected void deleteIndexFromList(int position){
+        Log.wtf("deleteIndexFromList()","Deleting from index: "+position);
+        report_firenotif_ids_list.remove(position);
+        report_images_list.remove(position);
+        report_coordinates_list.remove(position);
+        report_datetime_list.remove(position);
+        report_firestatus_list.remove(position);
+        report_alarmlevel_list.remove(position);
+        report_additionalInfo_list.remove(position);
+
+        tab2_listview.setAdapter(null);
+        adapter = new ReportAdapter(getApplicationContext(),
+                report_firenotif_ids_list,
+                report_images_list,
+                report_coordinates_list,
+                report_datetime_list,
+                report_firestatus_list,
+                report_alarmlevel_list,
+                report_additionalInfo_list);
+        tab2_listview.setAdapter(adapter);
+
+        Log.wtf("deleteIndexFromList()","report_firenotif_ids_list size: "+report_firenotif_ids_list.size());
+        if(report_firenotif_ids_list.size()==0){
+            showTab2MessageLayout(true,"No Fire Reports",true,"Refresh");
+        }
+    }
+
     //************************************************************
 
     @Override
@@ -720,6 +873,9 @@ public class Activity_main_truck extends AppCompatActivity {
         int id = item.getItemId();
         if(id == R.id.menu_logout){
             logout();
+        }
+        else if(id == R.id.menu_settings){
+            startActivity(new Intent(Activity_main_truck.this, Activity_User_Settings.class));
         }
         return true;
     }

@@ -96,7 +96,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String COL_DELIVERED = "delivered";
 
     //firenotif_response
-    public static final String TABLE_FIRENOTIF_RESPONSE = "firenotif_response";
+    public static final String TABLE_FIRENOTIF_RESPONSE = "tbl_firenotif_response";
     public static final String COL_RESPONSE_ID = "response_id";
     public static final String COL_RESPONDENT_ID= "respondent_id";
     //public static final String COL_FIRENOTIF_ID = "firenotif_id";
